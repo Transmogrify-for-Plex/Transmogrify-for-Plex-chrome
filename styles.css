@@ -1,0 +1,32 @@
+.btn-trailer {
+    background: #CD201F !important;
+    box-shadow: inset 0 1px 0 #DA2D2C !important;
+}
+
+.btn-trailer:hover {
+    background: #DA2D2C !important;
+}
+
+#overlay {
+    display: none;
+    opacity: 0.9;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: black;
+    width: 100%;
+    height: 100%;
+    z-index: 5000;
+}
+
+#trailer {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    text-align: center;
+    width: 1024px;
+    height: 576px;
+    margin-left: -512px; /*half width*/
+    margin-top: -288px; /*half height*/
+    z-index: 5001;
+}

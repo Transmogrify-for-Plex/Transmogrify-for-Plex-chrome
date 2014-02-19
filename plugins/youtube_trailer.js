@@ -46,6 +46,11 @@ function closeTrailer() {
 }
 
 function createTrailerButton(xml) {
+    // don't run if element already exists on page
+    if (document.getElementById('btn-trailer')) {
+        return;
+    }
+
     var trailer_button = document.createElement('button');
     trailer_button.setAttribute('class', "btn btn-lg btn-primary btn-trailer");
     trailer_button.setAttribute('id', 'btn-trailer');

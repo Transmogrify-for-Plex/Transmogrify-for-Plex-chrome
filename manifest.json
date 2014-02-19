@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
 
-  "name": "Plex-y",
+  "name": "Transmogrify for Plex",
   "description": "Adds several features to the Plex/Web 2.0 client for Plex",
   "version": "0.0.1",
   "content_scripts": [

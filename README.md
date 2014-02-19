@@ -1,6 +1,6 @@
-Plex-y
+Transmogrify for Plex
 ==============
-**Plex-y adds several features to the Plex/Web 2.0 client for Plex.**
+**Transmogrify for Plex adds several features to the Plex/Web 2.0 client for Plex.**
 
 Features
 --------------

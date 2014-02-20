@@ -1,6 +1,6 @@
 function getXML(xml_link) {
     var request = new XMLHttpRequest;
-    request.open('GET', xml_link, false);
+    request.open("GET", xml_link, false);
     request.send();
 
     var xml_doc = request.responseXML;
@@ -14,15 +14,15 @@ function insertOverlay() {
     }
 
     // create dark overlay
-    var overlay = document.createElement('div');
-    overlay.setAttribute('id', "overlay");
+    var overlay = document.createElement("div");
+    overlay.setAttribute("id", "overlay");
 
-    document.getElementsByTagName('body')[0].appendChild(overlay);
+    document.getElementsByTagName("body")[0].appendChild(overlay);
 }
 
 function removeOverlay() {
-    if (document.getElementById('overlay')) {
-        var overlay = document.getElementById('overlay');
+    if (document.getElementById("overlay")) {
+        var overlay = document.getElementById("overlay");
         overlay.parentNode.removeChild(overlay);
     }
 }
@@ -31,7 +31,7 @@ function runOnReady() {
     var interval = window.setInterval(function() {
         // page is ready when class 'home-btn' exists.
         // otherwise check again in 1000ms
-        if (document.getElementsByClassName('home-btn').length > 0) {
+        if (document.getElementsByClassName("home-btn").length > 0) {
             main();
             window.clearInterval(interval);
         }
@@ -40,15 +40,15 @@ function runOnReady() {
 
 function prepPlexToken() {
     var plex_token = PLEXWEB.myPlexAccessToken;
-    document.body.setAttribute('data-plextoken', plex_token);
+    document.body.setAttribute("data-plextoken", plex_token);
 }
 
 function getPlexToken() {
-    var script = document.createElement('script');
-    script.appendChild(document.createTextNode('('+ prepPlexToken +')();'));
+    var script = document.createElement("script");
+    script.appendChild(document.createTextNode("("+ prepPlexToken +")();"));
     (document.body || document.head || document.documentElement).appendChild(script);
 
-    return document.body.getAttribute('data-plextoken');
+    return document.body.getAttribute("data-plextoken");
 }
 
 function getServerAddress(plex_token) {
@@ -63,8 +63,8 @@ function getLibrarySections(plex_token) {
 
     var dir_metadata = {};
     for (var i = 0; i < directories.length; i++) {
-        var type = directories[i].getAttribute('type');
-        var section_num = directories[i].getAttribute('path').match(/\/(\d+)$/)[1];
+        var type = directories[i].getAttribute("type");
+        var section_num = directories[i].getAttribute("path").match(/\/(\d+)$/)[1];
 
         dir_metadata[section_num] = {"type": type, "section_num": section_num};
     }
@@ -94,7 +94,7 @@ function main() {
         var parent_item_id = res[1];
 
         // construct xml link
-        var xml_link = 'http://' + server_address + ':32400/library/metadata/' + parent_item_id + '?X-Plex-Token=' + plex_token;
+        var xml_link = "http://" + server_address + ":32400/library/metadata/" + parent_item_id + "?X-Plex-Token=" + plex_token;
 
         // fetch xml
         var xml = getXML(xml_link);
@@ -104,7 +104,7 @@ function main() {
             // It's a tv show index page
         }
         // check if movie
-        else if (xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute('type') === 'movie') {
+        else if (xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("type") === "movie") {
             // create letterboxd link
             createLetterboxdLink(xml);
             // create youtube trailer button

@@ -8,11 +8,11 @@
     {
       "matches": ["http://plex.tv/*", "https://plex.tv/*"],
       "css": ["styles.css"],
-      "js": ["main.js", "plugins/letterboxd.js", "plugins/youtube_trailer.js"]
+      "js": ["main.js", "plugins/letterboxd.js", "plugins/youtube_trailer.js", "plugins/random.js"]
     }
   ],
-  "web_accessible_resources": [
-      "close_button.png"
+  "permissions": [
+    "http://*/"
   ],
   "icons": { "16": "icon16.png",
              "48": "icon48.png",

@@ -1,32 +1,23 @@
-function insertOverlay() {
-    // create dark overlay
-    var overlay = document.createElement('div');
-    overlay.setAttribute('id', "overlay");
-
-    document.getElementsByTagName('body')[0].appendChild(overlay);
-
-    // attach click event listener on overlay to close trailer
-    overlay.addEventListener("click", closeTrailer, false);
-}
-
 function getYoutubeEmbedLink(title, year) {
-    var search_params = title + ' (' + year + ') official trailer'
+    var search_params = title + ' (' + year + ') official trailer';
 
     var search_results_xml = getXML("https://gdata.youtube.com/feeds/api/videos?q=" + search_params);
-    var first_entry = search_results_xml.getElementsByTagName("feed")[0].getElementsByTagName("entry")[0]
+    var first_entry = search_results_xml.getElementsByTagName("feed")[0].getElementsByTagName("entry")[0];
     var id = first_entry.getElementsByTagName('id')[0].childNodes[0].nodeValue;
 
     var youtube_id = id.match(/^http:\/\/gdata\.youtube\.com\/feeds\/api\/videos\/(.+)/)[1];
 
-    return "//www.youtube.com/embed/" + youtube_id + "?rel=0&iv_load_policy=3&vq=hd1080&autoplay=1"
+    return "//www.youtube.com/embed/" + youtube_id + "?rel=0&iv_load_policy=3&vq=hd1080&autoplay=1";
 }
 
 function openTrailer(xml) {
-    var movie_title = xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute('title')
-    var movie_year = xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute('year')
+    var movie_title = xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute('title');
+    var movie_year = xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute('year');
     var youtube_link = getYoutubeEmbedLink(movie_title, movie_year);
 
     document.getElementById('overlay').style.display = "block";
+    // attach click event listener on overlay to close trailer
+    document.getElementById('overlay').addEventListener("click", closeTrailer, false);
 
     // create youtube embed iframe
     var youtube_embed = document.createElement('iframe');

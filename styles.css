@@ -30,3 +30,48 @@
     margin-top: -288px; /*half height*/
     z-index: 5001;
 }
+
+#random-poster {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    text-align: center;
+    width: 450px;
+    height: 750px;
+    margin-left: -225px; /*half width*/
+    margin-top: -375px; /*half height*/
+    z-index: 5001;
+}
+
+#random-poster img {
+    width: 450px;
+    height: 675px;
+    cursor: pointer;
+    cursor: hand;
+}
+
+#pick-random {
+    color: #999;
+    margin-left: 15px;
+    cursor: pointer;
+    cursor: hand;
+}
+
+#pick-random:hover {
+    color: #EEE;
+}
+
+#refresh-random {
+    color: #999;
+    font-size: 50px;
+    width: 50%;
+    margin: 0 auto;
+    margin-top: 50px;
+    z-index: 5001;
+    cursor: pointer;
+    cursor: hand;
+}
+
+#refresh-random:hover {
+    color: #EEE;
+}

@@ -8,6 +8,7 @@ Features
 --------------
 - Adds link to view the trailer for movies within Plex/Web
 - Adds link to view the letterboxd page for movies
+- Adds a random tv show/movie picker
 - More coming soon...
 
 Version History

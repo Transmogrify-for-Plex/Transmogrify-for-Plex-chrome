@@ -1,6 +1,7 @@
 .btn-trailer {
     background: #CD201F !important;
     box-shadow: inset 0 1px 0 #DA2D2C !important;
+    line-height: 1.1em !important;
 }
 
 .btn-trailer:hover {

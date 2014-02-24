@@ -13,5 +13,6 @@ Features
 
 Version History
 --------------
+- v0.2.0 - added options page
 - v0.1.1 - added random show/movie picker
 - v0.0.1 - initial release

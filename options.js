@@ -52,5 +52,8 @@ function setDefaultOptions() {
     });
 }
 
-document.getElementById("save").addEventListener("click", saveOptions)
 document.addEventListener("DOMContentLoaded", restoreOptions);
+
+if (document.getElementById("save")) {
+    document.getElementById("save").addEventListener("click", saveOptions);
+}

@@ -31,11 +31,22 @@ function runOnReady() {
     var interval = window.setInterval(function() {
         // page is ready when class 'home-btn' exists.
         // otherwise check again in 1000ms
-        if (document.getElementsByClassName("home-btn").length > 0) {
-            main();
-            window.clearInterval(interval);
+
+        // check if on library section
+        if (/\/section\/\d+$/.test(document.URL)) {
+            if (document.getElementsByClassName("media-poster").length > 0) {
+                main();
+                window.clearInterval(interval);
+            }
         }
-    }, 1500);
+        // check if on movie/tv show details page
+        else if (/\/details\/%2Flibrary%2Fmetadata%2F(\d+)$/.test(document.URL)) {
+            if (document.getElementsByClassName("item-title").length > 0 || document.getElementsByClassName("show-title").length > 0) {
+                main();
+                window.clearInterval(interval);
+            }
+        }
+    }, 1000);
 }
 
 function prepPlexToken() {

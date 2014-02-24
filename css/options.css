@@ -1,0 +1,60 @@
+body {
+    font-family: "segoe ui";
+    font-size: 30px;
+    color: #EEEEEE;
+    background-color: #141414;
+}
+
+.label {
+    width: 300px;
+    text-align: right;
+}
+
+.field, .label {
+    float: left;
+    padding: 4px;
+    margin: 4px;
+}
+
+.field-row {
+    clear: both;
+    padding-top: 20px;
+}
+
+input[type=radio] {
+    display: none;
+}
+
+input[type=radio] + label{
+    display: inline-block;
+    margin: -4px;
+    padding: 4px 12px;
+    font-size: 20px;
+    line-height: 20px;
+    border: 1px solid #E69533;
+    border-color: #E69533 #E69533 #E69533;
+    cursor: pointer;
+}
+
+input[type=radio]:checked + label {
+    background-color: #E69533;
+}
+
+#save {
+    float: left; 
+    clear: both;
+    margin-top: 50px;
+    margin-left: 110px;
+    background: none;
+    color: #E69533;
+    border: 1px solid #E69533;
+    border-color: #E69533 #E69533 #E69533;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+#save:hover, #save:focus {
+    background-color: #E69533;
+    color: #EEEEEE;
+    outline: 0;
+}

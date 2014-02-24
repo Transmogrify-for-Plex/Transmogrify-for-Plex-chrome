@@ -35,7 +35,7 @@ function runOnReady() {
             main();
             window.clearInterval(interval);
         }
-    }, 1000);
+    }, 1500);
 }
 
 function prepPlexToken() {
@@ -85,7 +85,11 @@ function main() {
     if (/\/section\/\d+$/.test(page_url)) {
         var section_num = page_url.match(/\/section\/(\d+)$/)[1].toString();
 
-        addRandomButton(server_address, plex_token, library_sections[section_num]);
+        chrome.storage.sync.get("random_picker", function (result){
+            if (result["random_picker"] === "on") {
+                addRandomButton(server_address, plex_token, library_sections[section_num]);
+            }
+        });
     }
 
     // check if on movie/tv show details page
@@ -106,12 +110,23 @@ function main() {
         // check if movie
         else if (xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("type") === "movie") {
             // create letterboxd link
-            createLetterboxdLink(xml);
+            chrome.storage.sync.get("letterboxd_link", function (result){
+                if (result["letterboxd_link"] === "on") {
+                    createLetterboxdLink(xml);
+                }
+            });
             // create youtube trailer button
-            createTrailerButton(xml);
+            chrome.storage.sync.get("movie_trailers", function (result){
+                if (result["movie_trailers"] === "on") {
+                    createTrailerButton(xml);
+                }
+            });
         }
     }
 }
+
+// set the default options for extension
+setDefaultOptions();
 
 // plex.tv uses a lot of JS to manipulate the DOM so the only way to tell when
 // plex's JS has finished is to check for the existance of certain elements.

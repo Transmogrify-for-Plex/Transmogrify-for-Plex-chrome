@@ -13,6 +13,7 @@ Features
 
 Version History
 --------------
+- v0.2.1 - improve handling of waiting for page to be ready
 - v0.2.0 - added options page
 - v0.1.1 - added random show/movie picker
 - v0.0.1 - initial release

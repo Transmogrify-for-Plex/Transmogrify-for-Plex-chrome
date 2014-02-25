@@ -3,7 +3,7 @@
 
   "name": "Transmogrify for Plex",
   "description": "Adds several features to the Plex/Web 2.0 client for Plex",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "options_page": "options.html",
   "content_scripts": [
     {

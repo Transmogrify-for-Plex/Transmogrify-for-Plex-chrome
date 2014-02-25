@@ -1,18 +1,25 @@
 function getYoutubeEmbedLink(title, year) {
+    debug("movie_trailers plugin: Getting YouTube embed link");
     var search_params = title + " (" + year + ") official trailer";
+    debug("movie_trailers plugin: Search query - " + search_params);
 
     var search_results_xml = getXML("https://gdata.youtube.com/feeds/api/videos?q=" + search_params);
     var first_entry = search_results_xml.getElementsByTagName("feed")[0].getElementsByTagName("entry")[0];
     var id = first_entry.getElementsByTagName("id")[0].childNodes[0].nodeValue;
+    debug("movie_trailers plugin: First result id field - " + id);
 
     var youtube_id = id.match(/^http:\/\/gdata\.youtube\.com\/feeds\/api\/videos\/(.+)/)[1];
+    var youtube_link = "//www.youtube.com/embed/" + youtube_id + "?rel=0&iv_load_policy=3&vq=hd1080&autoplay=1";
+    debug("movie_trailers plugin: YouTube embed link - " + youtube_link);
 
-    return "//www.youtube.com/embed/" + youtube_id + "?rel=0&iv_load_policy=3&vq=hd1080&autoplay=1";
+    return youtube_link;
 }
 
 function openTrailer(xml) {
+    debug("movie_trailers plugin: Trailer button clicked");
     var movie_title = xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("title");
     var movie_year = xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("year");
+    debug("movie_trailers plugin: Got movie year and title - " + movie_title + " (" + movie_year + ")");
     var youtube_link = getYoutubeEmbedLink(movie_title, movie_year);
 
     document.getElementById("overlay").style.display = "block";
@@ -30,6 +37,7 @@ function openTrailer(xml) {
 }
 
 function closeTrailer() {
+    debug("random_picker plugin: Close trailer clicked. Removing YouTube video");
     var trailer = document.getElementById("trailer");
     trailer.parentNode.removeChild(trailer);
 
@@ -38,7 +46,9 @@ function closeTrailer() {
 
 function createTrailerButton(xml) {
     // don"t run if element already exists on page
+    debug("movie_trailers plugin: Checking if #btn-trailer element already exists before creating");
     if (document.getElementById("btn-trailer")) {
+        debug("movie_trailers plugin: #btn-trailer element already exists. Passing");
         return;
     }
 
@@ -50,10 +60,12 @@ function createTrailerButton(xml) {
     trailer_button.appendChild(button_text);
 
     // insert trailer button after play button and before audio codecs container
+    debug("movie_trailers plugin: Inserting movie trailer button into video-audio-flags-container");
     var audio_container = document.getElementsByClassName("video-audio-flags-container")[0];
     document.getElementsByClassName("details-poster-container")[0].insertBefore(trailer_button, audio_container);
 
     // attach click event listener to play trailer
+    debug("movie_trailers plugin: Attaching event listener to btn-trailer button");
     document.getElementById("btn-trailer").addEventListener("click", function(){openTrailer(xml);}, false);
 
     // insert dark overlay for when trailer plays

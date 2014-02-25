@@ -40,6 +40,10 @@ input[type=radio]:checked + label {
     background-color: #E69533;
 }
 
+#debug {
+    margin-top: 120px;
+}
+
 #save {
     float: left; 
     clear: both;

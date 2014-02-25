@@ -2,10 +2,12 @@ function saveOptions() {
     var movie_trailers = document.querySelector("input[name='movie_trailers']:checked").value;
     var letterboxd_link = document.querySelector("input[name='letterboxd_link']:checked").value;
     var random_picker = document.querySelector("input[name='random_picker']:checked").value;
+    var debug = document.querySelector("input[name='debug']:checked").value;
 
     chrome.storage.sync.set({"movie_trailers": movie_trailers});
     chrome.storage.sync.set({"letterboxd_link": letterboxd_link});
     chrome.storage.sync.set({"random_picker": random_picker});
+    chrome.storage.sync.set({"debug": debug});
 
     var save_button = document.getElementById("save");
 
@@ -30,6 +32,11 @@ function restoreOptions() {
         var radio_button = document.getElementById("random_" + result["random_picker"]);
         radio_button.checked = true;
     });
+
+    chrome.storage.sync.get("debug", function(result) {
+        var radio_button = document.getElementById("debug_" + result["debug"]);
+        radio_button.checked = true;
+    });
 }
 
 function setDefaultOptions() {
@@ -48,6 +55,12 @@ function setDefaultOptions() {
     chrome.storage.sync.get("random_picker", function(result) {
         if (!("random_picker" in result)) {
             chrome.storage.sync.set({"random_picker": "on"});
+        }
+    });
+
+    chrome.storage.sync.get("debug", function(result) {
+        if (!("debug" in result)) {
+            chrome.storage.sync.set({"debug": "off"});
         }
     });
 }

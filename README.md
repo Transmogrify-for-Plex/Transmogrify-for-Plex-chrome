@@ -13,6 +13,7 @@ Features
 
 Version History
 --------------
+- v0.2.5 - bug fix: add support for handling multiple servers/libraries
 - v0.2.4 - bug fix: stop options stylesheet being inserted into plex pages
 - v0.2.3 - added support for the tmdb agent for letterboxd links
 - v0.2.2 - added debug mode for console, improved script loop logic

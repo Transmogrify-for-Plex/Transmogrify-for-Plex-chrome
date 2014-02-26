@@ -95,17 +95,28 @@ function getPlexToken() {
     script.appendChild(document.createTextNode("("+ prepPlexToken +")();"));
     (document.body || document.head || document.documentElement).appendChild(script);
 
-    debug("plex_token fetched from document body");
-    return document.body.getAttribute("data-plextoken");
+    var plex_token = document.body.getAttribute("data-plextoken");
+    debug("plex_token fetched from document body - " + plex_token);
+    return plex_token;
 }
 
-function getServerAddress(plex_token) {
+function getServerAddresses(plex_token) {
     debug("Fetching server address");
     var servers_xml = getXML("https://plex.tv/pms/servers?X-Plex-Token=" + plex_token);
-    var server_address = servers_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Server")[0].getAttribute("address");
+    var servers = servers_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Server");
+    var server_addresses = {};
+    for (var i = 0; i < servers.length; i++) {
+        var address = servers[i].getAttribute("address");
+        var port = servers[i].getAttribute("port");
+        var machine_identifier = servers[i].getAttribute("machineIdentifier");
+        var access_token = servers[i].getAttribute("accessToken");
 
-    debug("Server address fetched - " + server_address);
-    return server_address;
+        server_addresses[machine_identifier] = {"address": address, "port": port, "machine_identifier": machine_identifier, "access_token": access_token};
+    }
+
+    debug("Server addresses fetched");
+    debug(server_addresses);
+    return server_addresses;
 }
 
 function getLibrarySections(plex_token) {
@@ -120,8 +131,15 @@ function getLibrarySections(plex_token) {
     for (var i = 0; i < directories.length; i++) {
         var type = directories[i].getAttribute("type");
         var section_num = directories[i].getAttribute("path").match(/\/(\d+)$/)[1];
+        var machine_identifier = directories[i].getAttribute("machineIdentifier");
 
-        dir_metadata[section_num] = {"type": type, "section_num": section_num};
+        if (machine_identifier in dir_metadata) {
+            dir_metadata[machine_identifier][section_num] = {"type": type, "section_num": section_num};
+        }
+        else {
+            dir_metadata[machine_identifier] = {};
+            dir_metadata[machine_identifier][section_num] = {"type": type, "section_num": section_num};
+        }
     }
 
     debug("Parsed library sections");
@@ -132,7 +150,7 @@ function getLibrarySections(plex_token) {
 function main() {
     debug("Running main()");
     var plex_token = getPlexToken();
-    var server_address = getServerAddress(plex_token);
+    var server_addresses = getServerAddresses(plex_token);
     var library_sections = getLibrarySections(plex_token);
     var page_url = document.URL;
 
@@ -142,14 +160,22 @@ function main() {
     // check if on library section
     if (/\/section\/\d+$/.test(page_url)) {
         debug("main detected we are in library section");
-        var section_num = page_url.match(/\/section\/(\d+)$/)[1].toString();
+        var page_identifier = page_url.match(/\/server\/(.[^\/]+)\/section\/(\d+)$/);
+        var machine_identifier = page_identifier[1];
+        var section_num = page_identifier[2];
+        debug("machine identifier - " + machine_identifier);
         debug("library section - " + section_num);
 
         chrome.storage.sync.get("random_picker", function (result){
             debug("Checking if random_picker plugin should run");
             if (result["random_picker"] === "on") {
                 debug("random_picker plugin is enabled");
-                addRandomButton(server_address, plex_token, library_sections[section_num]);
+                var server_address = server_addresses[machine_identifier]["address"];
+                var server_port = server_addresses[machine_identifier]["port"];
+                var access_token = server_addresses[machine_identifier]["access_token"];
+                var section_data = library_sections[machine_identifier][section_num];
+
+                addRandomButton(server_address, server_port, access_token, section_data);
             }
             else {
                 debug("random_picker plugin is disabled");
@@ -160,22 +186,27 @@ function main() {
     // check if on movie/tv show details page
     else if (/\/details\/%2Flibrary%2Fmetadata%2F(\d+)$/.test(page_url)) {
         debug("main detected we are on movie/tv show details page");
-        var res = page_url.match(/metadata%2F(\d+)$/);
-        var parent_item_id = res[1];
+        var page_identifier = page_url.match(/\/server\/(.[^\/]+)\/details\/%2Flibrary%2Fmetadata%2F(\d+)$/);
+        var machine_identifier = page_identifier[1];
+        var parent_item_id = page_identifier[2];
         debug("metadata id - " + parent_item_id);
 
-        // construct xml link
+        // construct metadata xml link
         debug("Fetching metadata for id - " + parent_item_id);
-        var xml_link = "http://" + server_address + ":32400/library/metadata/" + parent_item_id + "?X-Plex-Token=" + plex_token;
+        var server_address = server_addresses[machine_identifier]["address"];
+        var server_port = server_addresses[machine_identifier]["port"];
+        var access_token = server_addresses[machine_identifier]["access_token"];
 
-        // fetch xml
-        var xml = getXML(xml_link);
+        var metadata_xml_link = "http://" + server_address + ":" + server_port + "/library/metadata/" + parent_item_id + "?X-Plex-Token=" + access_token;
 
-        if (xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory").length > 0) {
+        // fetch metadata xml
+        var metadata_xml = getXML(metadata_xml_link);
+
+        if (metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory").length > 0) {
             // it's a tv show index page
             debug("main detected we are on tv show index page");
         }
-        else if (xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("type") === "movie") {
+        else if (metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("type") === "movie") {
             // it's a movie page
             debug("main detected we are on a movie page");
 
@@ -184,7 +215,7 @@ function main() {
                 debug("Checking if letterboxd_link plugin should run");
                 if (result["letterboxd_link"] === "on") {
                     debug("letterboxd_link plugin is enabled");
-                    createLetterboxdLink(xml);
+                    createLetterboxdLink(metadata_xml);
                 }
                 else {
                     debug("letterboxd_link plugin is disabled");
@@ -195,7 +226,7 @@ function main() {
                 debug("Checking if movie_trailers plugin should run");
                 if (result["movie_trailers"] === "on") {
                     debug("movie_trailers plugin is enabled");
-                    createTrailerButton(xml);
+                    createTrailerButton(metadata_xml);
                 }
                 else {
                     debug("movie_trailers plugin is disabled");

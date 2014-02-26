@@ -6,9 +6,9 @@ function closeRandom() {
     document.getElementById("overlay").style.display = "none";
 }
 
-function getMediaList(server_address, plex_token, section) {
+function getMediaList(server_address, server_port, plex_token, section) {
     debug("random_picker plugin: Fetching media list");
-    var media_xml = getXML("http://" + server_address + ":32400/library/sections/" + section["section_num"] + "/all?X-Plex-Token=" + plex_token);
+    var media_xml = getXML("http://" + server_address + ":" + server_port + "/library/sections/" + section["section_num"] + "/all?X-Plex-Token=" + plex_token);
     debug("random_picker plugin: Fetched media list");
 
     if (section["type"] == "movie") {
@@ -19,8 +19,8 @@ function getMediaList(server_address, plex_token, section) {
     }
 }
 
-function getRandomId(server_address, plex_token, section) {
-    var media_xml = getMediaList(server_address, plex_token, section);
+function getRandomId(server_address, server_port, plex_token, section) {
+    var media_xml = getMediaList(server_address, server_port, plex_token, section);
     var random_num =Math.floor(Math.random() * media_xml.length);
     debug("random_picker plugin: Generated random number - " + random_num.toString() + " out of " + media_xml.length.toString());
 
@@ -33,10 +33,10 @@ function getRandomId(server_address, plex_token, section) {
     return id;
 }
 
-function displayRandom(server_address, plex_token, section) {
+function displayRandom(server_address, server_port, plex_token, section) {
 	debug("random_picker plugin: pick-random button clicked");
-    var random_id = getRandomId(server_address, plex_token, section);
-    var poster_url = "http://" + server_address + ":32400/library/metadata/" + random_id + "/poster?X-Plex-Token=" + plex_token;
+    var random_id = getRandomId(server_address, server_port, plex_token, section);
+    var poster_url = "http://" + server_address + ":" + server_port + "/library/metadata/" + random_id + "/poster?X-Plex-Token=" + plex_token;
     debug("random_picker plugin: Generated poster URL - " + poster_url);
 
     document.getElementById("overlay").style.display = "block";
@@ -60,15 +60,15 @@ function displayRandom(server_address, plex_token, section) {
     poster_element.appendChild(refresh_icon_element);
 
     // attach click event listener on refresh icon to refresh random choice
-    refresh_icon_element.addEventListener("click", function(){refreshRandom(server_address, plex_token, section);}, false);
+    refresh_icon_element.addEventListener("click", function(){refreshRandom(server_address, server_port, plex_token, section);}, false);
     // attach click event listener on poster to open media
     poster_image_element.addEventListener("click", loadChoice, false);
 }
 
-function refreshRandom(server_address, plex_token, section) {
+function refreshRandom(server_address, server_port, plex_token, section) {
 	debug("random_picker plugin: Refresh random button clicked");
-    var random_id = getRandomId(server_address, plex_token, section);
-    var poster_url = "http://" + server_address + ":32400/library/metadata/" + random_id + "/poster?X-Plex-Token=" + plex_token;
+    var random_id = getRandomId(server_address, server_port, plex_token, section);
+    var poster_url = "http://" + server_address + ":" + server_port + "/library/metadata/" + random_id + "/poster?X-Plex-Token=" + plex_token;
     debug("random_picker plugin: New poster URL fetched - " + poster_url);
 
     var poster_image_element = document.getElementById("random-poster-image");
@@ -86,7 +86,7 @@ function loadChoice() {
     window.location = new_url;
 }
 
-function addRandomButton(server_address, plex_token, section) {
+function addRandomButton(server_address, server_port, plex_token, section) {
     // don't run if element already exists on page
     debug("random_picker plugin: Checking if #pick-random element already exists before creating");
     if (document.getElementById("pick-random")) {
@@ -104,7 +104,7 @@ function addRandomButton(server_address, plex_token, section) {
 
     // attach click event listener to pick random
     debug("random_picker plugin: Attaching event listener to pick-random button");
-    document.getElementById("pick-random").addEventListener("click", function(){displayRandom(server_address, plex_token, section);}, false);
+    document.getElementById("pick-random").addEventListener("click", function(){displayRandom(server_address, server_port, plex_token, section);}, false);
 
     insertOverlay();
 }

@@ -8,11 +8,13 @@ Features
 --------------
 - Adds link to view the trailer for movies within Plex/Web
 - Adds link to view the letterboxd page for movies
+- Adds link to view the trakt page for movies and tv shows, and displays rating
 - Adds a random tv show/movie picker
 - More coming soon...
 
 Version History
 --------------
+- v0.3.0 - added trakt support, bundled images into extension
 - v0.2.5 - bug fix: add support for handling multiple servers/libraries
 - v0.2.4 - bug fix: stop options stylesheet being inserted into plex pages
 - v0.2.3 - added support for the tmdb agent for letterboxd links

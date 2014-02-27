@@ -23,6 +23,37 @@ function getXML(xml_link) {
     return xml_doc;
 }
 
+function getJSON(json_link) {
+    debug("Fetching json from " + json_link);
+    var request = new XMLHttpRequest;
+    request.open("GET", json_link, false);
+    request.send();
+
+    var json_resp = JSON.parse(request.responseText);
+    debug("Recieved json response");
+    debug(json_resp);
+    return json_resp;
+}
+
+function readFile(file_name) {
+    var text;
+    var rawFile = new XMLHttpRequest();
+    rawFile.open("GET", file_name, false);
+    rawFile.onreadystatechange = function() {
+        if (rawFile.readyState === 4) {
+            if (rawFile.status === 200 || rawFile.status == 0) {
+                text = rawFile.responseText;
+            }
+        }
+    }
+    rawFile.send(null);
+    return text;
+}
+
+function getMetadata(server_address, id, plex_token) {
+    return getXML("http://" + server_address + ":32400/library/metadata/" + id + "?X-Plex-Token=" + plex_token);
+}
+
 function insertOverlay() {
     // don't run if element already exists on page
     debug("Checking if overlay already exists before creating");
@@ -203,11 +234,31 @@ function main() {
         var metadata_xml = getXML(metadata_xml_link);
 
         if (metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory").length > 0) {
-            // it's a tv show index page
+            // we're on a tv show page
             debug("main detected we are on tv show index page");
+
+            if (metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("type") === "show") {
+                // we're on the root show page
+                debug("main detected we are on root show page");
+
+                // create trakt link
+                chrome.storage.sync.get("trakt_shows", function (result){
+                    debug("Checking if trakt plugin should run");
+                    if (result["trakt_shows"] === "on") {
+                        debug("trakt plugin is enabled");
+                        createTraktLink(metadata_xml, "show");
+                    }
+                    else {
+                        debug("trakt plugin is disabled");
+                    }
+                });
+            }
+            else if (metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("type") === "season") {
+                // we're on the season page
+            }
         }
         else if (metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("type") === "movie") {
-            // it's a movie page
+            // we're on a movie page
             debug("main detected we are on a movie page");
 
             // create letterboxd link
@@ -221,6 +272,7 @@ function main() {
                     debug("letterboxd_link plugin is disabled");
                 }
             });
+
             // create youtube trailer button
             chrome.storage.sync.get("movie_trailers", function (result){
                 debug("Checking if movie_trailers plugin should run");
@@ -230,6 +282,33 @@ function main() {
                 }
                 else {
                     debug("movie_trailers plugin is disabled");
+                }
+            });
+
+            // create trakt link
+            chrome.storage.sync.get("trakt_movies", function (result){
+                debug("Checking if trakt plugin should run");
+                if (result["trakt_movies"] === "on") {
+                    debug("trakt plugin is enabled");
+                    createTraktLink(metadata_xml, "movie");
+                }
+                else {
+                    debug("trakt plugin is disabled");
+                }
+            });
+        }
+        else if (metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("type") === "episode") {
+            // we're on an episode page
+
+            // create trakt link
+            chrome.storage.sync.get("trakt_shows", function (result){
+                debug("Checking if trakt plugin should run");
+                if (result["trakt_shows"] === "on") {
+                    debug("trakt plugin is enabled");
+                    createTraktLink(metadata_xml, "episode", server_address, plex_token);
+                }
+                else {
+                    debug("trakt plugin is disabled");
                 }
             });
         }

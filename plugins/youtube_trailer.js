@@ -1,6 +1,6 @@
 function getYoutubeEmbedLink(title, year) {
     debug("movie_trailers plugin: Getting YouTube embed link");
-    var search_params = title + " (" + year + ") official trailer";
+    var search_params = encodeURIComponent(title) + " (" + year + ") official trailer";
     debug("movie_trailers plugin: Search query - " + search_params);
 
     var search_results_xml = getXML("https://gdata.youtube.com/feeds/api/videos?q=" + search_params);
@@ -45,7 +45,7 @@ function closeTrailer() {
 }
 
 function createTrailerButton(xml) {
-    // don"t run if element already exists on page
+    // don't run if element already exists on page
     debug("movie_trailers plugin: Checking if #btn-trailer element already exists before creating");
     if (document.getElementById("btn-trailer")) {
         debug("movie_trailers plugin: #btn-trailer element already exists. Passing");

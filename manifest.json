@@ -9,15 +9,22 @@
     {
       "matches": ["http://plex.tv/*", "https://plex.tv/*"],
       "css": ["css/transmogrify.css"],
-      "js": ["options.js", "main.js", "plugins/letterboxd.js", "plugins/youtube_trailer.js", "plugins/random.js"]
+      "js": ["options.js", "plugins/letterboxd.js", "plugins/youtube_trailer.js", "plugins/random.js", "plugins/trakt.js", "main.js"]
     }
   ],
   "permissions": [
     "storage",
     "http://*/"
   ],
-  "icons": { "16": "resources/icon16.png",
-             "48": "resources/icon48.png",
-             "128": "resources/icon128.png"
-  }
+  "icons": {
+    "16": "resources/icon16.png",
+    "48": "resources/icon48.png",
+    "128": "resources/icon128.png"
+  },
+  "web_accessible_resources": [
+    "resources/letterboxd_logo.png",
+    "resources/trakt_logo.png",
+    "resources/trakt_love.png",
+    "resources/trakt_hate.png",
+    "resources/trakt_api_key.txt"]
 }

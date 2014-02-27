@@ -21,11 +21,11 @@ body {
     padding-top: 20px;
 }
 
-input[type=radio] {
+input[type=radio], input[type=checkbox] {
     display: none;
 }
 
-input[type=radio] + label{
+input[type=radio] + label, input[type=checkbox] + label{
     display: inline-block;
     margin: -4px;
     padding: 4px 12px;
@@ -36,7 +36,7 @@ input[type=radio] + label{
     cursor: pointer;
 }
 
-input[type=radio]:checked + label {
+input[type=radio]:checked + label, input[type=checkbox]:checked + label {
     background-color: #E69533;
 }
 

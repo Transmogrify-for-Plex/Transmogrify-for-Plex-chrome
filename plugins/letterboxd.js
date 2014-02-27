@@ -1,5 +1,5 @@
 function constructLetterboxdLink(id, agent) {
-    var logo_url = "http://primer.cf.letterboxd.com/logos/letterboxd-logo-neg-rgb.png";
+    var logo_url = chrome.extension.getURL("resources/letterboxd_logo.png")
     var letterboxd_link = "http://letterboxd.com/" + agent + "/" + id;
 
     // construct link

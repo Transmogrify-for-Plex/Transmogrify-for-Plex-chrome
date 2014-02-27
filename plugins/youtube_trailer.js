@@ -1,11 +1,11 @@
 function getYoutubeEmbedLink(title, year) {
     debug("movie_trailers plugin: Getting YouTube embed link");
-    var search_params = encodeURIComponent(title) + " (" + year + ") official trailer";
+    var search_params = encodeURIComponent(title + " (" + year + ") official trailer");
     debug("movie_trailers plugin: Search query - " + search_params);
 
-    var search_results_xml = getXML("https://gdata.youtube.com/feeds/api/videos?q=" + search_params);
-    var first_entry = search_results_xml.getElementsByTagName("feed")[0].getElementsByTagName("entry")[0];
-    var id = first_entry.getElementsByTagName("id")[0].childNodes[0].nodeValue;
+    var search_results_json = getJSON("https://gdata.youtube.com/feeds/api/videos?alt=json&q=" + search_params + "&paid_content=false&max-results=1");
+    var first_entry = search_results_json["feed"]["entry"][0];
+    var id = first_entry["id"]["$t"];
     debug("movie_trailers plugin: First result id field - " + id);
 
     var youtube_id = id.match(/^http:\/\/gdata\.youtube\.com\/feeds\/api\/videos\/(.+)/)[1];

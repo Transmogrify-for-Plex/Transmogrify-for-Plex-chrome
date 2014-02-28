@@ -14,6 +14,7 @@ Features
 
 Version History
 --------------
+- v0.3.2 - improve youtube search api params, no longer returns non-embeddable videos
 - v0.3.1 - improve youtube search api params, return json
 - v0.3.0 - added trakt support, bundled images into extension
 - v0.2.5 - bug fix: add support for handling multiple servers/libraries

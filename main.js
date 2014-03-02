@@ -11,6 +11,19 @@ function debug(output) {
     });
 }
 
+function showHelpPopup() {
+    chrome.storage.local.get("help_popup_shown", function (result) {
+        // do not display if popup has been shown before
+        if (result["help_popup_shown"]) {
+            return;
+        }
+        else {
+            alert("Welcome to Transmogrify for Plex.\n\nYou can enable/disable extension functionality in the extension options on the chrome://extensions page");
+            chrome.storage.local.set({"help_popup_shown": "yes"});
+        }
+    });
+}
+
 function getXML(xml_link) {
     debug("Fetching xml from " + xml_link);
     var request = new XMLHttpRequest;
@@ -180,6 +193,10 @@ function getLibrarySections(plex_token) {
 
 function main() {
     debug("Running main()");
+
+    // show help popup first time
+    showHelpPopup();
+
     var plex_token = getPlexToken();
     var server_addresses = getServerAddresses(plex_token);
     var library_sections = getLibrarySections(plex_token);

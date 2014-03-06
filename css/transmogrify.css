@@ -115,3 +115,26 @@
 #refresh-random:hover {
     color: #EEE;
 }
+
+.update-box {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 524px;
+    height: 500px;
+    text-align: justify;
+    margin-left: -262px; /*half width*/
+    margin-top: -250px; /*half height*/
+    z-index: 5001;
+}
+
+.update-box img {
+    display: block;
+    margin: 0 auto;
+}
+
+.update-box p {
+    margin-top: 50px;
+    text-align: center;
+    font-weight: bold;
+}

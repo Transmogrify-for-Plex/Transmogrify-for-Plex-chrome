@@ -1,3 +1,5 @@
+var update_text = "Rotten Tomatoes ratings can now be enabled in the <a href='" + chrome.extension.getURL("options.html") + "' target='_blank'>extension settings!</a>"
+
 function debug(output) {
     chrome.storage.sync.get("debug", function (result){
         if (result["debug"] === "on") {
@@ -11,15 +13,46 @@ function debug(output) {
     });
 }
 
-function showHelpPopup() {
-    chrome.storage.local.get("help_popup_shown", function (result) {
+function closePopup() {
+    var popup_container = document.getElementById("update-box");
+    popup_container.parentNode.removeChild(popup_container);
+
+    var overlay = document.getElementById("overlay");
+    overlay.style.display = "none";
+    overlay.removeEventListener("click", closePopup, false);
+}
+
+function showPopup(messsage) {
+    var overylay = insertOverlay();
+    overlay.style.display = "block";
+
+    var popup_container = document.createElement("div");
+    popup_container.setAttribute("class", "update-box");
+    popup_container.setAttribute("id", "update-box")
+
+    var logo = document.createElement("img");
+    logo.setAttribute("src", chrome.extension.getURL("resources/icon_transparent.png"));
+
+    var message = document.createElement("p");
+    message.innerHTML = messsage;
+
+    popup_container.appendChild(logo);
+    popup_container.appendChild(message);
+    overlay.appendChild(popup_container);
+
+    overlay.addEventListener("click", closePopup, false);
+}
+
+function showUpdatePopup() {
+    chrome.storage.local.get("last_version", function (result) {
+        var current_version = chrome.runtime.getManifest()["version"];
         // do not display if popup has been shown before
-        if (result["help_popup_shown"]) {
+        if (result["last_version"] && result["last_version"] === current_version) {
             return;
         }
         else {
-            alert("Welcome to Transmogrify for Plex.\n\nYou can enable/disable extension functionality in the extension options on the chrome://extensions page");
-            chrome.storage.local.set({"help_popup_shown": "yes"});
+            showPopup("New update! - " + update_text);
+            chrome.storage.local.set({"last_version": current_version});
         }
     });
 }
@@ -81,6 +114,8 @@ function insertOverlay() {
 
     document.getElementsByTagName("body")[0].appendChild(overlay);
     debug("Created overlay");
+
+    return overlay;
 }
 
 function removeOverlay() {
@@ -194,8 +229,8 @@ function getLibrarySections(plex_token) {
 function main() {
     debug("Running main()");
 
-    // show help popup first time
-    showHelpPopup();
+    // show popup if updated
+    showUpdatePopup();
 
     var plex_token = getPlexToken();
     var server_addresses = getServerAddresses(plex_token);

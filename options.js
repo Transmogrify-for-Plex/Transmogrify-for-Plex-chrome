@@ -86,7 +86,7 @@ function restoreOptions() {
             radio_button = document.getElementById("rotten_tomatoes_" + result["rotten_tomatoes_link"]);
         }
         else {
-            radio_button = document.getElementById("rotten_tomatoes_on");
+            radio_button = document.getElementById("rotten_tomatoes_off");
         }
         radio_button.checked = true;
         refreshExtraOptions();
@@ -181,7 +181,7 @@ function setDefaultOptions() {
 
     chrome.storage.sync.get("rotten_tomatoes_link", function(result) {
         if (!("rotten_tomatoes_link" in result)) {
-            chrome.storage.sync.set({"rotten_tomatoes_link": "on"});
+            chrome.storage.sync.set({"rotten_tomatoes_link": "off"});
         }
     });
 

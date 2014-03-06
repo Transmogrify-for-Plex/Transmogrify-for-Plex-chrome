@@ -75,3 +75,17 @@ input[type=radio]:checked + label, input[type=checkbox]:checked + label {
     color: #EEEEEE;
     outline: 0;
 }
+
+.thanks {
+    font-size: 20px;
+    position: absolute;
+    right: 0;
+}
+
+.thanks li {
+    list-style-type: square;
+}
+
+.thanks a {
+    color: #E69533;
+}

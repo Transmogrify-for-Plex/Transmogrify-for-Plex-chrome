@@ -9,6 +9,7 @@ Features
 - Adds link to view the trailer for movies within Plex/Web
 - Adds link to view the letterboxd page for movies
 - Adds link to view the trakt page for movies and tv shows, and displays rating
+- Adds link to view the rotten tomatoes page for movies, and displays ratings
 - Adds a random tv show/movie picker
 - More coming soon...
 

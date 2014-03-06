@@ -101,7 +101,7 @@ function runOnReady() {
             window.clearInterval(interval);
         }
         debug("Running runOnReady loop");
-        // page is ready when class 'home-btn' exists.
+        // page is ready when certain elements exist.
         // otherwise check again in 1000ms
 
         // check if on library section
@@ -299,6 +299,18 @@ function main() {
                 }
                 else {
                     debug("movie_trailers plugin is disabled");
+                }
+            });
+
+            // create rotten tomatoes link
+            chrome.storage.sync.get("rotten_tomatoes_link", function (result){
+                debug("Checking if rotten_tomatoes_link plugin should run");
+                if (result["rotten_tomatoes_link"] === "on") {
+                    debug("rotten_tomatoes_link plugin is enabled");
+                    runRottenTomatoes(metadata_xml);
+                }
+                else {
+                    debug("rotten_tomatoes_link plugin is disabled");
                 }
             });
 

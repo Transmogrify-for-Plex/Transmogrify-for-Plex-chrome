@@ -29,12 +29,11 @@ function constructTraktLink(trakt_link, trakt_rating) {
     // construct logo
     var trakt_element_img = document.createElement("img");
     trakt_element_img.setAttribute("src", logo_url);
-    trakt_element_img.setAttribute("width", 80);
 
     trakt_element_link.appendChild(trakt_element_img);
 
     // construct rating
-    var trakt_rating_element = document.createElement("span");
+    var trakt_rating_element = document.createElement("div");
     trakt_rating_element.setAttribute("id", "trakt-rating");
     var rating_text = document.createTextNode(trakt_rating + "%");
 
@@ -47,7 +46,6 @@ function constructTraktLink(trakt_link, trakt_rating) {
         trakt_rating_image.setAttribute("src", chrome.extension.getURL("resources/trakt_hate.png"));
     }
     trakt_rating_image.setAttribute("id", "trakt-rating-image");
-    trakt_rating_image.setAttribute("width", 30);
 
     trakt_rating_element.appendChild(rating_text);
     trakt_rating_element.appendChild(trakt_rating_image);

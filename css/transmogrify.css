@@ -10,19 +10,39 @@
     z-index: 5000;
 }
 
-#letterboxd-link, #trakt-container {
+#letterboxd-link, #trakt-container, #rotten-tomatoes-container {
     display: block;
     margin-top: 20px;
     margin-left: 5px;
 }
 
-#trakt-rating {
+#trakt-rating, #rotten-tomatoes-critics-score, #rotten-tomatoes-audience-score {
     display: block;
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: bold;
     font-size: 25px;
     width: auto;
     margin: 0;
+}
+
+#rotten-tomatoes-container {
+    text-decoration: none !important;
+    color: white !important;
+}
+
+#rotten-tomatoes-text-container {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+#rotten-tomatoes-critics-score, #rotten-tomatoes-audience-score {
+    float: right;
+    margin-right: 5px;
+}
+
+#rotten-tomatoes-critics-rating-image, #rotten-tomatoes-audience-rating-image {
+    margin-right: 5px;
 }
 
 #trakt-rating-image {

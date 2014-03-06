@@ -10,7 +10,6 @@ function constructLetterboxdLink(id, agent) {
     // construct logo
     var letterboxd_element_img = document.createElement("img");
     letterboxd_element_img.setAttribute("src", logo_url);
-    letterboxd_element_img.setAttribute("width", 150);
 
     letterboxd_element_link.appendChild(letterboxd_element_img);
 

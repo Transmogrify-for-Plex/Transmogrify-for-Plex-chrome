@@ -9,7 +9,7 @@
     {
       "matches": ["http://plex.tv/*", "https://plex.tv/*"],
       "css": ["css/transmogrify.css"],
-      "js": ["options.js", "plugins/letterboxd.js", "plugins/youtube_trailer.js", "plugins/random.js", "plugins/trakt.js", "main.js"]
+      "js": ["options.js", "plugins/letterboxd.js", "plugins/youtube_trailer.js", "plugins/random.js", "plugins/trakt.js", "plugins/rotten_tomatoes.js", "plugins/themoviedb.js", "main.js"]
     }
   ],
   "permissions": [
@@ -26,5 +26,14 @@
     "resources/trakt_logo.png",
     "resources/trakt_love.png",
     "resources/trakt_hate.png",
-    "resources/trakt_api_key.txt"]
+    "resources/trakt_api_key.txt",
+    "resources/rotten_tomatoes_logo.png",
+    "resources/rotten_tomatoes_certified.png",
+    "resources/rotten_tomatoes_fresh.png",
+    "resources/rotten_tomatoes_rotten.png",
+    "resources/rotten_tomatoes_upright.png",
+    "resources/rotten_tomatoes_spilled.png",
+    "resources/rotten_tomatoes_api_key.txt",
+    "resources/themoviedb_api_key.txt"
+  ]
 }

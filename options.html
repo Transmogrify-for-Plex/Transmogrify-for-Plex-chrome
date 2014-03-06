@@ -11,7 +11,7 @@
             <div class="label">Movie Trailers:</div>
 
             <div class="field">
-                <input type="radio" id="trailers_on" name="movie_trailers" value="on"/>
+                <input type="radio" id="trailers_on" name="movie_trailers" value="on" checked/>
                 <label for="trailers_on">ON</label>
 
                 <input type="radio" id="trailers_off" name="movie_trailers" value="off"/>
@@ -28,6 +28,32 @@
 
                 <input type="radio" id="letterboxd_off" name="letterboxd_link" value="off"/>
                 <label for="letterboxd_off">OFF</label>
+            </div>
+        </div>
+
+        <div class="field-row">
+            <div class="label">Rotten Tomatoes Link:</div>
+
+            <div class="field">
+                <input type="radio" id="rotten_tomatoes_on" name="rotten_tomatoes_link" value="on"/>
+                <label for="rotten_tomatoes_on">ON</label>
+
+                <input type="radio" id="rotten_tomatoes_off" name="rotten_tomatoes_link" value="off"/>
+                <label for="rotten_tomatoes_off">OFF</label>
+            </div>
+
+            <div class="field extra-options rotten-tomatoes" id="rotten-tomatoes-audience-div">
+                <input type="checkbox" id="rotten_tomatoes_audience" name="rotten_tomatoes_audience" value="audience">
+                <label for="rotten_tomatoes_audience">SHOW AUDIENCE RATING</label>
+            </div>
+
+            <div class="label extra-options-label">Do you live in the US?: <span class="subscript">(the rotten tomatoes API requires that you live in the US to use their data)</span></div>
+            <div class="field extra-options rotten-tomatoes">
+                <input type="radio" id="rotten_tomatoes_citizen_us" name="rotten_tomatoes_citizen" value="us">
+                <label for="rotten_tomatoes_citizen_us">YES</label>
+
+                <input type="radio" id="rotten_tomatoes_citizen_non_us" name="rotten_tomatoes_citizen" value="non_us">
+                <label for="rotten_tomatoes_citizen_non_us">NO</label>
             </div>
         </div>
 

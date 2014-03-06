@@ -21,6 +21,14 @@ body {
     padding-top: 20px;
 }
 
+.extra-options {
+    margin-left: 50px;
+}
+
+.subscript {
+    font-size: 14px;
+}
+
 input[type=radio], input[type=checkbox] {
     display: none;
 }
@@ -34,6 +42,11 @@ input[type=radio] + label, input[type=checkbox] + label{
     border: 1px solid #E69533;
     border-color: #E69533 #E69533 #E69533;
     cursor: pointer;
+}
+
+#rotten-tomatoes-audience-div {
+    padding-top: 17px; /*dirty hack to fix alignment*/
+    margin-right: 50px;
 }
 
 input[type=radio]:checked + label, input[type=checkbox]:checked + label {

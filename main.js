@@ -1,3 +1,4 @@
+var show_update_text = true;
 var update_text = "Rotten Tomatoes ratings can now be enabled in the <a href='" + chrome.extension.getURL("options.html") + "' target='_blank'>extension settings!</a>"
 
 function debug(output) {
@@ -47,7 +48,7 @@ function showUpdatePopup() {
     chrome.storage.local.get("last_version", function (result) {
         var current_version = chrome.runtime.getManifest()["version"];
         // do not display if popup has been shown before
-        if (result["last_version"] && result["last_version"] === current_version) {
+        if ((result["last_version"] && result["last_version"] === current_version) || !(show_update_text)) {
             return;
         }
         else {

@@ -116,6 +116,31 @@
     color: #EEE;
 }
 
+.media-poster-overlay-missing-episode {
+    position:absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    opacity: 0.75;
+    background-color: black;
+}
+
+.media-poster-overlay-missing-episode:hover {
+    opacity: 0.85;
+    -webkit-box-shadow: 0 0 4px rgba(0,0,0,.3),inset 0 0 0 2px #cc7b19;
+}
+
+.overlay-missing-episode-text {
+    margin-top: 40px;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 100px;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: bold;
+    color: white;
+}
+
 .update-box {
     position: absolute;
     left: 50%;

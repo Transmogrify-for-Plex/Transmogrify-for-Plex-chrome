@@ -318,6 +318,20 @@ function main() {
             }
             else if (metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("type") === "season") {
                 // we're on the season page
+                debug("main detected we are on a season page");
+
+                // insert missing episodes
+                // insertMissingEpisodes(metadata_xml, server_address, server_port, access_token);
+                chrome.storage.sync.get("missing_episodes", function (result){
+                    debug("Checking if missing_episodes plugin should run");
+                    if (result["missing_episodes"] === "on") {
+                        debug("missing_episodes plugin is enabled");
+                        insertMissingEpisodes(metadata_xml, server_address, server_port, access_token);
+                    }
+                    else {
+                        debug("missing_episodes plugin is disabled");
+                    }
+                });
             }
         }
         else if (metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("type") === "movie") {

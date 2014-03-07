@@ -7,6 +7,7 @@ function saveOptions() {
     var trakt_movies = document.querySelector("input[name='trakt_movies']").checked;
     var trakt_shows = document.querySelector("input[name='trakt_shows']").checked;
     var random_picker = document.querySelector("input[name='random_picker']:checked").value;
+    var missing_episodes = document.querySelector("input[name='missing_episodes']:checked").value;
 
     var debug = document.querySelector("input[name='debug']:checked").value;
 
@@ -15,6 +16,7 @@ function saveOptions() {
     chrome.storage.sync.set({"random_picker": random_picker});
     chrome.storage.sync.set({"rotten_tomatoes_link": rotten_tomatoes_link});
     chrome.storage.sync.set({"rotten_tomatoes_citizen": rotten_tomatoes_citizen});
+    chrome.storage.sync.set({"missing_episodes": missing_episodes});
     if (rotten_tomatoes_audience) {
         chrome.storage.sync.set({"rotten_tomatoes_audience": "on"});
     }
@@ -76,6 +78,17 @@ function restoreOptions() {
         }
         else {
             radio_button = document.getElementById("random_on");
+        }
+        radio_button.checked = true;
+    });
+
+    chrome.storage.sync.get("missing_episodes", function(result) {
+        var radio_button;
+        if (result["missing_episodes"]) {
+            radio_button = document.getElementById("missing_episodes_" + result["missing_episodes"]);
+        }
+        else {
+            radio_button = document.getElementById("missing_episodes_off");
         }
         radio_button.checked = true;
     });
@@ -176,6 +189,12 @@ function setDefaultOptions() {
     chrome.storage.sync.get("random_picker", function(result) {
         if (!("random_picker" in result)) {
             chrome.storage.sync.set({"random_picker": "on"});
+        }
+    });
+
+    chrome.storage.sync.get("missing_episodes", function(result) {
+        if (!("missing_episodes" in result)) {
+            chrome.storage.sync.set({"missing_episodes": "off"});
         }
     });
 

@@ -17,6 +17,7 @@
         "plugins/trakt.js",
         "plugins/rotten_tomatoes.js",
         "plugins/themoviedb.js",
+        "plugins/plexwwwatch.js",
         "main.js"
       ]
     }

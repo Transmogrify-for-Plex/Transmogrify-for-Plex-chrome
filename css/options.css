@@ -44,6 +44,13 @@ input[type=radio] + label, input[type=checkbox] + label{
     cursor: pointer;
 }
 
+input[type=text] {
+    color: #FFF;
+    border: 1px solid #E69533;
+    background-color: #000;
+    font-size: 20px;
+}
+
 #rotten-tomatoes-audience-div {
     padding-top: 17px; /*dirty hack to fix alignment*/
     margin-right: 50px;
@@ -58,7 +65,7 @@ input[type=radio]:checked + label, input[type=checkbox]:checked + label {
 }
 
 #save {
-    float: left; 
+    float: left;
     clear: both;
     margin-top: 50px;
     margin-left: 110px;

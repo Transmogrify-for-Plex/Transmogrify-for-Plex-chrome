@@ -1,17 +1,27 @@
 var show_update_text = true;
 var update_text = "Rotten Tomatoes ratings can now be enabled in the <a href='" + chrome.extension.getURL("options.html") + "' target='_blank'>extension settings!</a>"
 
+var show_debug = null;
 function debug(output) {
-    chrome.storage.sync.get("debug", function (result){
-        if (result["debug"] === "on") {
-            if (typeof output === "string") {
-                console.log("Transmogrify for Plex log: " + output);
+    if (show_debug == null) {
+        // set show_debug for first run on this page
+        chrome.storage.sync.get("debug", function (result){
+            if (result["debug"] === "on") {
+                show_debug = true;
             }
             else {
-                console.log(output);
+                show_debug = false;
             }
+        });
+    }
+    if (show_debug) {
+        if (typeof output === "string") {
+            console.log("Transmogrify for Plex log: " + output);
         }
-    });
+        else {
+            console.log(output);
+        }
+    }
 }
 
 function closePopup() {

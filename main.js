@@ -92,6 +92,24 @@ function getJSON(json_link) {
     return json_resp;
 }
 
+function getAsyncJSON(url, cb) {
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", url, true);
+    xhr.onload = function (e) {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                cb(null, JSON.parse(xhr.responseText));
+            } else {
+                cb(xhr.statusText);
+            }
+        }
+    };
+    xhr.onerror = function () {
+        cb(xhr.statusText);
+    }
+    xhr.send();
+}
+
 function readFile(file_name) {
     var text;
     var rawFile = new XMLHttpRequest();
@@ -371,6 +389,9 @@ function main() {
                     debug("trakt plugin is disabled");
                 }
             });
+
+            // plexwatch
+            PlexWWWatch.doit(parent_item_id);
         }
         else if (metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("type") === "episode") {
             // we're on an episode page
@@ -386,6 +407,9 @@ function main() {
                     debug("trakt plugin is disabled");
                 }
             });
+
+            // plexwatch
+            PlexWWWatch.doit(parent_item_id);
         }
     }
 }

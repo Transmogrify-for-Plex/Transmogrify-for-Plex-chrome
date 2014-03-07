@@ -7,6 +7,7 @@ function saveOptions() {
     var trakt_movies = document.querySelector("input[name='trakt_movies']").checked;
     var trakt_shows = document.querySelector("input[name='trakt_shows']").checked;
     var random_picker = document.querySelector("input[name='random_picker']:checked").value;
+    var plexwwwatch_url = document.getElementById("plexwwwatch_url").value;
 
     var debug = document.querySelector("input[name='debug']:checked").value;
 
@@ -33,6 +34,7 @@ function saveOptions() {
     else {
         chrome.storage.sync.set({"trakt_shows": "off"});
     }
+    chrome.storage.sync.set({"plexwwwatch_url": plexwwwatch_url});
 
     chrome.storage.sync.set({"debug": debug});
 
@@ -145,6 +147,12 @@ function restoreOptions() {
         }
     });
 
+    chrome.storage.sync.get("plexwwwatch_url", function (result) {
+        if ("plexwwwatch_url" in result) {
+            document.getElementById("plexwwwatch_url").value = result.plexwwwatch_url;
+        }
+    });
+
     chrome.storage.sync.get("debug", function(result) {
         var radio_button;
         if (result["debug"]) {
@@ -206,6 +214,12 @@ function setDefaultOptions() {
     chrome.storage.sync.get("trakt_shows", function(result) {
         if (!("trakt_shows" in result)) {
             chrome.storage.sync.set({"trakt_shows": "on"});
+        }
+    });
+
+    chrome.storage.sync.get("plexwwwatch_url", function(result) {
+        if (!(plexwatch_url in result)) {
+            chrome.storage.sync.set({"plexwatch_url": ""});
         }
     });
 

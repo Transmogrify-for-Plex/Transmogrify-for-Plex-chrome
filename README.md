@@ -15,6 +15,7 @@ Features
 
 Version History
 --------------
+- v0.4.1 - fixed bug with hardcoded server port
 - v0.4.0 - added rotten tomatoes support, added themoviedb api support (non visible for now), added update popup
 - v0.3.2 - improve youtube search api params, no longer returns non-embeddable videos
 - v0.3.1 - improve youtube search api params, return json

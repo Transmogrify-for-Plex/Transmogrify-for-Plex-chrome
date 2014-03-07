@@ -1,4 +1,4 @@
-var show_update_text = true;
+var show_update_text = false;
 var update_text = "Rotten Tomatoes ratings can now be enabled in the <a href='" + chrome.extension.getURL("options.html") + "' target='_blank'>extension settings!</a>"
 
 var show_debug = null;

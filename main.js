@@ -107,8 +107,8 @@ function readFile(file_name) {
     return text;
 }
 
-function getMetadata(server_address, id, plex_token) {
-    return getXML("http://" + server_address + ":32400/library/metadata/" + id + "?X-Plex-Token=" + plex_token);
+function getMetadata(server_address, server_port, id, access_token) {
+    return getXML("http://" + server_address + ":" + server_port + "/library/metadata/" + id + "?X-Plex-Token=" + access_token);
 }
 
 function insertOverlay() {
@@ -309,7 +309,7 @@ function main() {
                     debug("Checking if trakt plugin should run");
                     if (result["trakt_shows"] === "on") {
                         debug("trakt plugin is enabled");
-                        createTraktLink(metadata_xml, "show");
+                        createTraktLink(metadata_xml, "show", server_address, server_port, access_token);
                     }
                     else {
                         debug("trakt plugin is disabled");
@@ -365,7 +365,7 @@ function main() {
                 debug("Checking if trakt plugin should run");
                 if (result["trakt_movies"] === "on") {
                     debug("trakt plugin is enabled");
-                    createTraktLink(metadata_xml, "movie");
+                    createTraktLink(metadata_xml, "movie", server_address, server_port, access_token);
                 }
                 else {
                     debug("trakt plugin is disabled");
@@ -380,7 +380,7 @@ function main() {
                 debug("Checking if trakt plugin should run");
                 if (result["trakt_shows"] === "on") {
                     debug("trakt plugin is enabled");
-                    createTraktLink(metadata_xml, "episode", server_address, plex_token);
+                    createTraktLink(metadata_xml, "episode", server_address, server_port, access_token);
                 }
                 else {
                     debug("trakt plugin is disabled");

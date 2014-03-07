@@ -56,7 +56,7 @@ function constructTraktLink(trakt_link, trakt_rating) {
     return trakt_container_element;
 }
 
-function createTraktLink(xml, type, server_address, plex_token) {
+function createTraktLink(xml, type, server_address, server_port, access_token) {
     // don't run if element already exists on page
     debug("trakt plugin: Checking if #trakt-container element already exists before creating");
     if (document.getElementById("trakt-container")) {
@@ -84,7 +84,7 @@ function createTraktLink(xml, type, server_address, plex_token) {
         debug("trakt plugin: Fetching grandparent metadata xml");
         var grandparent_id = xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("grandparentRatingKey");
         debug("trakt plugin: Grandparent id - " + grandparent_id);
-        var grandparent_xml = getMetadata(server_address, grandparent_id, plex_token);
+        var grandparent_xml = getMetadata(server_address, server_port, grandparent_id, access_token);
 
         if (grandparent_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("originalTitle") != null) {
             show_name = grandparent_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("originalTitle");

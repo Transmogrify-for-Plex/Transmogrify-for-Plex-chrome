@@ -321,7 +321,6 @@ function main() {
                 debug("main detected we are on a season page");
 
                 // insert missing episodes
-                // insertMissingEpisodes(metadata_xml, server_address, server_port, access_token);
                 chrome.storage.sync.get("missing_episodes", function (result){
                     debug("Checking if missing_episodes plugin should run");
                     if (result["missing_episodes"] === "on") {

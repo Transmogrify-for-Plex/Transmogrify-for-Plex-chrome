@@ -358,10 +358,9 @@ function main() {
 
             // create rotten tomatoes link
             chrome.storage.sync.get("rotten_tomatoes_link", function (result){
-                debug("Checking if rotten_tomatoes_link plugin should run");
                 if (result["rotten_tomatoes_link"] === "on") {
                     debug("rotten_tomatoes_link plugin is enabled");
-                    runRottenTomatoes(metadata_xml);
+                    rotten_tomatoes.init(metadata_xml);
                 }
                 else {
                     debug("rotten_tomatoes_link plugin is disabled");

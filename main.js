@@ -180,7 +180,6 @@ function main() {
 
     var plex_token = getPlexToken();
     var server_addresses = getServerAddresses(plex_token);
-    var library_sections = getLibrarySections(plex_token);
     var page_url = document.URL;
 
     // check if on library section
@@ -191,6 +190,8 @@ function main() {
         var section_num = page_identifier[2];
         debug("machine identifier - " + machine_identifier);
         debug("library section - " + section_num);
+
+        var library_sections = getLibrarySections(plex_token);
 
         chrome.storage.sync.get("random_picker", function (result){
             if (result["random_picker"] === "on") {
@@ -219,108 +220,109 @@ function main() {
         // construct metadata xml link
         debug("Fetching metadata for id - " + parent_item_id);
 
-        var metadata_xml_link = "http://" + server["address"] + ":" + server["port"] + "/library/metadata/" + parent_item_id + "?X-Plex-Token=" + server["access_token"];
+        var metadata_xml_url = "http://" + server["address"] + ":" + server["port"] + "/library/metadata/" + parent_item_id + "?X-Plex-Token=" + server["access_token"];
 
-        // fetch metadata xml
-        var metadata_xml = utils.getXML(metadata_xml_link, false);
+        // fetch metadata xml asynchronously
+        utils.getXML(metadata_xml_url, true, function(metadata_xml) {
 
-        if (metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory").length > 0) {
-            // we're on a tv show page
-            debug("main detected we are on tv show index page");
+            if (metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory").length > 0) {
+                // we're on a tv show page
+                debug("main detected we are on tv show index page");
 
-            if (metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("type") === "show") {
-                // we're on the root show page
-                debug("main detected we are on root show page");
+                if (metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("type") === "show") {
+                    // we're on the root show page
+                    debug("main detected we are on root show page");
+
+                    // create trakt link
+                    chrome.storage.sync.get("trakt_shows", function (result){
+                        if (result["trakt_shows"] === "on") {
+                            debug("trakt plugin is enabled");
+                            trakt.init(metadata_xml, "show", server);
+                        }
+                        else {
+                            debug("trakt plugin is disabled");
+                        }
+                    });
+                }
+                else if (metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("type") === "season") {
+                    // we're on the season page
+                    debug("main detected we are on a season page");
+
+                    // insert missing episodes
+                    chrome.storage.sync.get("missing_episodes", function (result){
+                        if (result["missing_episodes"] === "on") {
+                            debug("missing_episodes plugin is enabled");
+                            missing_episodes.init(metadata_xml, server);
+                        }
+                        else {
+                            debug("missing_episodes plugin is disabled");
+                        }
+                    });
+                }
+            }
+            else if (metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("type") === "movie") {
+                // we're on a movie page
+                debug("main detected we are on a movie page");
+
+                // create letterboxd link
+                chrome.storage.sync.get("letterboxd_link", function (result){
+                    if (result["letterboxd_link"] === "on") {
+                        debug("letterboxd_link plugin is enabled");
+                        letterboxd.init(metadata_xml);
+                    }
+                    else {
+                        debug("letterboxd_link plugin is disabled");
+                    }
+                });
+
+                // create youtube trailer button
+                chrome.storage.sync.get("movie_trailers", function (result){
+                    if (result["movie_trailers"] === "on") {
+                        debug("youtube_trailer plugin is enabled");
+                        youtube_trailer.init(metadata_xml);
+                    }
+                    else {
+                        debug("youtube_trailer plugin is disabled");
+                    }
+                });
+
+                // create rotten tomatoes link
+                chrome.storage.sync.get("rotten_tomatoes_link", function (result){
+                    if (result["rotten_tomatoes_link"] === "on") {
+                        debug("rotten_tomatoes_link plugin is enabled");
+                        rotten_tomatoes.init(metadata_xml);
+                    }
+                    else {
+                        debug("rotten_tomatoes_link plugin is disabled");
+                    }
+                });
 
                 // create trakt link
-                chrome.storage.sync.get("trakt_shows", function (result){
-                    if (result["trakt_shows"] === "on") {
+                chrome.storage.sync.get("trakt_movies", function (result){
+                    if (result["trakt_movies"] === "on") {
                         debug("trakt plugin is enabled");
-                        trakt.init(metadata_xml, "show", server);
+                        trakt.init(metadata_xml, "movie", server);
                     }
                     else {
                         debug("trakt plugin is disabled");
                     }
                 });
             }
-            else if (metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("type") === "season") {
-                // we're on the season page
-                debug("main detected we are on a season page");
+            else if (metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("type") === "episode") {
+                // we're on an episode page
 
-                // insert missing episodes
-                chrome.storage.sync.get("missing_episodes", function (result){
-                    if (result["missing_episodes"] === "on") {
-                        debug("missing_episodes plugin is enabled");
-                        missing_episodes.init(metadata_xml, server);
+                // create trakt link
+                chrome.storage.sync.get("trakt_shows", function (result){
+                    if (result["trakt_shows"] === "on") {
+                        debug("trakt plugin is enabled");
+                        trakt.init(metadata_xml, "episode", server);
                     }
                     else {
-                        debug("missing_episodes plugin is disabled");
+                        debug("trakt plugin is disabled");
                     }
                 });
             }
-        }
-        else if (metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("type") === "movie") {
-            // we're on a movie page
-            debug("main detected we are on a movie page");
-
-            // create letterboxd link
-            chrome.storage.sync.get("letterboxd_link", function (result){
-                if (result["letterboxd_link"] === "on") {
-                    debug("letterboxd_link plugin is enabled");
-                    letterboxd.init(metadata_xml);
-                }
-                else {
-                    debug("letterboxd_link plugin is disabled");
-                }
-            });
-
-            // create youtube trailer button
-            chrome.storage.sync.get("movie_trailers", function (result){
-                if (result["movie_trailers"] === "on") {
-                    debug("youtube_trailer plugin is enabled");
-                    youtube_trailer.init(metadata_xml);
-                }
-                else {
-                    debug("youtube_trailer plugin is disabled");
-                }
-            });
-
-            // create rotten tomatoes link
-            chrome.storage.sync.get("rotten_tomatoes_link", function (result){
-                if (result["rotten_tomatoes_link"] === "on") {
-                    debug("rotten_tomatoes_link plugin is enabled");
-                    rotten_tomatoes.init(metadata_xml);
-                }
-                else {
-                    debug("rotten_tomatoes_link plugin is disabled");
-                }
-            });
-
-            // create trakt link
-            chrome.storage.sync.get("trakt_movies", function (result){
-                if (result["trakt_movies"] === "on") {
-                    debug("trakt plugin is enabled");
-                    trakt.init(metadata_xml, "movie", server);
-                }
-                else {
-                    debug("trakt plugin is disabled");
-                }
-            });
-        }
-        else if (metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("type") === "episode") {
-            // we're on an episode page
-
-            // create trakt link
-            chrome.storage.sync.get("trakt_shows", function (result){
-                if (result["trakt_shows"] === "on") {
-                    debug("trakt plugin is enabled");
-                    trakt.init(metadata_xml, "episode", server);
-                }
-                else {
-                    debug("trakt plugin is disabled");
-                }
-            });
-        }
+        });
     }
 }
 

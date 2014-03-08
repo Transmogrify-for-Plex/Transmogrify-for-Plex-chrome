@@ -111,8 +111,8 @@ function insertPlexToken() {
 function getPlexToken() {
     var existing_plex_token = document.body.getAttribute("data-plextoken");
     if (existing_plex_token) {
-        debug("plex_token fetched from document body - " + plex_token);
-        return plex_token;
+        debug("plex_token fetched from document body - " + existing_plex_token);
+        return existing_plex_token;
     }
 
     debug("Inserting plex_token into document body");
@@ -144,14 +144,8 @@ function getServerAddresses(plex_token) {
     return server_addresses;
 }
 
-function getLibrarySections(plex_token) {
-    debug("Fetching library sections");
-    var sections_xml = utils.getXML("https://plex.tv/pms/system/library/sections?X-Plex-Token=" + plex_token, false);
+function processLibrarySections(sections_xml) {
     var directories = sections_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory");
-    debug("Library sections fetched");
-    debug(directories);
-
-    debug("Parsing library sections");
     var dir_metadata = {};
     for (var i = 0; i < directories.length; i++) {
         var type = directories[i].getAttribute("type");
@@ -191,19 +185,21 @@ function main() {
         debug("machine identifier - " + machine_identifier);
         debug("library section - " + section_num);
 
-        var library_sections = getLibrarySections(plex_token);
+        // get library sections xml
+        utils.getXML("https://plex.tv/pms/system/library/sections?X-Plex-Token=" + plex_token, true, function(sections_xml) {
+            var library_sections = processLibrarySections(sections_xml);
+            var server = server_addresses[machine_identifier];
+            var section = library_sections[machine_identifier][section_num];
 
-        chrome.storage.sync.get("random_picker", function (result){
-            if (result["random_picker"] === "on") {
-                debug("random_picker plugin is enabled");
-                var section = library_sections[machine_identifier][section_num];
-                var server = server_addresses[machine_identifier];
-
-                random_picker.init(server, section);
-            }
-            else {
-                debug("random_picker plugin is disabled");
-            }
+            chrome.storage.sync.get("random_picker", function (result){
+                if (result["random_picker"] === "on") {
+                    debug("random_picker plugin is enabled");
+                    random_picker.init(server, section);
+                }
+                else {
+                    debug("random_picker plugin is disabled");
+                }
+            });
         });
     }
 

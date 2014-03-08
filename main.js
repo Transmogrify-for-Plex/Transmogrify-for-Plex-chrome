@@ -261,15 +261,12 @@ function main() {
         debug("library section - " + section_num);
 
         chrome.storage.sync.get("random_picker", function (result){
-            debug("Checking if random_picker plugin should run");
             if (result["random_picker"] === "on") {
                 debug("random_picker plugin is enabled");
-                var server_address = server_addresses[machine_identifier]["address"];
-                var server_port = server_addresses[machine_identifier]["port"];
-                var access_token = server_addresses[machine_identifier]["access_token"];
-                var section_data = library_sections[machine_identifier][section_num];
+                var section = library_sections[machine_identifier][section_num];
+                var server = server_addresses[machine_identifier];
 
-                addRandomButton(server_address, server_port, access_token, section_data);
+                random_picker.init(server, section);
             }
             else {
                 debug("random_picker plugin is disabled");

@@ -14,7 +14,7 @@
         "options.js",
         "plugins/letterboxd.js",
         "plugins/youtube_trailer.js",
-        "plugins/random.js",
+        "plugins/random_picker.js",
         "plugins/trakt.js",
         "plugins/rotten_tomatoes.js",
         "plugins/themoviedb.js",

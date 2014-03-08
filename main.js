@@ -127,7 +127,7 @@ function getPlexToken() {
 
 function getServerAddresses(plex_token) {
     debug("Fetching server address");
-    var servers_xml = utils.getXML("https://plex.tv/pms/servers?X-Plex-Token=" + plex_token);
+    var servers_xml = utils.getXML("https://plex.tv/pms/servers?X-Plex-Token=" + plex_token, false);
     var servers = servers_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Server");
     var server_addresses = {};
     for (var i = 0; i < servers.length; i++) {
@@ -146,7 +146,7 @@ function getServerAddresses(plex_token) {
 
 function getLibrarySections(plex_token) {
     debug("Fetching library sections");
-    var sections_xml = utils.getXML("https://plex.tv/pms/system/library/sections?X-Plex-Token=" + plex_token);
+    var sections_xml = utils.getXML("https://plex.tv/pms/system/library/sections?X-Plex-Token=" + plex_token, false);
     var directories = sections_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory");
     debug("Library sections fetched");
     debug(directories);
@@ -214,14 +214,15 @@ function main() {
         var parent_item_id = page_identifier[2];
         debug("metadata id - " + parent_item_id);
 
+        var server = server_addresses[machine_identifier];
+
         // construct metadata xml link
         debug("Fetching metadata for id - " + parent_item_id);
-        var server = server_addresses[machine_identifier];
 
         var metadata_xml_link = "http://" + server["address"] + ":" + server["port"] + "/library/metadata/" + parent_item_id + "?X-Plex-Token=" + server["access_token"];
 
         // fetch metadata xml
-        var metadata_xml = utils.getXML(metadata_xml_link);
+        var metadata_xml = utils.getXML(metadata_xml_link, false);
 
         if (metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory").length > 0) {
             // we're on a tv show page

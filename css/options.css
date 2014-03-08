@@ -6,7 +6,7 @@ body {
 }
 
 .label {
-    width: 300px;
+    width: 350px;
     text-align: right;
 }
 
@@ -67,7 +67,7 @@ input[type=radio]:checked + label, input[type=checkbox]:checked + label {
     border: 1px solid #E69533;
     border-color: #E69533 #E69533 #E69533;
     cursor: pointer;
-    font-size: 20px;
+    font-size: 40px;
 }
 
 #save:hover, #save:focus {

@@ -88,7 +88,7 @@ function restoreOptions() {
             radio_button = document.getElementById("missing_episodes_" + result["missing_episodes"]);
         }
         else {
-            radio_button = document.getElementById("missing_episodes_off");
+            radio_button = document.getElementById("missing_episodes_on");
         }
         radio_button.checked = true;
     });
@@ -194,7 +194,7 @@ function setDefaultOptions() {
 
     chrome.storage.sync.get("missing_episodes", function(result) {
         if (!("missing_episodes" in result)) {
-            chrome.storage.sync.set({"missing_episodes": "off"});
+            chrome.storage.sync.set({"missing_episodes": "on"});
         }
     });
 

@@ -339,10 +339,9 @@ function main() {
 
             // create letterboxd link
             chrome.storage.sync.get("letterboxd_link", function (result){
-                debug("Checking if letterboxd_link plugin should run");
                 if (result["letterboxd_link"] === "on") {
                     debug("letterboxd_link plugin is enabled");
-                    createLetterboxdLink(metadata_xml);
+                    letterboxd.init(metadata_xml);
                 }
                 else {
                     debug("letterboxd_link plugin is disabled");
@@ -351,13 +350,12 @@ function main() {
 
             // create youtube trailer button
             chrome.storage.sync.get("movie_trailers", function (result){
-                debug("Checking if movie_trailers plugin should run");
                 if (result["movie_trailers"] === "on") {
-                    debug("movie_trailers plugin is enabled");
-                    createTrailerButton(metadata_xml);
+                    debug("youtube_trailer plugin is enabled");
+                    youtube_trailer.init(metadata_xml);
                 }
                 else {
-                    debug("movie_trailers plugin is disabled");
+                    debug("youtube_trailer plugin is disabled");
                 }
             });
 

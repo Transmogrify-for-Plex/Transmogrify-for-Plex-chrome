@@ -10,6 +10,7 @@
       "matches": ["http://plex.tv/*", "https://plex.tv/*"],
       "css": ["css/transmogrify.css"],
       "js": [
+        "utils.js",
         "options.js",
         "plugins/letterboxd.js",
         "plugins/youtube_trailer.js",

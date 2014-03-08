@@ -34,7 +34,7 @@ function closePopup() {
 }
 
 function showPopup(messsage) {
-    var overylay = insertOverlay();
+    var overylay = utils.insertOverlay();
     overlay.style.display = "block";
 
     var popup_container = document.createElement("div");
@@ -66,77 +66,6 @@ function showUpdatePopup() {
             chrome.storage.local.set({"last_version": current_version});
         }
     });
-}
-
-function getXML(xml_link) {
-    debug("Fetching xml from " + xml_link);
-    var request = new XMLHttpRequest;
-    request.open("GET", xml_link, false);
-    request.send();
-
-    var xml_doc = request.responseXML;
-    debug("Recieved xml response");
-    debug(xml_doc);
-    return xml_doc;
-}
-
-function getJSON(json_link) {
-    debug("Fetching json from " + json_link);
-    var request = new XMLHttpRequest;
-    request.open("GET", json_link, false);
-    request.send();
-
-    var json_resp = JSON.parse(request.responseText);
-    debug("Recieved json response");
-    debug(json_resp);
-    return json_resp;
-}
-
-function readFile(file_name) {
-    var text;
-    var rawFile = new XMLHttpRequest();
-    rawFile.open("GET", file_name, false);
-    rawFile.onreadystatechange = function() {
-        if (rawFile.readyState === 4) {
-            if (rawFile.status === 200 || rawFile.status == 0) {
-                text = rawFile.responseText;
-            }
-        }
-    }
-    rawFile.send(null);
-    return text;
-}
-
-function getMetadata(server_address, server_port, id, access_token) {
-    return getXML("http://" + server_address + ":" + server_port + "/library/metadata/" + id + "?X-Plex-Token=" + access_token);
-}
-
-function insertOverlay() {
-    // don't run if element already exists on page
-    debug("Checking if overlay already exists before creating");
-    if (document.getElementById("overlay")) {
-        debug("Overlay already exists. Passing");
-        return;
-    }
-
-    // create dark overlay
-    var overlay = document.createElement("div");
-    overlay.setAttribute("id", "overlay");
-
-    document.getElementsByTagName("body")[0].appendChild(overlay);
-    debug("Created overlay");
-
-    return overlay;
-}
-
-function removeOverlay() {
-    debug("Checking if overlay exists before removing");
-    if (document.getElementById("overlay")) {
-        var overlay = document.getElementById("overlay");
-        overlay.parentNode.removeChild(overlay);
-        debug("Overlay removed");
-    }
-    debug("Overlay doesn't exist. Passing");
 }
 
 function runOnReady() {
@@ -174,15 +103,21 @@ function runOnReady() {
     }, 1000);
 }
 
-function prepPlexToken() {
+function insertPlexToken() {
     var plex_token = PLEXWEB.myPlexAccessToken;
     document.body.setAttribute("data-plextoken", plex_token);
 }
 
 function getPlexToken() {
+    var existing_plex_token = document.body.getAttribute("data-plextoken");
+    if (existing_plex_token) {
+        debug("plex_token fetched from document body - " + plex_token);
+        return plex_token;
+    }
+
     debug("Inserting plex_token into document body");
     var script = document.createElement("script");
-    script.appendChild(document.createTextNode("("+ prepPlexToken +")();"));
+    script.appendChild(document.createTextNode("("+ insertPlexToken +")();"));
     (document.body || document.head || document.documentElement).appendChild(script);
 
     var plex_token = document.body.getAttribute("data-plextoken");
@@ -192,7 +127,7 @@ function getPlexToken() {
 
 function getServerAddresses(plex_token) {
     debug("Fetching server address");
-    var servers_xml = getXML("https://plex.tv/pms/servers?X-Plex-Token=" + plex_token);
+    var servers_xml = utils.getXML("https://plex.tv/pms/servers?X-Plex-Token=" + plex_token);
     var servers = servers_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Server");
     var server_addresses = {};
     for (var i = 0; i < servers.length; i++) {
@@ -211,7 +146,7 @@ function getServerAddresses(plex_token) {
 
 function getLibrarySections(plex_token) {
     debug("Fetching library sections");
-    var sections_xml = getXML("https://plex.tv/pms/system/library/sections?X-Plex-Token=" + plex_token);
+    var sections_xml = utils.getXML("https://plex.tv/pms/system/library/sections?X-Plex-Token=" + plex_token);
     var directories = sections_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory");
     debug("Library sections fetched");
     debug(directories);
@@ -248,9 +183,6 @@ function main() {
     var library_sections = getLibrarySections(plex_token);
     var page_url = document.URL;
 
-    // remove overlay to be safe
-    removeOverlay();
-
     // check if on library section
     if (/\/section\/\d+$/.test(page_url)) {
         debug("main detected we are in library section");
@@ -284,14 +216,12 @@ function main() {
 
         // construct metadata xml link
         debug("Fetching metadata for id - " + parent_item_id);
-        var server_address = server_addresses[machine_identifier]["address"];
-        var server_port = server_addresses[machine_identifier]["port"];
-        var access_token = server_addresses[machine_identifier]["access_token"];
+        var server = server_addresses[machine_identifier];
 
-        var metadata_xml_link = "http://" + server_address + ":" + server_port + "/library/metadata/" + parent_item_id + "?X-Plex-Token=" + access_token;
+        var metadata_xml_link = "http://" + server["address"] + ":" + server["port"] + "/library/metadata/" + parent_item_id + "?X-Plex-Token=" + server["access_token"];
 
         // fetch metadata xml
-        var metadata_xml = getXML(metadata_xml_link);
+        var metadata_xml = utils.getXML(metadata_xml_link);
 
         if (metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory").length > 0) {
             // we're on a tv show page
@@ -303,10 +233,9 @@ function main() {
 
                 // create trakt link
                 chrome.storage.sync.get("trakt_shows", function (result){
-                    debug("Checking if trakt plugin should run");
                     if (result["trakt_shows"] === "on") {
                         debug("trakt plugin is enabled");
-                        createTraktLink(metadata_xml, "show", server_address, server_port, access_token);
+                        trakt.init(metadata_xml, "show", server);
                     }
                     else {
                         debug("trakt plugin is disabled");
@@ -319,10 +248,9 @@ function main() {
 
                 // insert missing episodes
                 chrome.storage.sync.get("missing_episodes", function (result){
-                    debug("Checking if missing_episodes plugin should run");
                     if (result["missing_episodes"] === "on") {
                         debug("missing_episodes plugin is enabled");
-                        insertMissingEpisodes(metadata_xml, server_address, server_port, access_token);
+                        missing_episodes.init(metadata_xml, server);
                     }
                     else {
                         debug("missing_episodes plugin is disabled");
@@ -369,10 +297,9 @@ function main() {
 
             // create trakt link
             chrome.storage.sync.get("trakt_movies", function (result){
-                debug("Checking if trakt plugin should run");
                 if (result["trakt_movies"] === "on") {
                     debug("trakt plugin is enabled");
-                    createTraktLink(metadata_xml, "movie", server_address, server_port, access_token);
+                    trakt.init(metadata_xml, "movie", server);
                 }
                 else {
                     debug("trakt plugin is disabled");
@@ -384,10 +311,9 @@ function main() {
 
             // create trakt link
             chrome.storage.sync.get("trakt_shows", function (result){
-                debug("Checking if trakt plugin should run");
                 if (result["trakt_shows"] === "on") {
                     debug("trakt plugin is enabled");
-                    createTraktLink(metadata_xml, "episode", server_address, server_port, access_token);
+                    trakt.init(metadata_xml, "episode", server);
                 }
                 else {
                     debug("trakt plugin is disabled");

@@ -3,7 +3,6 @@ random_picker = {
     section: null,
     overlay: null,
 
-    // init: function(server_address, server_port, plex_token, section) {
     init: function(server, section) {
         random_picker.server = server;
         random_picker.section = section;
@@ -24,11 +23,12 @@ random_picker = {
     },
 
     closeRandom: function() {
-    	debug("random_picker plugin: Close random_picker");
+        debug("random_picker plugin: Close random_picker");
         var poster = document.getElementById("random-poster");
         poster.parentNode.removeChild(poster);
 
         random_picker.overlay.style.display = "none";
+        random_picker.overlay.removeEventListener("click", random_picker.closeRandom, false);
     },
 
     getMediaList: function() {
@@ -56,7 +56,7 @@ random_picker = {
     },
 
     displayRandom: function() {
-    	debug("random_picker plugin: pick-random button clicked");
+        debug("random_picker plugin: pick-random button clicked");
         var random_id = random_picker.getRandomId();
         var poster_url = "http://" + random_picker.server["address"] + ":" + random_picker.server["port"] + "/library/metadata/" + random_id + "/poster?X-Plex-Token=" + random_picker.server["access_token"];
         debug("random_picker plugin: Generated poster URL - " + poster_url);
@@ -88,7 +88,7 @@ random_picker = {
     },
 
     refreshRandom: function() {
-    	debug("random_picker plugin: Refresh random button clicked");
+        debug("random_picker plugin: Refresh random button clicked");
         var random_id = random_picker.getRandomId();
         var poster_url = "http://" + random_picker.server["address"] + ":" + random_picker.server["port"] + "/library/metadata/" + random_id + "/poster?X-Plex-Token=" + random_picker.server["access_token"];
         debug("random_picker plugin: Generated poster URL - " + poster_url);
@@ -99,7 +99,7 @@ random_picker = {
     },
 
     loadChoice: function() {
-    	debug("random_picker plugin: Loading choice");
+        debug("random_picker plugin: Loading choice");
         var library_id = document.getElementById("random-poster-image").getAttribute("data-libraryid");
         var new_url = document.URL.replace(/section\/\d+/, "details/%2Flibrary%2Fmetadata%2F" + library_id);
         debug("random_picker plugin: Choice URL - " + new_url);

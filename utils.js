@@ -2,9 +2,10 @@ utils = {
     insertOverlay: function() {
         // don't run if overlay exists on page
         debug("Checking if overlay already exists before creating");
-        if (document.getElementById("overlay")) {
+        var existing_overlay = document.getElementById("overlay");
+        if (existing_overlay) {
             debug("Overlay already exists. Passing");
-            return;
+            return existing_overlay;
         }
 
         var overlay = document.createElement("div");
@@ -76,5 +77,20 @@ utils = {
             debug(resp);
             return resp;
         }
+    },
+
+    readFile: function(file_name) {
+        var text;
+        var rawFile = new XMLHttpRequest();
+        rawFile.open("GET", file_name, false);
+        rawFile.onreadystatechange = function() {
+            if (rawFile.readyState === 4) {
+                if (rawFile.status === 200 || rawFile.status == 0) {
+                    text = rawFile.responseText;
+                }
+            }
+        }
+        rawFile.send(null);
+        return text;
     }
 }

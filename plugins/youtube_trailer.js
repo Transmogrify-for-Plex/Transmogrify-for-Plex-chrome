@@ -52,6 +52,7 @@ youtube_trailer = {
         trailer.parentNode.removeChild(trailer);
 
         youtube_trailer.overlay.style.display = "none";
+        youtube_trailer.overlay.removeEventListener("click", youtube_trailer.closeTrailer, false);
     },
 
     getYoutubeEmbedLink: function(movie_title, movie_year) {

@@ -22,7 +22,7 @@ rotten_tomatoes = {
 
     getRottenTomatoesData: function(imdb_id, callback) {
         debug("rotten_tomatoes plugin: Reading API key");
-        var api_key = readFile(chrome.extension.getURL("resources/api_keys/rotten_tomatoes_api_key.txt"));
+        var api_key = utils.readFile(chrome.extension.getURL("resources/api_keys/rotten_tomatoes_api_key.txt"));
         debug("rotten_tomatoes plugin: Successfully read API key");
 
         var api_url = "http://api.rottentomatoes.com/api/public/v1.0/movie_alias.json?apikey=" + api_key + "&type=imdb&id=" + imdb_id;
@@ -119,13 +119,13 @@ rotten_tomatoes = {
         debug("rotten_tomatoes plugin: Grabbing imdb id");
         var agent = rotten_tomatoes.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("guid");
         // check if using the freebase metadata agent
-        if (/com.plexapp.agents.imdb/.test(agent)) {
-            imdb_id = agent.match(/^com.plexapp.agents.imdb:\/\/tt(.+)\?/)[1];
+        if (/com\.plexapp\.agents\.imdb/.test(agent)) {
+            imdb_id = agent.match(/^com\.plexapp\.agents\.imdb:\/\/tt(.+)\?/)[1];
             debug("rotten_tomatoes plugin: imdb id found - " + imdb_id);
         }
         // check if using the movie database metadata agent
-        else if (/com.plexapp.agents.themoviedb/.test(agent)) {
-            var tmdb_id = agent.match(/^com.plexapp.agents.themoviedb:\/\/(.+)\?/)[1];
+        else if (/com\.plexapp\.agents\.themoviedb/.test(agent)) {
+            var tmdb_id = agent.match(/^com\.plexapp\.agents\.themoviedb:\/\/(.+)\?/)[1];
             debug("rotten_tomatoes plugin: tmdb id found - " + tmdb_id);
             imdb_id = themoviedb.getImdbId(tmdb_id);
             // chop off tt prefix

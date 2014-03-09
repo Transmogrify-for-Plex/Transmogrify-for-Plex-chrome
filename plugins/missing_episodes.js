@@ -4,9 +4,10 @@ missing_episodes = {
     init: function(metadata_xml, server) {
         missing_episodes.server = server;
 
-        var show_id = metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("ratingKey");
-        var agent = metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("guid");
-        var season_num = metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("index");
+        var directory_metadata = metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0];
+        var show_id = directory_metadata.getAttribute("ratingKey");
+        var agent = directory_metadata.getAttribute("guid");
+        var season_num = directory_metadata.getAttribute("index");
 
         var tvdb_id;
         if (/com\.plexapp\.agents\.thetvdb/.test(agent)) {
@@ -22,12 +23,15 @@ missing_episodes = {
         var present_episodes = missing_episodes.getPresentEpisodes(show_id);
         var all_episodes = missing_episodes.getAllEpisodes(tvdb_id, season_num);
 
+        var tiles_to_insert = {};
         for (var i = 0; i < all_episodes.length; i++) {
-            if (present_episodes.indexOf(all_episodes[i]["episode"]) === -1) {
-                // insert missing episode tile
-                missing_episodes.insertEpisodeTile(all_episodes[i]);
+            var episode = all_episodes[i];
+            if (present_episodes.indexOf(episode["episode"]) === -1) {
+                var episode_tile = missing_episodes.createEpisodeTile(episode);
+                tiles_to_insert[episode["number"]] = episode_tile;
             }
         }
+        missing_episodes.insertEpisodeTiles(tiles_to_insert);
     },
 
     getPresentEpisodes: function(show_id) {
@@ -55,7 +59,7 @@ missing_episodes = {
         return trakt_json;
     },
 
-    insertEpisodeTile: function(episode) {
+    createEpisodeTile: function(episode) {
         var episode_tile_list = document.getElementsByClassName("episode-tile-list")[0];
 
         var episode_tile = document.createElement("li");
@@ -94,20 +98,38 @@ missing_episodes = {
         episode_tile_number.setAttribute("class", "media-subtitle media-heading secondary");
         episode_tile_number.innerHTML = "Episode " + episode["number"];
 
-        // insert episode tile into correct position in list
-        var list_elements = episode_tile_list.getElementsByTagName("li");
-        if (episode["number"] === 1) {
-            episode_tile_list.insertBefore(episode_tile, list_elements[0]);
-        }
-        else {
-            episode_tile_list.insertBefore(episode_tile, list_elements[episode["number"]-2].nextSibling);
-        }
-
         episode_tile.appendChild(episode_tile_link);
         episode_tile_link.appendChild(episode_tile_poster);
         episode_tile_link.appendChild(episode_tile_title);
         episode_tile_link.appendChild(episode_tile_number);
         episode_tile_poster.appendChild(episode_tile_overlay);
         episode_tile_overlay.appendChild(episode_title_overlay_text);
+
+        return episode_tile;
+    },
+
+    insertEpisodeTiles: function(episode_tiles) {
+        var episode_tile_list = document.getElementsByClassName("episode-tile-list")[0];
+        var episode_tile_list_elements = episode_tile_list.getElementsByTagName("li");
+
+        // remove episode tile list node first
+        var parent_node = episode_tile_list.parentNode;
+        parent_node.removeChild(episode_tile_list);
+
+        for (var episode_number in episode_tiles) {
+            var episode_tile = episode_tiles[episode_number];
+            episode_number = parseInt(episode_number);
+            if (episode_number === 1) {
+                // insert into beginning of tile list
+                episode_tile_list.insertBefore(episode_tile, episode_tile_list_elements[0]);
+            }
+            else {
+                // insert after last episode tile
+                episode_tile_list.insertBefore(episode_tile, episode_tile_list_elements[episode_number-2].nextSibling);
+            }
+        }
+
+        // reinsert episode tile list node
+        parent_node.appendChild(episode_tile_list);
     }
 }

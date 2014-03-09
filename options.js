@@ -47,191 +47,57 @@ function saveOptions() {
 }
 
 function restoreOptions() {
-    setDefaultOptions();
+    utils.setDefaultOptions(function() {
+        chrome.storage.sync.get(function(result) {
+            var movie_trailers_radio_button = document.getElementById("trailers_" + result["movie_trailers"]);
+            movie_trailers_radio_button.checked = true;
 
-    chrome.storage.sync.get("movie_trailers", function(result) {
-        var radio_button;
-        if (result["movie_trailers"]) {
-            radio_button = document.getElementById("trailers_" + result["movie_trailers"]);
-        }
-        else {
-            radio_button = document.getElementById("trailers_on");
-        }
-        radio_button.checked = true;
-    });
+            var letterboxd_link_radio_button = document.getElementById("letterboxd_" + result["letterboxd_link"]);
+            letterboxd_link_radio_button.checked = true;
 
-    chrome.storage.sync.get("letterboxd_link", function(result) {
-        var radio_button;
-        if (result["letterboxd_link"]) {
-            radio_button = document.getElementById("letterboxd_" + result["letterboxd_link"]);
-        }
-        else {
-            radio_button = document.getElementById("letterboxd_on");
-        }
-        radio_button.checked = true;
-    });
+            var random_picker_radio_button = document.getElementById("random_" + result["random_picker"]);
+            random_picker_radio_button.checked = true;
 
-    chrome.storage.sync.get("random_picker", function(result) {
-        var radio_button;
-        if (result["random_picker"]) {
-            radio_button = document.getElementById("random_" + result["random_picker"]);
-        }
-        else {
-            radio_button = document.getElementById("random_on");
-        }
-        radio_button.checked = true;
-    });
+            var missing_episodes_radio_button = document.getElementById("missing_episodes_" + result["missing_episodes"]);
+            missing_episodes_radio_button.checked = true;
 
-    chrome.storage.sync.get("missing_episodes", function(result) {
-        var radio_button;
-        if (result["missing_episodes"]) {
-            radio_button = document.getElementById("missing_episodes_" + result["missing_episodes"]);
-        }
-        else {
-            radio_button = document.getElementById("missing_episodes_on");
-        }
-        radio_button.checked = true;
-    });
+            var rotten_tomatoes_link_radio_button = document.getElementById("rotten_tomatoes_" + result["rotten_tomatoes_link"]);
+            rotten_tomatoes_link_radio_button.checked = true;
+            refreshExtraOptions();
 
-    chrome.storage.sync.get("rotten_tomatoes_link", function(result) {
-        var radio_button;
-        if (result["rotten_tomatoes_link"]) {
-            radio_button = document.getElementById("rotten_tomatoes_" + result["rotten_tomatoes_link"]);
-        }
-        else {
-            radio_button = document.getElementById("rotten_tomatoes_off");
-        }
-        radio_button.checked = true;
-        refreshExtraOptions();
-    });
-
-    chrome.storage.sync.get("rotten_tomatoes_audience", function(result) {
-        var checkbox;
-        if (result["rotten_tomatoes_audience"]) {
-            checkbox = document.getElementById("rotten_tomatoes_audience");
+            var rotten_tomatoes_audience_checkbox = document.getElementById("rotten_tomatoes_audience");
             if (result["rotten_tomatoes_audience"] === "on") {
-                checkbox.checked = true;
+                rotten_tomatoes_audience_checkbox.checked = true;
             }
-        }
-        else {
-            checkbox = document.getElementById("rotten_tomatoes_audience");
-            checkbox.checked = true;
-        }
-    });
+            else {
+                rotten_tomatoes_audience_checkbox.checked = false;
+            }
 
-    chrome.storage.sync.get("rotten_tomatoes_citizen", function(result) {
-        var radio_button;
-        if (result["rotten_tomatoes_citizen"]) {
-            radio_button = document.getElementById("rotten_tomatoes_citizen_" + result["rotten_tomatoes_citizen"]);
-        }
-        else {
-            radio_button = document.getElementById("rotten_tomatoes_citizen_non_us");
-        }
-        radio_button.checked = true;
-    });
+            var rotten_tomatoes_citizen_radio_button = document.getElementById("rotten_tomatoes_citizen_" + result["rotten_tomatoes_citizen"]);
+            rotten_tomatoes_citizen_radio_button.checked = true;
 
-    chrome.storage.sync.get("trakt_movies", function(result) {
-        var checkbox;
-        if (result["trakt_movies"]) {
-            checkbox = document.getElementById("trakt_movies");
+            var trakt_movies_checkbox = document.getElementById("trakt_movies");
             if (result["trakt_movies"] === "on") {
-                checkbox.checked = true;
+                trakt_movies_checkbox.checked = true;
             }
-        }
-        else {
-            checkbox = document.getElementById("trakt_movies");
-            checkbox.checked = true;
-        }
-    });
+            else {
+                trakt_movies_checkbox.checked = false;
+            }
 
-    chrome.storage.sync.get("trakt_shows", function(result) {
-        var checkbox;
-        if (result["trakt_shows"]) {
-            checkbox = document.getElementById("trakt_shows");
+            var trakt_shows_checkbox = document.getElementById("trakt_shows");
             if (result["trakt_shows"] === "on") {
-                checkbox.checked = true;
+                trakt_shows_checkbox.checked = true;
             }
-        }
-        else {
-            checkbox = document.getElementById("trakt_shows");
-            checkbox.checked = true;
-        }
-    });
+            else {
+                trakt_shows_checkbox.checked = false;
+            }
 
-    chrome.storage.sync.get("debug", function(result) {
-        var radio_button;
-        if (result["debug"]) {
-            radio_button = document.getElementById("debug_" + result["debug"]);
-        }
-        else {
-            radio_button = document.getElementById("debug_off");
-        }
-        radio_button.checked = true;
-    });
+            var debug_radio_button = document.getElementById("debug_" + result["debug"]);
+            debug_radio_button.checked = true;
+        });
 
-    document.getElementById("rotten_tomatoes_on").addEventListener("click", refreshExtraOptions, false);
-    document.getElementById("rotten_tomatoes_off").addEventListener("click", refreshExtraOptions, false);
-}
-
-function setDefaultOptions() {
-    chrome.storage.sync.get("movie_trailers", function(result) {
-        if (!("movie_trailers" in result)) {
-            chrome.storage.sync.set({"movie_trailers": "on"});
-        }
-    });
-
-    chrome.storage.sync.get("letterboxd_link", function(result) {
-        if (!("letterboxd_link" in result)) {
-            chrome.storage.sync.set({"letterboxd_link": "on"});
-        }
-    });
-
-    chrome.storage.sync.get("random_picker", function(result) {
-        if (!("random_picker" in result)) {
-            chrome.storage.sync.set({"random_picker": "on"});
-        }
-    });
-
-    chrome.storage.sync.get("missing_episodes", function(result) {
-        if (!("missing_episodes" in result)) {
-            chrome.storage.sync.set({"missing_episodes": "on"});
-        }
-    });
-
-    chrome.storage.sync.get("rotten_tomatoes_link", function(result) {
-        if (!("rotten_tomatoes_link" in result)) {
-            chrome.storage.sync.set({"rotten_tomatoes_link": "off"});
-        }
-    });
-
-    chrome.storage.sync.get("rotten_tomatoes_audience", function(result) {
-        if (!("rotten_tomatoes_audience" in result)) {
-            chrome.storage.sync.set({"rotten_tomatoes_audience": "on"});
-        }
-    });
-
-    chrome.storage.sync.get("rotten_tomatoes_citizen", function(result) {
-        if (!("rotten_tomatoes_citizen" in result)) {
-            chrome.storage.sync.set({"rotten_tomatoes_citizen": "non_us"});
-        }
-    });
-
-    chrome.storage.sync.get("trakt_movies", function(result) {
-        if (!("trakt_movies" in result)) {
-            chrome.storage.sync.set({"trakt_movies": "on"});
-        }
-    });
-
-    chrome.storage.sync.get("trakt_shows", function(result) {
-        if (!("trakt_shows" in result)) {
-            chrome.storage.sync.set({"trakt_shows": "on"});
-        }
-    });
-
-    chrome.storage.sync.get("debug", function(result) {
-        if (!("debug" in result)) {
-            chrome.storage.sync.set({"debug": "off"});
-        }
+        document.getElementById("rotten_tomatoes_on").addEventListener("click", refreshExtraOptions, false);
+        document.getElementById("rotten_tomatoes_off").addEventListener("click", refreshExtraOptions, false);
     });
 }
 
@@ -250,10 +116,4 @@ function refreshExtraOptions() {
 }
 
 document.addEventListener("DOMContentLoaded", restoreOptions);
-
-// document.getElementById("rotten_tomatoes_on").addEventListener("click", refreshExtraOptions, false);
-// document.getElementById("rotten_tomatoes_off").addEventListener("click", refreshExtraOptions, false);
-
-if (document.getElementById("save")) {
-    document.getElementById("save").addEventListener("click", saveOptions);
-}
+document.getElementById("save").addEventListener("click", saveOptions);

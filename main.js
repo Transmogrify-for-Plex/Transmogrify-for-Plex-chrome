@@ -324,7 +324,7 @@ function main() {
 
 // set the default options for extension
 debug("Setting default options");
-setDefaultOptions();
+utils.setDefaultOptions();
 
 // plex.tv uses a lot of JS to manipulate the DOM so the only way to tell when
 // plex's JS has finished is to check for the existance of certain elements.

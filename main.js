@@ -1,5 +1,5 @@
-var show_update_text = false;
-var update_text = "Rotten Tomatoes ratings can now be enabled in the <a href='" + chrome.extension.getURL("options.html") + "' target='_blank'>extension settings!</a>"
+var show_update_text = true;
+var update_text = "You can now view missing season episodes, try it now on a tv show season page! Also you can now manually set the Plex server address in the <a href='" + chrome.extension.getURL("options.html") + "' target='_blank'>extension settings</a>"
 
 var show_debug = null;
 function debug(output) {

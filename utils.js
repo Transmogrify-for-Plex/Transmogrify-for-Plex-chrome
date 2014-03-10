@@ -123,12 +123,17 @@ utils = {
             if (!("rotten_tomatoes_citizen" in result)) {
                 chrome.storage.sync.set({"rotten_tomatoes_citizen": "non_us"});
             }
+
             if (!("trakt_movies" in result)) {
                 chrome.storage.sync.set({"trakt_movies": "on"});
             }
 
             if (!("trakt_shows" in result)) {
                 chrome.storage.sync.set({"trakt_shows": "on"});
+            }
+
+            if (!("plex_server_address" in result) || !("plex_server_port" in result)) {
+                chrome.storage.sync.set({"plex_server_address": "", "plex_server_port": ""});
             }
 
             if (!("debug" in result)) {

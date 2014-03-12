@@ -2,22 +2,18 @@ rotten_tomatoes = {
     metadata_xml: null,
     show_audience_rating: null,
 
-    init: function(metadata_xml) {
+    init: function(metadata_xml, rotten_tomatoes_citizen, rotten_tomatoes_audience) {
         rotten_tomatoes.metadata_xml = metadata_xml;
 
         // check if US citizen (API requirement)
-        chrome.storage.sync.get("rotten_tomatoes_citizen", function (result){
-            if (result["rotten_tomatoes_citizen"] === "us") {
-                // check whether to show audience rating
-                chrome.storage.sync.get("rotten_tomatoes_audience", function (result){
-                    rotten_tomatoes.show_audience_rating = result["rotten_tomatoes_audience"];
-                    rotten_tomatoes.createRottenTomatoesLink();
-                });
-            }
-            else {
-                debug("rotten_tomatoes plugin: User is not in US. Aborting");
-            }
-        });
+        if (rotten_tomatoes_citizen === "us") {
+            // check whether to show audience rating
+            rotten_tomatoes.show_audience_rating = rotten_tomatoes_audience;
+            rotten_tomatoes.createRottenTomatoesLink();
+        }
+        else {
+            debug("rotten_tomatoes plugin: User is not in US. Aborting");
+        }
     },
 
     getRottenTomatoesData: function(imdb_id) {

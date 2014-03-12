@@ -1,4 +1,14 @@
 utils = {
+    getExtensionVersion: function(callback) {
+        var version = chrome.runtime.getManifest()["version"];
+        callback(version);
+    },
+
+    getOptionsURL: function(callback) {
+        var options_url = chrome.extension.getURL("options.html");
+        callback(options_url);
+    },
+
     insertOverlay: function() {
         // don't run if overlay exists on page
         debug("Checking if overlay already exists before creating");
@@ -15,6 +25,25 @@ utils = {
         debug("Inserted overlay");
 
         return overlay;
+    },
+
+    storage_set: function(key, value) {
+        var hash = {};
+        hash[key] = value;
+        chrome.storage.sync.set(hash);
+    },
+
+    storage_get: function(key, callback) {
+        chrome.storage.sync.get(key, function (result) {
+            var value = result[key];
+            callback(value);
+        });
+    },
+
+    storage_get_all: function(callback) {
+        chrome.storage.sync.get(function (results) {
+            callback(results);
+        });
     },
 
     getXML: function(url, async, callback) {
@@ -95,49 +124,50 @@ utils = {
     },
 
     setDefaultOptions: function(callback) {
-        chrome.storage.sync.get(function(result) {
-            if (!("movie_trailers" in result)) {
-                chrome.storage.sync.set({"movie_trailers": "on"});
+        utils.storage_get_all(function(results) {
+            if (!("movie_trailers" in results)) {
+                utils.storage_set("movie_trailers", "on");
             }
 
-            if (!("letterboxd_link" in result)) {
-                chrome.storage.sync.set({"letterboxd_link": "on"});
+            if (!("letterboxd_link" in results)) {
+                utils.storage_set("letterboxd_link", "on");
             }
 
-            if (!("random_picker" in result)) {
-                chrome.storage.sync.set({"random_picker": "on"});
+            if (!("random_picker" in results)) {
+                utils.storage_set("random_picker", "on");
             }
 
-            if (!("missing_episodes" in result)) {
-                chrome.storage.sync.set({"missing_episodes": "on"});
+            if (!("missing_episodes" in results)) {
+                utils.storage_set("missing_episodes", "on");
             }
 
-            if (!("rotten_tomatoes_link" in result)) {
-                chrome.storage.sync.set({"rotten_tomatoes_link": "off"});
+            if (!("rotten_tomatoes_link" in results)) {
+                utils.storage_set("rotten_tomatoes_link", "off");
             }
 
-            if (!("rotten_tomatoes_audience" in result)) {
-                chrome.storage.sync.set({"rotten_tomatoes_audience": "on"});
+            if (!("rotten_tomatoes_audience" in results)) {
+                utils.storage_set("rotten_tomatoes_audience", "on");
             }
 
-            if (!("rotten_tomatoes_citizen" in result)) {
-                chrome.storage.sync.set({"rotten_tomatoes_citizen": "non_us"});
+            if (!("rotten_tomatoes_citizen" in results)) {
+                utils.storage_set("rotten_tomatoes_citizen", "non_us");
             }
 
-            if (!("trakt_movies" in result)) {
-                chrome.storage.sync.set({"trakt_movies": "on"});
+            if (!("trakt_movies" in results)) {
+                utils.storage_set("trakt_movies", "on");
             }
 
-            if (!("trakt_shows" in result)) {
-                chrome.storage.sync.set({"trakt_shows": "on"});
+            if (!("trakt_shows" in results)) {
+                utils.storage_set("trakt_shows", "on");
             }
 
-            if (!("plex_server_address" in result) || !("plex_server_port" in result)) {
-                chrome.storage.sync.set({"plex_server_address": "", "plex_server_port": ""});
+            if (!("plex_server_address" in results) || !("plex_server_port" in results)) {
+                utils.storage_set("plex_server_address", "");
+                utils.storage_set("plex_server_port", "");
             }
 
-            if (!("debug" in result)) {
-                chrome.storage.sync.set({"debug": "off"});
+            if (!("debug" in results)) {
+                utils.storage_set("debug", "off");
             }
 
             if (callback) {

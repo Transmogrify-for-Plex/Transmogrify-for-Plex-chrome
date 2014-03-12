@@ -7,7 +7,7 @@
   "options_page": "options.html",
   "content_scripts": [
     {
-      "matches": ["http://plex.tv/*", "https://plex.tv/*"],
+      "matches": ["http://plex.tv/web/*", "https://plex.tv/web/*"],
       "css": ["css/transmogrify.css"],
       "js": [
         "utils.js",

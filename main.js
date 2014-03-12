@@ -1,12 +1,12 @@
 var show_update_text = true;
-var update_text = "You can now view missing season episodes, try it now on a tv show season page! Also you can now manually set the Plex server address in the <a href='" + chrome.extension.getURL("options.html") + "' target='_blank'>extension settings</a>"
+var update_text = "You can now view missing season episodes, try it now on a tv show season page! Also you can now manually set the Plex server address in the <a href='%OPTIONSURL%' target='_blank'>extension settings</a>"
 
 var show_debug = null;
 function debug(output) {
     if (show_debug == null) {
         // set show_debug for first run on this page
-        chrome.storage.sync.get("debug", function (result){
-            if (result["debug"] === "on") {
+        utils.storage_get("debug", function (debug_){
+            if (debug_ === "on") {
                 show_debug = true;
             }
             else {
@@ -24,6 +24,29 @@ function debug(output) {
     }
 }
 
+function checkIfUpdated() {
+    utils.storage_get("last_version", function (last_version) {
+        utils.getExtensionVersion(function(version) {
+            // do not display if popup has been shown before
+            if ((last_version && last_version === version) || !(show_update_text)) {
+                return;
+            }
+            else {
+                showUpdatePopup(version);
+                utils.storage_set("last_version", version);
+            }
+        });
+    });
+}
+
+function showUpdatePopup(version) {
+    utils.getOptionsURL(function(options_url) {
+        var formatted_update_text = update_text.replace("%OPTIONSURL%", options_url);
+        showPopup("New update! - " + formatted_update_text);
+        utils.storage_set("last_version", version);
+    });
+}
+
 function closePopup() {
     var popup_container = document.getElementById("update-box");
     popup_container.parentNode.removeChild(popup_container);
@@ -34,7 +57,7 @@ function closePopup() {
 }
 
 function showPopup(messsage) {
-    var overylay = utils.insertOverlay();
+    var overlay = utils.insertOverlay();
     overlay.style.display = "block";
 
     var popup_container = document.createElement("div");
@@ -52,20 +75,6 @@ function showPopup(messsage) {
     overlay.appendChild(popup_container);
 
     overlay.addEventListener("click", closePopup, false);
-}
-
-function showUpdatePopup() {
-    chrome.storage.local.get("last_version", function (result) {
-        var current_version = chrome.runtime.getManifest()["version"];
-        // do not display if popup has been shown before
-        if ((result["last_version"] && result["last_version"] === current_version) || !(show_update_text)) {
-            return;
-        }
-        else {
-            showPopup("New update! - " + update_text);
-            chrome.storage.local.set({"last_version": current_version});
-        }
-    });
 }
 
 function runOnReady() {
@@ -167,8 +176,8 @@ function processLibrarySections(sections_xml) {
 }
 
 function init() {
-    chrome.storage.sync.get(function (settings){
-        main(settings)
+    utils.storage_get_all(function (settings){
+        main(settings);
     });
 }
 
@@ -176,7 +185,7 @@ function main(settings) {
     debug("Running main()");
 
     // show popup if updated
-    showUpdatePopup();
+    checkIfUpdated();
 
     var plex_token = getPlexToken();
     var server_addresses = getServerAddresses(plex_token);
@@ -291,7 +300,7 @@ function main(settings) {
                 // create rotten tomatoes link
                 if (settings["rotten_tomatoes_link"] === "on") {
                     debug("rotten_tomatoes_link plugin is enabled");
-                    rotten_tomatoes.init(metadata_xml);
+                    rotten_tomatoes.init(metadata_xml, settings["rotten_tomatoes_citizen"], settings["rotten_tomatoes_audience"]);
                 }
                 else {
                     debug("rotten_tomatoes_link plugin is disabled");

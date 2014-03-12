@@ -13,33 +13,34 @@ function saveOptions() {
 
     var debug = document.querySelector("input[name='debug']:checked").value;
 
-    chrome.storage.sync.set({"movie_trailers": movie_trailers});
-    chrome.storage.sync.set({"letterboxd_link": letterboxd_link});
-    chrome.storage.sync.set({"random_picker": random_picker});
-    chrome.storage.sync.set({"rotten_tomatoes_link": rotten_tomatoes_link});
-    chrome.storage.sync.set({"rotten_tomatoes_citizen": rotten_tomatoes_citizen});
-    chrome.storage.sync.set({"missing_episodes": missing_episodes});
+    utils.storage_set("movie_trailers", movie_trailers);
+    utils.storage_set("letterboxd_link", letterboxd_link);
+    utils.storage_set("random_picker", random_picker);
+    utils.storage_set("rotten_tomatoes_link", rotten_tomatoes_link);
+    utils.storage_set("rotten_tomatoes_citizen", rotten_tomatoes_citizen);
+    utils.storage_set("missing_episodes", missing_episodes);
     if (rotten_tomatoes_audience) {
-        chrome.storage.sync.set({"rotten_tomatoes_audience": "on"});
+        utils.storage_set("rotten_tomatoes_audience", "on");
     }
     else {
-        chrome.storage.sync.set({"rotten_tomatoes_audience": "off"});
+        utils.storage_set("rotten_tomatoes_audience", "off");
     }
     if (trakt_movies) {
-        chrome.storage.sync.set({"trakt_movies": "on"});
+        utils.storage_set("trakt_movies", "on");
     }
     else {
-        chrome.storage.sync.set({"trakt_movies": "off"});
+        utils.storage_set("trakt_movies", "off");
     }
     if (trakt_shows) {
-        chrome.storage.sync.set({"trakt_shows": "on"});
+        utils.storage_set("trakt_shows", "on");
     }
     else {
-        chrome.storage.sync.set({"trakt_shows": "off"});
+        utils.storage_set("trakt_shows", "off");
     }
-    chrome.storage.sync.set({"plex_server_address": plex_server_address.replace(/^https?:\/\//, ""), "plex_server_port": plex_server_port});
+    utils.storage_set("plex_server_address", plex_server_address.replace(/^https?:\/\//, ""));
+    utils.storage_set("plex_server_port", plex_server_port);
 
-    chrome.storage.sync.set({"debug": debug});
+    utils.storage_set("debug", debug);
 
     var save_button = document.getElementById("save");
 
@@ -51,36 +52,36 @@ function saveOptions() {
 
 function restoreOptions() {
     utils.setDefaultOptions(function() {
-        chrome.storage.sync.get(function(result) {
-            var movie_trailers_radio_button = document.getElementById("trailers_" + result["movie_trailers"]);
+        utils.storage_get_all(function(results) {
+            var movie_trailers_radio_button = document.getElementById("trailers_" + results["movie_trailers"]);
             movie_trailers_radio_button.checked = true;
 
-            var letterboxd_link_radio_button = document.getElementById("letterboxd_" + result["letterboxd_link"]);
+            var letterboxd_link_radio_button = document.getElementById("letterboxd_" + results["letterboxd_link"]);
             letterboxd_link_radio_button.checked = true;
 
-            var random_picker_radio_button = document.getElementById("random_" + result["random_picker"]);
+            var random_picker_radio_button = document.getElementById("random_" + results["random_picker"]);
             random_picker_radio_button.checked = true;
 
-            var missing_episodes_radio_button = document.getElementById("missing_episodes_" + result["missing_episodes"]);
+            var missing_episodes_radio_button = document.getElementById("missing_episodes_" + results["missing_episodes"]);
             missing_episodes_radio_button.checked = true;
 
-            var rotten_tomatoes_link_radio_button = document.getElementById("rotten_tomatoes_" + result["rotten_tomatoes_link"]);
+            var rotten_tomatoes_link_radio_button = document.getElementById("rotten_tomatoes_" + results["rotten_tomatoes_link"]);
             rotten_tomatoes_link_radio_button.checked = true;
             refreshExtraOptions();
 
             var rotten_tomatoes_audience_checkbox = document.getElementById("rotten_tomatoes_audience");
-            if (result["rotten_tomatoes_audience"] === "on") {
+            if (results["rotten_tomatoes_audience"] === "on") {
                 rotten_tomatoes_audience_checkbox.checked = true;
             }
             else {
                 rotten_tomatoes_audience_checkbox.checked = false;
             }
 
-            var rotten_tomatoes_citizen_radio_button = document.getElementById("rotten_tomatoes_citizen_" + result["rotten_tomatoes_citizen"]);
+            var rotten_tomatoes_citizen_radio_button = document.getElementById("rotten_tomatoes_citizen_" + results["rotten_tomatoes_citizen"]);
             rotten_tomatoes_citizen_radio_button.checked = true;
 
             var trakt_movies_checkbox = document.getElementById("trakt_movies");
-            if (result["trakt_movies"] === "on") {
+            if (results["trakt_movies"] === "on") {
                 trakt_movies_checkbox.checked = true;
             }
             else {
@@ -88,7 +89,7 @@ function restoreOptions() {
             }
 
             var trakt_shows_checkbox = document.getElementById("trakt_shows");
-            if (result["trakt_shows"] === "on") {
+            if (results["trakt_shows"] === "on") {
                 trakt_shows_checkbox.checked = true;
             }
             else {
@@ -97,10 +98,10 @@ function restoreOptions() {
 
             var plex_server_address = document.getElementById("plex_server_address");
             var plex_server_port = document.getElementById("plex_server_port");
-            plex_server_address.value = result["plex_server_address"];
-            plex_server_port.value = result["plex_server_port"];
+            plex_server_address.value = results["plex_server_address"];
+            plex_server_port.value = results["plex_server_port"];
 
-            var debug_radio_button = document.getElementById("debug_" + result["debug"]);
+            var debug_radio_button = document.getElementById("debug_" + results["debug"]);
             debug_radio_button.checked = true;
         });
 

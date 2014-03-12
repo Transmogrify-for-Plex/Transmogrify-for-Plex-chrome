@@ -105,6 +105,6 @@ random_picker = {
         debug("random_picker plugin: Choice URL - " + new_url);
 
         random_picker.closeRandom();
-        window.location = new_url;
+        window.location.href = new_url;
     }
 }

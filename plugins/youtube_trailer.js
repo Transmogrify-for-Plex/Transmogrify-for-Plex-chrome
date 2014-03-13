@@ -30,20 +30,8 @@ youtube_trailer = {
         var movie_title = youtube_trailer.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("title");
         var movie_year = youtube_trailer.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("year");
         debug("youtube_trailer plugin: Got movie year and title - " + movie_title + " (" + movie_year + ")");
-        var youtube_url = youtube_trailer.getYoutubeEmbedLink(movie_title, movie_year);
 
-        youtube_trailer.overlay.style.display = "block";
-        // attach click event listener on overlay to close trailer
-        youtube_trailer.overlay.addEventListener("click", youtube_trailer.closeTrailer, false);
-
-        // create youtube embed iframe
-        var youtube_embed = document.createElement("iframe");
-        youtube_embed.setAttribute("id", "trailer");
-        youtube_embed.setAttribute("src", youtube_url);
-        youtube_embed.setAttribute("frameborder", 0);
-        youtube_embed.setAttribute("allowFullScreen", "");
-
-        document.body.appendChild(youtube_embed);
+        youtube_trailer.getYoutubeEmbedLink(movie_title, movie_year);
     },
 
     closeTrailer: function() {
@@ -60,15 +48,33 @@ youtube_trailer = {
         var search_params = encodeURIComponent(movie_title + " (" + movie_year + ") official trailer");
         debug("youtube_trailer plugin: Search query - " + search_params);
 
-        var search_results = utils.getJSON(youtube_api_url + "?q=" + search_params + "&paid_content=false&format=5&max-results=1&alt=json", false);
-        var video_string = search_results["feed"]["entry"][0]["id"]["$t"];
-        debug("youtube_trailer plugin: Video string - " + video_string);
+        var request_url = youtube_api_url + "?q=" + search_params + "&paid_content=false&format=5&max-results=1&alt=json";
 
-        var video_id = video_string.match(/^http:\/\/gdata\.youtube\.com\/feeds\/api\/videos\/(.+)/)[1];
-        debug("youtube_trailer plugin: Video ID - " + video_id);
-        var youtube_link = "//www.youtube.com/embed/" + video_id + "?rel=0&iv_load_policy=3&vq=hd1080&autoplay=1";
-        debug("youtube_trailer plugin: YouTube embed link - " + youtube_link);
+        utils.getJSON(request_url, true, function(search_results) {
+            var video_string = search_results["feed"]["entry"][0]["id"]["$t"];
+            debug("youtube_trailer plugin: Video string - " + video_string);
 
-        return youtube_link;
+            var video_id = video_string.match(/^http:\/\/gdata\.youtube\.com\/feeds\/api\/videos\/(.+)/)[1];
+            debug("youtube_trailer plugin: Video ID - " + video_id);
+            var youtube_url = "//www.youtube.com/embed/" + video_id + "?rel=0&iv_load_policy=3&vq=hd1080&autoplay=1";
+            debug("youtube_trailer plugin: YouTube embed link - " + youtube_url);
+
+            youtube_trailer.insertTrailer(youtube_url);
+        });
+    },
+
+    insertTrailer: function(youtube_url) {
+        youtube_trailer.overlay.style.display = "block";
+        // attach click event listener on overlay to close trailer
+        youtube_trailer.overlay.addEventListener("click", youtube_trailer.closeTrailer, false);
+
+        // create youtube embed iframe
+        var youtube_embed = document.createElement("iframe");
+        youtube_embed.setAttribute("id", "trailer");
+        youtube_embed.setAttribute("src", youtube_url);
+        youtube_embed.setAttribute("frameborder", 0);
+        youtube_embed.setAttribute("allowFullScreen", "");
+
+        document.body.appendChild(youtube_embed);
     }
 }

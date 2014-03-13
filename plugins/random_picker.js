@@ -2,6 +2,7 @@ random_picker = {
     server: null,
     section: null,
     overlay: null,
+    media_list: null,
 
     init: function(server, section) {
         random_picker.server = server;
@@ -20,6 +21,7 @@ random_picker = {
         document.getElementById("pick-random").addEventListener("click", random_picker.displayRandom, false);
 
         random_picker.overlay = utils.insertOverlay();
+        random_picker.getMediaList();
     },
 
     closeRandom: function() {
@@ -34,22 +36,21 @@ random_picker = {
     getMediaList: function() {
         debug("random_picker plugin: Fetching media list");
         var media_xml_url = "http://" + random_picker.server["address"] + ":" + random_picker.server["port"] + "/library/sections/" + random_picker.section["section_num"] + "/all?X-Plex-Token=" + random_picker.server["access_token"];
-        var media_xml = utils.getXML(media_xml_url, false);
-
-        if (random_picker.section["type"] == "movie") {
-            return media_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video");
-        }
-        else if (random_picker.section["type"] == "show") {
-            return media_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory");
-        }
+        utils.getXML(media_xml_url, true, function(media_xml) {
+            if (random_picker.section["type"] == "movie") {
+                random_picker.media_list = media_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video");
+            }
+            else if (random_picker.section["type"] == "show") {
+                random_picker.media_list = media_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory");
+            }
+        });
     },
 
     getRandomId: function() {
-        var media_xml = random_picker.getMediaList();
-        var random_num =Math.floor(Math.random() * media_xml.length);
-        debug("random_picker plugin: Generated random number - " + random_num.toString() + " out of possible " + media_xml.length.toString() + " items");
+        var random_num =Math.floor(Math.random() * random_picker.media_list.length);
+        debug("random_picker plugin: Generated random number - " + random_num.toString() + " out of possible " + random_picker.media_list.length.toString() + " items");
 
-        var random_id = media_xml[random_num].getAttribute("ratingKey");
+        var random_id = random_picker.media_list[random_num].getAttribute("ratingKey");
         debug("random_picker plugin: Got random media key - " + random_id);
 
         return random_id;

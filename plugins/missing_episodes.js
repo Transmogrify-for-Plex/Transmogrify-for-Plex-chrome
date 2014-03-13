@@ -20,43 +20,43 @@ missing_episodes = {
         }
 
         debug("missing_episodes plugin: Finding all present and all existing episodes");
-        var present_episodes = missing_episodes.getPresentEpisodes(show_id);
-        var all_episodes = missing_episodes.getAllEpisodes(tvdb_id, season_num);
-
-        var tiles_to_insert = {};
-        for (var i = 0; i < all_episodes.length; i++) {
-            var episode = all_episodes[i];
-            if (present_episodes.indexOf(episode["episode"]) === -1) {
-                var episode_tile = missing_episodes.createEpisodeTile(episode);
-                tiles_to_insert[episode["number"]] = episode_tile;
-            }
-        }
-        missing_episodes.insertEpisodeTiles(tiles_to_insert);
+        missing_episodes.getPresentEpisodes(show_id, function(present_episodes) {
+            missing_episodes.getAllEpisodes(tvdb_id, season_num, function(all_episodes) {
+                var tiles_to_insert = {};
+                for (var i = 0; i < all_episodes.length; i++) {
+                    var episode = all_episodes[i];
+                    if (present_episodes.indexOf(episode["episode"]) === -1) {
+                        var episode_tile = missing_episodes.createEpisodeTile(episode);
+                        tiles_to_insert[episode["number"]] = episode_tile;
+                    }
+                }
+                missing_episodes.insertEpisodeTiles(tiles_to_insert);
+            });
+        });
     },
 
-    getPresentEpisodes: function(show_id) {
+    getPresentEpisodes: function(show_id, callback) {
         debug("missing_episodes plugin: Fetching season episodes xml");
         var episodes_metadata_xml_url = "http://" + missing_episodes.server["address"] + ":" + missing_episodes.server["port"] + "/library/metadata/" + show_id + "/children?X-Plex-Token=" + missing_episodes.server["access_token"];
-        var episodes_metadata_xml = utils.getXML(episodes_metadata_xml_url, false);
-
-        var episodes_xml = episodes_metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video");
-        var episodes = [];
-        for (var i = 0; i < episodes_xml.length; i++) {
-            episodes.push(parseInt(episodes_xml[i].getAttribute("index")));
-        }
-
-        return episodes;
+        utils.getXML(episodes_metadata_xml_url, true, function(episodes_metadata_xml) {
+            var episodes_xml = episodes_metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video");
+            var episodes = [];
+            for (var i = 0; i < episodes_xml.length; i++) {
+                episodes.push(parseInt(episodes_xml[i].getAttribute("index")));
+            }
+            callback(episodes);
+        });
     },
 
-    getAllEpisodes: function(tvdb_id, season_num) {
+    getAllEpisodes: function(tvdb_id, season_num, callback) {
         debug("missing_episodes plugin: Reading API key");
-        var api_key = utils.readFile(utils.getResourcePath("api_keys/trakt_api_key.txt"));
+        var api_key = utils.getApiKey("trakt");
         debug("missing_episodes plugin: Successfully read API key");
 
         var api_url = "http://api.trakt.tv/show/season.json/" + api_key + "/" + tvdb_id + "/" + season_num;
-        var trakt_json = utils.getJSON(api_url, false);
-
-        return trakt_json;
+        utils.getJSON(api_url, true, function(trakt_json) {
+            callback(trakt_json);
+        });
     },
 
     createEpisodeTile: function(episode) {

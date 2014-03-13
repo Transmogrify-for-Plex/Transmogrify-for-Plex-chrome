@@ -50,6 +50,22 @@ utils = {
         return chrome.extension.getURL("resources/" + resource);
     },
 
+    getApiKey: function(api_name) {
+        var file_path = utils.getResourcePath("api_keys/" + api_name + ".txt");
+        var text;
+        var rawFile = new XMLHttpRequest();
+        rawFile.open("GET", file_path, false);
+        rawFile.onreadystatechange = function() {
+            if (rawFile.readyState === 4) {
+                if (rawFile.status === 200 || rawFile.status == 0) {
+                    text = rawFile.responseText;
+                }
+            }
+        }
+        rawFile.send(null);
+        return text;
+    },
+
     getXML: function(url, async, callback) {
         debug("Fetching XML from " + url + " with async=" + async);
         var xhr = new XMLHttpRequest();
@@ -110,21 +126,6 @@ utils = {
             debug(resp);
             return resp;
         }
-    },
-
-    readFile: function(file_name) {
-        var text;
-        var rawFile = new XMLHttpRequest();
-        rawFile.open("GET", file_name, false);
-        rawFile.onreadystatechange = function() {
-            if (rawFile.readyState === 4) {
-                if (rawFile.status === 200 || rawFile.status == 0) {
-                    text = rawFile.responseText;
-                }
-            }
-        }
-        rawFile.send(null);
-        return text;
     },
 
     setDefaultOptions: function(callback) {

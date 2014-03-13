@@ -86,7 +86,7 @@ trakt = {
 
     getTraktData: function(title, type) {
         debug("trakt plugin: Reading API key");
-        var api_key = utils.readFile(utils.getResourcePath("api_keys/trakt_api_key.txt"));
+        var api_key = utils.getApiKey("trakt");
         debug("trakt plugin: Successfully read API key");
 
         var api_url;

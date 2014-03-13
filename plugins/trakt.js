@@ -6,30 +6,45 @@ trakt = {
         trakt.metadata_xml = metadata_xml;
         trakt.server = server;
 
-        var show_name;
-        var season;
-        var episode;
-        var movie_title;
-
         if (type === "show") {
-            if (trakt.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("originalTitle") != null) {
-                show_name = trakt.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("originalTitle");
-            }
-            else {
-                show_name = trakt.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("title");
-            }
-            debug("trakt plugin: Got show name - " + show_name);
+            trakt.processShow();
         }
         else if (type === "episode") {
-            season = trakt.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("parentIndex");
-            episode = trakt.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("index");
-            debug("trakt plugin: Fetching grandparent metadata xml");
-            var grandparent_id = trakt.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("grandparentRatingKey");
-            debug("trakt plugin: Grandparent id - " + grandparent_id);
+            trakt.processEpisode();
+        }
+        else if (type === "movie") {
+            trakt.processMovie();
+        }
+    },
 
-            var grandparent_xml_url = "http://" + trakt.server["address"] + ":" + trakt.server["port"] + "/library/metadata/" + grandparent_id + "?X-Plex-Token=" + trakt.server["access_token"]
-            var grandparent_xml = utils.getXML(grandparent_xml_url, false);
+    processShow: function() {
+        var show_name;
+        if (trakt.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("originalTitle") != null) {
+            show_name = trakt.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("originalTitle");
+        }
+        else {
+            show_name = trakt.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("title");
+        }
+        debug("trakt plugin: Got show name - " + show_name);
 
+        var show_data = trakt.getTraktData(show_name, "show");
+        var url = show_data["url"];
+        var rating = show_data["ratings"]["percentage"];
+
+        trakt.insertTraktLink(url, rating);
+    },
+
+    processEpisode: function() {
+        var season = trakt.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("parentIndex");
+        var episode = trakt.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("index");
+        debug("trakt plugin: Fetching grandparent metadata xml");
+        var grandparent_id = trakt.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("grandparentRatingKey");
+        debug("trakt plugin: Grandparent id - " + grandparent_id);
+
+        var grandparent_xml_url = "http://" + trakt.server["address"] + ":" + trakt.server["port"] + "/library/metadata/" + grandparent_id + "?X-Plex-Token=" + trakt.server["access_token"]
+        // fetch grandparent xml
+        utils.getXML(grandparent_xml_url, true, function(grandparent_xml) {
+            var show_name;
             if (grandparent_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("originalTitle") != null) {
                 show_name = grandparent_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("originalTitle");
             }
@@ -39,43 +54,41 @@ trakt = {
             debug("trakt plugin: Got show name - " + show_name);
             debug("trakt plugin: Got season number - " + season);
             debug("trakt plugin: Got episode number - " + episode);
-        }
-        else if (type === "movie") {
-            movie_title = trakt.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("title");
-            debug("trakt plugin: Got movie title - " + movie_title);
-        }
 
-        var url;
-        var rating;
-        if (type === "show") {
-            var show_data = trakt.getTraktData(show_name, type);
-            url = show_data["url"];
-            rating = show_data["ratings"]["percentage"];
-        }
-        else if (type === "episode") {
             var show_data = trakt.getTraktData(show_name, "show");
-            url = show_data["url"] + "/season/" + season + "/episode/" + episode;
-            rating = show_data["ratings"]["percentage"];
-        }
-        else if (type === "movie") {
-            var movie_data;
-            // it's more accurate to search by imdb id, otherwise fall back to movie name
-            debug("trakt plugin: Grabbing imdb id");
-            var agent = trakt.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("guid");
-            // check if using the freebase metadata agent
-            if (/com\.plexapp\.agents\.imdb/.test(agent)) {
-                var imdb_id = agent.match(/^com\.plexapp\.agents\.imdb:\/\/(.+)\?/)[1];
-                debug("trakt plugin: imdb id found - " + imdb_id);
-                movie_data = trakt.getTraktData(imdb_id, type);
-            }
-            else {
-                debug("trakt plugin: imdb id not found, falling back to movie name");
-                movie_data = trakt.getTraktData(movie_title, type);
-            }
-            url = movie_data["url"];
-            rating = movie_data["ratings"]["percentage"];
-        }
+            var url = show_data["url"] + "/season/" + season + "/episode/" + episode;
+            var rating = show_data["ratings"]["percentage"];
 
+            trakt.insertTraktLink(url, rating);
+        });
+    },
+
+    processMovie: function() {
+        var movie_title = trakt.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("title");
+        debug("trakt plugin: Got movie title - " + movie_title);
+
+        // it's more accurate to search by imdb id, otherwise fall back to movie name
+        debug("trakt plugin: Grabbing imdb id");
+        var movie_data;
+        var agent = trakt.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("guid");
+
+        // check if using the freebase metadata agent
+        if (/com\.plexapp\.agents\.imdb/.test(agent)) {
+            var imdb_id = agent.match(/^com\.plexapp\.agents\.imdb:\/\/(.+)\?/)[1];
+            debug("trakt plugin: imdb id found - " + imdb_id);
+            movie_data = trakt.getTraktData(imdb_id, "movie");
+        }
+        else {
+            debug("trakt plugin: imdb id not found, falling back to movie name");
+            movie_data = trakt.getTraktData(movie_title, "movie");
+        }
+        var url = movie_data["url"];
+        var rating = movie_data["ratings"]["percentage"];
+
+        trakt.insertTraktLink(url, rating);
+    },
+
+    insertTraktLink: function(url, rating) {
         // create trakt link element
         var trakt_container = trakt.constructTraktLink(url, rating);
 

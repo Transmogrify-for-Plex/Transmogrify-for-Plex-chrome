@@ -1,5 +1,5 @@
 var show_update_text = true;
-var update_text = "You can now view missing season episodes, try it now on a tv show season page! Also you can now manually set the Plex server address in the <a href='%OPTIONSURL%' target='_blank'>extension settings</a>"
+var update_text = "You can now view missing season episodes, try it now on a tv show season page! Also you can now manually set the Plex server address in the <a id='options-page-link' href='%OPTIONSURL%' target='_blank'>extension settings</a>"
 
 var show_debug = null;
 function debug(output) {
@@ -26,25 +26,22 @@ function debug(output) {
 
 function checkIfUpdated() {
     utils.storage_get("last_version", function (last_version) {
-        utils.getExtensionVersion(function(version) {
-            // do not display if popup has been shown before
-            if ((last_version && last_version === version) || !(show_update_text)) {
-                return;
-            }
-            else {
-                showUpdatePopup(version);
-                utils.storage_set("last_version", version);
-            }
-        });
+        var version = utils.getExtensionVersion();
+        // do not display if popup has been shown before
+        if ((last_version && last_version === version) || !(show_update_text)) {
+            return;
+        }
+        else {
+            showUpdatePopup();
+            utils.storage_set("last_version", version);
+        }
     });
 }
 
-function showUpdatePopup(version) {
-    utils.getOptionsURL(function(options_url) {
-        var formatted_update_text = update_text.replace("%OPTIONSURL%", options_url);
-        showPopup("New update! - " + formatted_update_text);
-        utils.storage_set("last_version", version);
-    });
+function showUpdatePopup() {
+    var options_url = utils.getOptionsURL();
+    var formatted_update_text = update_text.replace("%OPTIONSURL%", options_url);
+    showPopup("New update! - " + formatted_update_text);
 }
 
 function closePopup() {
@@ -74,7 +71,14 @@ function showPopup(messsage) {
     popup_container.appendChild(message);
     overlay.appendChild(popup_container);
 
+    document.getElementById("options-page-link").addEventListener("click", openOptionsPage, false);
     overlay.addEventListener("click", closePopup, false);
+}
+
+function openOptionsPage() {
+    var options_url = utils.getOptionsURL();
+    var win = window.open(options_url, "_blank");
+    win.focus();
 }
 
 function runOnReady() {
@@ -134,23 +138,24 @@ function getPlexToken() {
     return plex_token;
 }
 
-function getServerAddresses(plex_token) {
+function getServerAddresses(plex_token, callback) {
     debug("Fetching server address");
-    var servers_xml = utils.getXML("https://plex.tv/pms/servers?X-Plex-Token=" + plex_token, false);
-    var servers = servers_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Server");
-    var server_addresses = {};
-    for (var i = 0; i < servers.length; i++) {
-        var address = servers[i].getAttribute("address");
-        var port = servers[i].getAttribute("port");
-        var machine_identifier = servers[i].getAttribute("machineIdentifier");
-        var access_token = servers[i].getAttribute("accessToken");
+    utils.getXML("https://plex.tv/pms/servers?X-Plex-Token=" + plex_token, true, function(servers_xml) {
+        var servers = servers_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Server");
+        var server_addresses = {};
+        for (var i = 0; i < servers.length; i++) {
+            var address = servers[i].getAttribute("address");
+            var port = servers[i].getAttribute("port");
+            var machine_identifier = servers[i].getAttribute("machineIdentifier");
+            var access_token = servers[i].getAttribute("accessToken");
 
-        server_addresses[machine_identifier] = {"address": address, "port": port, "machine_identifier": machine_identifier, "access_token": access_token};
-    }
+            server_addresses[machine_identifier] = {"address": address, "port": port, "machine_identifier": machine_identifier, "access_token": access_token};
+        }
 
-    debug("Server addresses fetched");
-    debug(server_addresses);
-    return server_addresses;
+        debug("Server addresses fetched");
+        debug(server_addresses);
+        callback(server_addresses);
+    });
 }
 
 function processLibrarySections(sections_xml) {
@@ -188,152 +193,153 @@ function main(settings) {
     checkIfUpdated();
 
     var plex_token = getPlexToken();
-    var server_addresses = getServerAddresses(plex_token);
-    var page_url = document.URL;
+    getServerAddresses(plex_token, function(server_addresses) {
+        var page_url = document.URL;
 
-    // check if on library section
-    if (/\/section\/\d+$/.test(page_url)) {
-        debug("main detected we are in library section");
-        var page_identifier = page_url.match(/\/server\/(.[^\/]+)\/section\/(\d+)$/);
-        var machine_identifier = page_identifier[1];
-        var section_num = page_identifier[2];
-        debug("machine identifier - " + machine_identifier);
-        debug("library section - " + section_num);
+        // check if on library section
+        if (/\/section\/\d+$/.test(page_url)) {
+            debug("main detected we are in library section");
+            var page_identifier = page_url.match(/\/server\/(.[^\/]+)\/section\/(\d+)$/);
+            var machine_identifier = page_identifier[1];
+            var section_num = page_identifier[2];
+            debug("machine identifier - " + machine_identifier);
+            debug("library section - " + section_num);
 
-        // get library sections xml
-        utils.getXML("https://plex.tv/pms/system/library/sections?X-Plex-Token=" + plex_token, true, function(sections_xml) {
-            var library_sections = processLibrarySections(sections_xml);
+            // get library sections xml
+            utils.getXML("https://plex.tv/pms/system/library/sections?X-Plex-Token=" + plex_token, true, function(sections_xml) {
+                var library_sections = processLibrarySections(sections_xml);
+                var server = server_addresses[machine_identifier];
+                var section = library_sections[machine_identifier][section_num];
+                if (settings["plex_server_address"] != "" && settings["plex_server_port"] != "") {
+                    debug("Plex server manual override");
+                    server["address"] = settings["plex_server_address"];
+                    server["port"] = settings["plex_server_port"];
+                }
+
+                if (settings["random_picker"] === "on") {
+                    debug("random_picker plugin is enabled");
+                    random_picker.init(server, section);
+                }
+                else {
+                    debug("random_picker plugin is disabled");
+                }
+            });
+        }
+
+        // check if on movie/tv show details page
+        else if (/\/details\/%2Flibrary%2Fmetadata%2F(\d+)$/.test(page_url)) {
+            debug("main detected we are on movie/tv show details page");
+            var page_identifier = page_url.match(/\/server\/(.[^\/]+)\/details\/%2Flibrary%2Fmetadata%2F(\d+)$/);
+            var machine_identifier = page_identifier[1];
+            var parent_item_id = page_identifier[2];
+            debug("metadata id - " + parent_item_id);
+
             var server = server_addresses[machine_identifier];
-            var section = library_sections[machine_identifier][section_num];
             if (settings["plex_server_address"] != "" && settings["plex_server_port"] != "") {
                 debug("Plex server manual override");
                 server["address"] = settings["plex_server_address"];
                 server["port"] = settings["plex_server_port"];
             }
 
-            if (settings["random_picker"] === "on") {
-                debug("random_picker plugin is enabled");
-                random_picker.init(server, section);
-            }
-            else {
-                debug("random_picker plugin is disabled");
-            }
-        });
-    }
+            // construct metadata xml link
+            debug("Fetching metadata for id - " + parent_item_id);
 
-    // check if on movie/tv show details page
-    else if (/\/details\/%2Flibrary%2Fmetadata%2F(\d+)$/.test(page_url)) {
-        debug("main detected we are on movie/tv show details page");
-        var page_identifier = page_url.match(/\/server\/(.[^\/]+)\/details\/%2Flibrary%2Fmetadata%2F(\d+)$/);
-        var machine_identifier = page_identifier[1];
-        var parent_item_id = page_identifier[2];
-        debug("metadata id - " + parent_item_id);
+            var metadata_xml_url = "http://" + server["address"] + ":" + server["port"] + "/library/metadata/" + parent_item_id + "?X-Plex-Token=" + server["access_token"];
 
-        var server = server_addresses[machine_identifier];
-        if (settings["plex_server_address"] != "" && settings["plex_server_port"] != "") {
-            debug("Plex server manual override");
-            server["address"] = settings["plex_server_address"];
-            server["port"] = settings["plex_server_port"];
-        }
+            // fetch metadata xml asynchronously
+            utils.getXML(metadata_xml_url, true, function(metadata_xml) {
 
-        // construct metadata xml link
-        debug("Fetching metadata for id - " + parent_item_id);
+                if (metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory").length > 0) {
+                    // we're on a tv show page
+                    debug("main detected we are on tv show index page");
 
-        var metadata_xml_url = "http://" + server["address"] + ":" + server["port"] + "/library/metadata/" + parent_item_id + "?X-Plex-Token=" + server["access_token"];
+                    if (metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("type") === "show") {
+                        // we're on the root show page
+                        debug("main detected we are on root show page");
 
-        // fetch metadata xml asynchronously
-        utils.getXML(metadata_xml_url, true, function(metadata_xml) {
+                        // create trakt link
+                        if (settings["trakt_shows"] === "on") {
+                            debug("trakt plugin is enabled");
+                            trakt.init(metadata_xml, "show", server);
+                        }
+                        else {
+                            debug("trakt plugin is disabled");
+                        }
+                    }
+                    else if (metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("type") === "season") {
+                        // we're on the season page
+                        debug("main detected we are on a season page");
 
-            if (metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory").length > 0) {
-                // we're on a tv show page
-                debug("main detected we are on tv show index page");
+                        // insert missing episodes
+                        if (settings["missing_episodes"] === "on") {
+                            debug("missing_episodes plugin is enabled");
+                            missing_episodes.init(metadata_xml, server);
+                        }
+                        else {
+                            debug("missing_episodes plugin is disabled");
+                        }
+                    }
+                }
+                else if (metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("type") === "movie") {
+                    // we're on a movie page
+                    debug("main detected we are on a movie page");
 
-                if (metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("type") === "show") {
-                    // we're on the root show page
-                    debug("main detected we are on root show page");
+                    // create letterboxd link
+                    if (settings["letterboxd_link"] === "on") {
+                        debug("letterboxd_link plugin is enabled");
+                        letterboxd.init(metadata_xml);
+                    }
+                    else {
+                        debug("letterboxd_link plugin is disabled");
+                    }
+
+                    // create youtube trailer button
+                    if (settings["movie_trailers"] === "on") {
+                        debug("youtube_trailer plugin is enabled");
+                        youtube_trailer.init(metadata_xml);
+                    }
+                    else {
+                        debug("youtube_trailer plugin is disabled");
+                    }
+
+                    // create rotten tomatoes link
+                    if (settings["rotten_tomatoes_link"] === "on") {
+                        debug("rotten_tomatoes_link plugin is enabled");
+                        rotten_tomatoes.init(metadata_xml);
+                    }
+                    else {
+                        debug("rotten_tomatoes_link plugin is disabled");
+                    }
 
                     // create trakt link
-                    if (settings["trakt_shows"] === "on") {
+                    if (settings["trakt_movies"] === "on") {
                         debug("trakt plugin is enabled");
-                        trakt.init(metadata_xml, "show", server);
+                        trakt.init(metadata_xml, "movie", server);
                     }
                     else {
                         debug("trakt plugin is disabled");
                     }
                 }
-                else if (metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("type") === "season") {
-                    // we're on the season page
-                    debug("main detected we are on a season page");
+                else if (metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("type") === "episode") {
+                    // we're on an episode page
 
-                    // insert missing episodes
-                    if (settings["missing_episodes"] === "on") {
-                        debug("missing_episodes plugin is enabled");
-                        missing_episodes.init(metadata_xml, server);
+                    // create trakt link
+                    if (settings["trakt_shows"] === "on") {
+                        debug("trakt plugin is enabled");
+                        trakt.init(metadata_xml, "episode", server);
                     }
                     else {
-                        debug("missing_episodes plugin is disabled");
+                        debug("trakt plugin is disabled");
                     }
                 }
-            }
-            else if (metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("type") === "movie") {
-                // we're on a movie page
-                debug("main detected we are on a movie page");
-
-                // create letterboxd link
-                if (settings["letterboxd_link"] === "on") {
-                    debug("letterboxd_link plugin is enabled");
-                    letterboxd.init(metadata_xml);
-                }
-                else {
-                    debug("letterboxd_link plugin is disabled");
-                }
-
-                // create youtube trailer button
-                if (settings["movie_trailers"] === "on") {
-                    debug("youtube_trailer plugin is enabled");
-                    youtube_trailer.init(metadata_xml);
-                }
-                else {
-                    debug("youtube_trailer plugin is disabled");
-                }
-
-                // create rotten tomatoes link
-                if (settings["rotten_tomatoes_link"] === "on") {
-                    debug("rotten_tomatoes_link plugin is enabled");
-                    rotten_tomatoes.init(metadata_xml, settings["rotten_tomatoes_citizen"], settings["rotten_tomatoes_audience"]);
-                }
-                else {
-                    debug("rotten_tomatoes_link plugin is disabled");
-                }
-
-                // create trakt link
-                if (settings["trakt_movies"] === "on") {
-                    debug("trakt plugin is enabled");
-                    trakt.init(metadata_xml, "movie", server);
-                }
-                else {
-                    debug("trakt plugin is disabled");
-                }
-            }
-            else if (metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("type") === "episode") {
-                // we're on an episode page
-
-                // create trakt link
-                if (settings["trakt_shows"] === "on") {
-                    debug("trakt plugin is enabled");
-                    trakt.init(metadata_xml, "episode", server);
-                }
-                else {
-                    debug("trakt plugin is disabled");
-                }
-            }
-        });
-    }
+            });
+        }
+    });
 }
 
 // set the default options for extension
-debug("Setting default options");
 utils.setDefaultOptions();
+debug("Set default options");
 
 // plex.tv uses a lot of JS to manipulate the DOM so the only way to tell when
 // plex's JS has finished is to check for the existance of certain elements.

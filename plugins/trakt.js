@@ -27,11 +27,12 @@ trakt = {
         }
         debug("trakt plugin: Got show name - " + show_name);
 
-        var show_data = trakt.getTraktData(show_name, "show");
-        var url = show_data["url"];
-        var rating = show_data["ratings"]["percentage"];
+        trakt.getTraktData(show_name, "show", function(show_data) {
+            var url = show_data["url"];
+            var rating = show_data["ratings"]["percentage"];
 
-        trakt.insertTraktLink(url, rating);
+            trakt.insertTraktLink(url, rating);
+        });
     },
 
     processEpisode: function() {
@@ -55,11 +56,12 @@ trakt = {
             debug("trakt plugin: Got season number - " + season);
             debug("trakt plugin: Got episode number - " + episode);
 
-            var show_data = trakt.getTraktData(show_name, "show");
-            var url = show_data["url"] + "/season/" + season + "/episode/" + episode;
-            var rating = show_data["ratings"]["percentage"];
+            trakt.getTraktData(show_name, "show", function(show_data) {
+                var url = show_data["url"] + "/season/" + season + "/episode/" + episode;
+                var rating = show_data["ratings"]["percentage"];
 
-            trakt.insertTraktLink(url, rating);
+                trakt.insertTraktLink(url, rating);
+            });
         });
     },
 
@@ -72,20 +74,24 @@ trakt = {
         var movie_data;
         var agent = trakt.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("guid");
 
+        var query;
         // check if using the freebase metadata agent
         if (/com\.plexapp\.agents\.imdb/.test(agent)) {
             var imdb_id = agent.match(/^com\.plexapp\.agents\.imdb:\/\/(.+)\?/)[1];
             debug("trakt plugin: imdb id found - " + imdb_id);
-            movie_data = trakt.getTraktData(imdb_id, "movie");
+            query = imdb_id;
         }
         else {
             debug("trakt plugin: imdb id not found, falling back to movie name");
-            movie_data = trakt.getTraktData(movie_title, "movie");
+            query = movie_title;
         }
-        var url = movie_data["url"];
-        var rating = movie_data["ratings"]["percentage"];
 
-        trakt.insertTraktLink(url, rating);
+        trakt.getTraktData(query, "movie", function(movie_data) {
+            var url = movie_data["url"];
+            var rating = movie_data["ratings"]["percentage"];
+
+            trakt.insertTraktLink(url, rating);
+        });
     },
 
     insertTraktLink: function(url, rating) {
@@ -97,7 +103,7 @@ trakt = {
         document.getElementsByClassName("metadata-right")[0].appendChild(trakt_container);
     },
 
-    getTraktData: function(title, type) {
+    getTraktData: function(title, type, callback) {
         debug("trakt plugin: Reading API key");
         var api_key = utils.getApiKey("trakt");
         debug("trakt plugin: Successfully read API key");
@@ -110,8 +116,9 @@ trakt = {
             api_url = "http://api.trakt.tv/search/movies.json/" + api_key + "?query=" + encodeURIComponent(title) + "&limit=1";
         }
 
-        var trakt_json = utils.getJSON(api_url, false);
-        return trakt_json[0];
+        utils.getJSON(api_url, true, function(trakt_json) {
+            callback(trakt_json[0]);
+        });
     },
 
     constructTraktLink: function(trakt_url, trakt_rating) {

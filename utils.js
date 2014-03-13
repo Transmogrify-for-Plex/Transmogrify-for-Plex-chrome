@@ -1,12 +1,12 @@
 utils = {
-    getExtensionVersion: function(callback) {
+    getExtensionVersion: function() {
         var version = chrome.runtime.getManifest()["version"];
-        callback(version);
+        return version;
     },
 
-    getOptionsURL: function(callback) {
+    getOptionsURL: function() {
         var options_url = chrome.extension.getURL("options.html");
-        callback(options_url);
+        return options_url;
     },
 
     insertOverlay: function() {

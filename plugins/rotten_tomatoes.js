@@ -9,22 +9,32 @@ rotten_tomatoes = {
         if (rotten_tomatoes_citizen === "us") {
             // check whether to show audience rating
             rotten_tomatoes.show_audience_rating = rotten_tomatoes_audience;
-            rotten_tomatoes.createRottenTomatoesLink();
+            rotten_tomatoes.getMovieId();
         }
         else {
             debug("rotten_tomatoes plugin: User is not in US. Aborting");
         }
     },
 
-    getRottenTomatoesData: function(imdb_id) {
+    createRottenTomatoesLink: function(imdb_id) {
         debug("rotten_tomatoes plugin: Reading API key");
         var api_key = utils.getApiKey("rotten_tomatoes");
         debug("rotten_tomatoes plugin: Successfully read API key");
 
         var api_url = "http://api.rottentomatoes.com/api/public/v1.0/movie_alias.json?apikey=" + api_key + "&type=imdb&id=" + imdb_id;
-        var data_json = utils.getJSON(api_url, false);
+        utils.getJSON(api_url, true, function(movie_data) {
+            if ("error" in movie_data) {
+                debug("rotten_tomatoes plugin: No results for movie. Aborting");
+                return;
+            }
 
-        return data_json;
+            // create rotten tomatoes link element
+            var rotten_tomatoes_container = rotten_tomatoes.constructRottenTomatoesLink(movie_data);
+
+            // insert rotten tomatoes link element to bottom of metadata container
+            debug("rotten_tomatoes plugin: Inserting rotten_tomatoes container into page");
+            document.getElementsByClassName("metadata-right")[0].appendChild(rotten_tomatoes_container);
+        });
     },
 
     constructRottenTomatoesLink: function(movie_data) {
@@ -110,7 +120,7 @@ rotten_tomatoes = {
         return rotten_tomatoes_container_element;
     },
 
-    createRottenTomatoesLink: function() {
+    getMovieId: function() {
         var imdb_id;
         // it's more accurate to search by imdb id, otherwise fall back to movie name
         debug("rotten_tomatoes plugin: Grabbing imdb id");
@@ -130,17 +140,6 @@ rotten_tomatoes = {
             debug("rotten_tomatoes plugin: imdb id found - " + imdb_id);
         }
 
-        var movie_data = rotten_tomatoes.getRottenTomatoesData(imdb_id);
-        if ("error" in movie_data) {
-            debug("rotten_tomatoes plugin: No results for movie. Aborting");
-            return;
-        }
-
-        // create rotten tomatoes link element
-        var rotten_tomatoes_container = rotten_tomatoes.constructRottenTomatoesLink(movie_data);
-
-        // insert rotten tomatoes link element to bottom of metadata container
-        debug("rotten_tomatoes plugin: Inserting rotten_tomatoes container into page");
-        document.getElementsByClassName("metadata-right")[0].appendChild(rotten_tomatoes_container);
+        rotten_tomatoes.createRottenTomatoesLink(imdb_id);
     }
 }

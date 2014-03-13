@@ -50,7 +50,7 @@ missing_episodes = {
 
     getAllEpisodes: function(tvdb_id, season_num) {
         debug("missing_episodes plugin: Reading API key");
-        var api_key = utils.readFile(chrome.extension.getURL("resources/api_keys/trakt_api_key.txt"));
+        var api_key = utils.readFile(utils.getResourcePath("api_keys/trakt_api_key.txt"));
         debug("missing_episodes plugin: Successfully read API key");
 
         var api_url = "http://api.trakt.tv/show/season.json/" + api_key + "/" + tvdb_id + "/" + season_num;

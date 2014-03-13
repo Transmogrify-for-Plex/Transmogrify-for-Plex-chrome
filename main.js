@@ -65,7 +65,7 @@ function showPopup(messsage) {
     popup_container.setAttribute("id", "update-box")
 
     var logo = document.createElement("img");
-    logo.setAttribute("src", chrome.extension.getURL("resources/icon_transparent.png"));
+    logo.setAttribute("src", utils.getResourcePath("icon_transparent.png"));
 
     var message = document.createElement("p");
     message.innerHTML = messsage;

@@ -86,7 +86,7 @@ trakt = {
 
     getTraktData: function(title, type) {
         debug("trakt plugin: Reading API key");
-        var api_key = utils.readFile(chrome.extension.getURL("resources/api_keys/trakt_api_key.txt"));
+        var api_key = utils.readFile(utils.getResourcePath("api_keys/trakt_api_key.txt"));
         debug("trakt plugin: Successfully read API key");
 
         var api_url;
@@ -102,7 +102,7 @@ trakt = {
     },
 
     constructTraktLink: function(trakt_url, trakt_rating) {
-        var logo_url = chrome.extension.getURL("resources/trakt/trakt_logo.png")
+        var logo_url = utils.getResourcePath("trakt/trakt_logo.png")
 
         var trakt_container_element = document.createElement("div");
         trakt_container_element.setAttribute("id", "trakt-container");
@@ -126,10 +126,10 @@ trakt = {
         // construct rating image
         var trakt_rating_image = document.createElement("img");
         if (parseInt(trakt_rating) > 59) {
-            trakt_rating_image.setAttribute("src", chrome.extension.getURL("resources/trakt/trakt_love.png"));
+            trakt_rating_image.setAttribute("src", utils.getResourcePath("trakt/trakt_love.png"));
         }
         else {
-            trakt_rating_image.setAttribute("src", chrome.extension.getURL("resources/trakt/trakt_hate.png"));
+            trakt_rating_image.setAttribute("src", utils.getResourcePath("trakt/trakt_hate.png"));
         }
         trakt_rating_image.setAttribute("id", "trakt-rating-image");
 

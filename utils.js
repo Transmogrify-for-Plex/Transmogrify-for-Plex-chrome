@@ -46,6 +46,10 @@ utils = {
         });
     },
 
+    getResourcePath: function(resource) {
+        return chrome.extension.getURL("resources/" + resource);
+    },
+
     getXML: function(url, async, callback) {
         debug("Fetching XML from " + url + " with async=" + async);
         var xhr = new XMLHttpRequest();

@@ -18,7 +18,7 @@ rotten_tomatoes = {
 
     getRottenTomatoesData: function(imdb_id) {
         debug("rotten_tomatoes plugin: Reading API key");
-        var api_key = utils.readFile(chrome.extension.getURL("resources/api_keys/rotten_tomatoes_api_key.txt"));
+        var api_key = utils.readFile(utils.getResourcePath("api_keys/rotten_tomatoes_api_key.txt"));
         debug("rotten_tomatoes plugin: Successfully read API key");
 
         var api_url = "http://api.rottentomatoes.com/api/public/v1.0/movie_alias.json?apikey=" + api_key + "&type=imdb&id=" + imdb_id;
@@ -34,7 +34,7 @@ rotten_tomatoes = {
         var audience_score = movie_data["ratings"]["audience_score"];
         var audience_rating_image = movie_data["ratings"]["audience_rating"];
 
-        var logo_url = chrome.extension.getURL("resources/rotten_tomatoes/rotten_tomatoes_logo.png")
+        var logo_url = utils.getResourcePath("rotten_tomatoes/rotten_tomatoes_logo.png")
 
         var rotten_tomatoes_container_element = document.createElement("a");
         rotten_tomatoes_container_element.setAttribute("href", rotten_tomatoes_link);
@@ -65,10 +65,10 @@ rotten_tomatoes = {
             var rotten_tomatoes_audience_rating_image_element = document.createElement("img");
             var audience_image_url;
             if (audience_rating_image === "Upright") {
-                audience_image_url = chrome.extension.getURL("resources/rotten_tomatoes/rotten_tomatoes_upright.png");
+                audience_image_url = utils.getResourcePath("rotten_tomatoes/rotten_tomatoes_upright.png");
             }
             else if (audience_rating_image === "Spilled") {
-                audience_image_url = chrome.extension.getURL("resources/rotten_tomatoes/rotten_tomatoes_spilled.png");
+                audience_image_url = utils.getResourcePath("rotten_tomatoes/rotten_tomatoes_spilled.png");
             }
             rotten_tomatoes_audience_rating_image_element.setAttribute("src", audience_image_url);
             rotten_tomatoes_audience_rating_image_element.setAttribute("id", "rotten-tomatoes-audience-rating-image");
@@ -88,13 +88,13 @@ rotten_tomatoes = {
         var rotten_tomatoes_critics_rating_image_element = document.createElement("img");
         var critics_image_url;
         if (critics_rating_image === "Certified Fresh") {
-            critics_image_url = chrome.extension.getURL("resources/rotten_tomatoes/rotten_tomatoes_certified.png");
+            critics_image_url = utils.getResourcePath("rotten_tomatoes/rotten_tomatoes_certified.png");
         }
         else if (critics_rating_image === "Fresh") {
-            critics_image_url = chrome.extension.getURL("resources/rotten_tomatoes/rotten_tomatoes_fresh.png");
+            critics_image_url = utils.getResourcePath("rotten_tomatoes/rotten_tomatoes_fresh.png");
         }
         else if (critics_rating_image === "Rotten") {
-            critics_image_url = chrome.extension.getURL("resources/rotten_tomatoes/rotten_tomatoes_rotten.png");
+            critics_image_url = utils.getResourcePath("rotten_tomatoes/rotten_tomatoes_rotten.png");
         }
         rotten_tomatoes_critics_rating_image_element.setAttribute("src", critics_image_url);
         rotten_tomatoes_critics_rating_image_element.setAttribute("id", "rotten-tomatoes-critics-rating-image");

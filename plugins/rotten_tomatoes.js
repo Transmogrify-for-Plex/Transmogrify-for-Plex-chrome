@@ -129,17 +129,21 @@ rotten_tomatoes = {
         if (/com\.plexapp\.agents\.imdb/.test(agent)) {
             imdb_id = agent.match(/^com\.plexapp\.agents\.imdb:\/\/tt(.+)\?/)[1];
             debug("rotten_tomatoes plugin: imdb id found - " + imdb_id);
+
+            rotten_tomatoes.createRottenTomatoesLink(imdb_id);
         }
         // check if using the movie database metadata agent
         else if (/com\.plexapp\.agents\.themoviedb/.test(agent)) {
             var tmdb_id = agent.match(/^com\.plexapp\.agents\.themoviedb:\/\/(.+)\?/)[1];
             debug("rotten_tomatoes plugin: tmdb id found - " + tmdb_id);
-            imdb_id = themoviedb.getImdbId(tmdb_id);
-            // chop off tt prefix
-            imdb_id = imdb_id.slice(2);
-            debug("rotten_tomatoes plugin: imdb id found - " + imdb_id);
-        }
+            // async call to get imdb id using themoviedb
+            themoviedb.getImdbId(tmdb_id, function(imdb_id) {
+                // chop off tt prefix
+                imdb_id = imdb_id.slice(2);
+                debug("rotten_tomatoes plugin: imdb id found - " + imdb_id);
 
-        rotten_tomatoes.createRottenTomatoesLink(imdb_id);
+                rotten_tomatoes.createRottenTomatoesLink(imdb_id);
+            });
+        }
     }
 }

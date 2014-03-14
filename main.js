@@ -76,6 +76,7 @@ function showPopup(messsage) {
 }
 
 function openOptionsPage() {
+    // this function exists purely for firefox, because it has a stricter security policy for opening tabs
     var options_url = utils.getOptionsURL();
     var win = window.open(options_url, "_blank");
     win.focus();
@@ -305,7 +306,7 @@ function main(settings) {
                     // create rotten tomatoes link
                     if (settings["rotten_tomatoes_link"] === "on") {
                         debug("rotten_tomatoes_link plugin is enabled");
-                        rotten_tomatoes.init(metadata_xml);
+                        rotten_tomatoes.init(metadata_xml, settings["rotten_tomatoes_citizen"], settings["rotten_tomatoes_audience"]);
                     }
                     else {
                         debug("rotten_tomatoes_link plugin is disabled");

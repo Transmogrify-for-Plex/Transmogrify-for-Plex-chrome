@@ -71,7 +71,6 @@ trakt = {
 
         // it's more accurate to search by imdb id, otherwise fall back to movie name
         debug("trakt plugin: Grabbing imdb id");
-        var movie_data;
         var agent = trakt.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("guid");
 
         var query;

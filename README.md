@@ -4,6 +4,8 @@ Transmogrify for Plex
 
 Get it at https://chrome.google.com/webstore/detail/transmogrify-for-plex/jdogfefgaagaledbkgeffgbjlaaplpgo
 
+Firefox version can be found at https://github.com/Moussekateer/Transmogrify-for-Plex-firefox
+
 Features
 --------------
 - Adds link to view the trailer for movies within Plex/Web

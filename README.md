@@ -18,6 +18,7 @@ Features
 
 Version History
 --------------
+- v0.5.1 - extension now loads faster on plex pages, removed unnecessary code
 - v0.5.0 - added missing season episodes view, added support for manually defining server address
 - v0.4.1 - fixed bug with hardcoded server port
 - v0.4.0 - added rotten tomatoes support, added themoviedb api support (non visible for now), added update popup

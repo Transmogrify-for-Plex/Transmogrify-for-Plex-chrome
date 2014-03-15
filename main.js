@@ -1,4 +1,4 @@
-var show_update_text = true;
+var show_update_text = false;
 var update_text = "You can now view missing season episodes, try it now on a tv show season page! Also you can now manually set the Plex server address in the <a id='options-page-link' href='%OPTIONSURL%' target='_blank'>extension settings</a>"
 
 var show_debug = null;
@@ -89,13 +89,10 @@ function runOnReady() {
         if (document.URL != page_url) {
             window.clearInterval(interval);
         }
-        debug("Running runOnReady loop");
         // page is ready when certain elements exist.
-        // otherwise check again in 1000ms
 
         // check if on library section
         if (/\/section\/\d+$/.test(document.URL)) {
-            debug("runOnReady detected we are in library section");
             if (document.getElementsByClassName("media-poster").length > 0) {
                 debug("Instance of .media-poster detected. Page is ready");
                 window.clearInterval(interval);
@@ -104,7 +101,6 @@ function runOnReady() {
         }
         // check if on movie/tv show details page
         else if (/\/details\/%2Flibrary%2Fmetadata%2F(\d+)$/.test(document.URL)) {
-            debug("runOnReady detected we are on movie/tv show details page");
             if (document.getElementsByClassName("item-title").length > 0 || document.getElementsByClassName("show-title").length > 0) {
                 debug("Instance of .item-title or .show-title detected. Page is ready");
                 window.clearInterval(interval);
@@ -113,8 +109,9 @@ function runOnReady() {
         }
         else {
             debug("runOnReady not on recognized page");
+            window.clearInterval(interval);
         }
-    }, 1000);
+    }, 0);
 }
 
 function insertPlexToken() {
@@ -344,31 +341,14 @@ debug("Set default options");
 
 // plex.tv uses a lot of JS to manipulate the DOM so the only way to tell when
 // plex's JS has finished is to check for the existance of certain elements.
-if (/http:\/\/plex\.tv\/web\/app\#\!\/server\/.+?/.test(document.URL)) {
-    runOnReady();
-}
+runOnReady();
 
 // because plex.tv uses JS to change pages Chrome extensions don't run on every
 // page load as expected. To fix this we run the script every time the window
 // url hash changes.
-
-if ("onhashchange" in window) { // event supported
-    window.onhashchange = function () {
-        debug("Page change detected");
-        if (/http:\/\/plex\.tv\/web\/app\#\!\/server\/.+?/.test(document.URL)) {
-            runOnReady();
-        }
+window.onhashchange = function() {
+    debug("Page change detected");
+    if (/^https?:\/\/plex\.tv\/web\/app/.test(document.URL)) {
+        runOnReady();
     }
-}
-else { // event not supported
-    var storedHash = window.location.hash;
-    window.setInterval(function () {
-        if (window.location.hash != storedHash) {
-            storedHash = window.location.hash;
-            debug("Page change detected");
-            if (/http:\/\/plex\.tv\/web\/app\#\!\/server\/.+?/.test(document.URL)) {
-                runOnReady();
-            }
-        }
-    }, 500);
 }

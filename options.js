@@ -8,6 +8,7 @@ function saveOptions() {
     var trakt_shows = document.querySelector("input[name='trakt_shows']").checked;
     var random_picker = document.querySelector("input[name='random_picker']:checked").value;
     var missing_episodes = document.querySelector("input[name='missing_episodes']:checked").value;
+    var canistreamit = document.querySelector("input[name='canistreamit']:checked").value;
     var plex_server_address = document.querySelector("input[name='plex_server_address']").value;
     var plex_server_port = document.querySelector("input[name='plex_server_port']").value;
 
@@ -19,6 +20,7 @@ function saveOptions() {
     utils.storage_set("rotten_tomatoes_link", rotten_tomatoes_link);
     utils.storage_set("rotten_tomatoes_citizen", rotten_tomatoes_citizen);
     utils.storage_set("missing_episodes", missing_episodes);
+    utils.storage_set("canistreamit", canistreamit);
     if (rotten_tomatoes_audience) {
         utils.storage_set("rotten_tomatoes_audience", "on");
     }
@@ -64,6 +66,9 @@ function restoreOptions() {
 
             var missing_episodes_radio_button = document.getElementById("missing_episodes_" + results["missing_episodes"]);
             missing_episodes_radio_button.checked = true;
+
+            var canistreamit_radio_button = document.getElementById("canistreamit_" + results["canistreamit"]);
+            canistreamit_radio_button.checked = true;
 
             var rotten_tomatoes_link_radio_button = document.getElementById("rotten_tomatoes_" + results["rotten_tomatoes_link"]);
             rotten_tomatoes_link_radio_button.checked = true;

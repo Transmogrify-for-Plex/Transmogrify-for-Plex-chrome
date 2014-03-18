@@ -122,7 +122,6 @@ rotten_tomatoes = {
 
     getMovieId: function() {
         var imdb_id;
-        // it's more accurate to search by imdb id, otherwise fall back to movie name
         debug("rotten_tomatoes plugin: Grabbing imdb id");
         var agent = rotten_tomatoes.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("guid");
         // check if using the freebase metadata agent

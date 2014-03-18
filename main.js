@@ -282,6 +282,15 @@ function main(settings) {
                     // we're on a movie page
                     debug("main detected we are on a movie page");
 
+                    // insert canistreamit widget
+                    if (settings["canistreamit"] === "on") {
+                        debug("canistreamit plugin is enabled");
+                        canistreamit.init(metadata_xml);
+                    }
+                    else {
+                        debug("canistreamit plugin is disabled");
+                    }
+
                     // create letterboxd link
                     if (settings["letterboxd_link"] === "on") {
                         debug("letterboxd_link plugin is enabled");

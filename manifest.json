@@ -11,6 +11,7 @@
       "css": ["css/transmogrify.css"],
       "js": [
         "utils.js",
+        "plugins/canistreamit.js",
         "plugins/letterboxd.js",
         "plugins/youtube_trailer.js",
         "plugins/random_picker.js",

@@ -171,6 +171,14 @@ utils = {
                 utils.storage_set("plex_server_port", "");
             }
 
+            if (!("canistreamit" in results)) {
+                utils.storage_set("canistreamit", "off");
+            }
+
+            if (!("last_version" in results)) {
+                utils.storage_set("last_version", "");
+            }
+
             if (!("debug" in results)) {
                 utils.storage_set("debug", "off");
             }

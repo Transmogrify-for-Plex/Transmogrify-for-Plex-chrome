@@ -1,4 +1,4 @@
-var show_update_text = true;
+var show_update_text = false;
 var update_text = "You can now display a Can I Stream It? widget on movie pages, to find out on which online streaming services the movie is available. You can enable it in the <a id='options-page-link' href='%OPTIONSURL%' target='_blank'>extension settings</a>"
 
 var show_debug = null;

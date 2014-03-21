@@ -29,15 +29,22 @@ canistreamit = {
                 canistreamit.createCanIStreamItLink(imdb_id);
             });
         }
+        // check if using the XBMCnfoMoviesImporter agent
+        else if (/com\.plexapp\.agents\.xbmcnfo/.test(agent)) {
+            imdb_id = agent.match(/^com\.plexapp\.agents\.xbmcnfo:\/\/(.+)\?/)[1];
+            debug("canistreamit plugin: imdb id found - " + imdb_id);
+
+            canistreamit.createCanIStreamItLink(imdb_id);
+        }
     },
 
     createCanIStreamItLink: function(imdb_id) {
        // create canistreamit container element
         var canistreamit_container = canistreamit.constructCanIStreamItFrame(imdb_id);
 
-        // insert canistreamit container to bottom right of content
+        // insert canistreamit container to bottom right of .details-metadata-container
         debug("canistreamit plugin: Inserting canistreamit container into page");
-        document.getElementById("content").appendChild(canistreamit_container);
+        document.getElementsByClassName("details-metadata-container")[0].appendChild(canistreamit_container);
     },
 
     constructCanIStreamItFrame: function(imdb_id) {

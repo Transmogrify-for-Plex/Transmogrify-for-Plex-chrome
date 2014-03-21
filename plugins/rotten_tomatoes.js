@@ -144,5 +144,12 @@ rotten_tomatoes = {
                 rotten_tomatoes.createRottenTomatoesLink(imdb_id);
             });
         }
+        // check if using the XBMCnfoMoviesImporter agent
+        else if (/com\.plexapp\.agents\.xbmcnfo/.test(agent)) {
+            imdb_id = agent.match(/^com\.plexapp\.agents\.xbmcnfo:\/\/tt(.+)\?/)[1];
+            debug("rotten_tomatoes plugin: imdb id found - " + imdb_id);
+
+            rotten_tomatoes.createRottenTomatoesLink(imdb_id);
+        }
     }
 }

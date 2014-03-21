@@ -153,13 +153,6 @@
     right: 0;
 }
 
-/* make canistreamit iframe disappear below certain window width */
-@media all and (max-width: 1000px) {
-    #canistreamit-container {
-        display: none;
-    }
-}
-
 .update-box {
     position: absolute;
     left: 50%;

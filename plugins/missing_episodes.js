@@ -10,8 +10,14 @@ missing_episodes = {
         var season_num = directory_metadata.getAttribute("index");
 
         var tvdb_id;
+        // check if using the movie database metadata agent
         if (/com\.plexapp\.agents\.thetvdb/.test(agent)) {
             tvdb_id = agent.match(/^com\.plexapp\.agents\.thetvdb:\/\/(\d+)\//)[1];
+            debug("missing_episodes plugin: tvdb id found - " + tvdb_id);
+        }
+        // check if using the XBMCnfoTVImporter agent
+        else if (/com\.plexapp\.agents\.xbmcnfotv/.test(agent)) {
+            tvdb_id = agent.match(/^com\.plexapp\.agents\.xbmcnfotv:\/\/(\d+)\//)[1];
             debug("missing_episodes plugin: tvdb id found - " + tvdb_id);
         }
         else {

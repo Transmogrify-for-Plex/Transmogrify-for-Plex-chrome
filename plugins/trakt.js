@@ -80,6 +80,12 @@ trakt = {
             debug("trakt plugin: imdb id found - " + imdb_id);
             query = imdb_id;
         }
+        // check if using the XBMCnfoMoviesImporter agent
+        else if (/com\.plexapp\.agents\.xbmcnfo/.test(agent)) {
+            var imdb_id = agent.match(/^com\.plexapp\.agents\.xbmcnfo:\/\/(.+)\?/)[1];
+            debug("trakt plugin: imdb id found - " + imdb_id);
+            query = imdb_id;
+        }
         else {
             debug("trakt plugin: imdb id not found, falling back to movie name");
             query = movie_title;

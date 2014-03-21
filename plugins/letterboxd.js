@@ -14,6 +14,11 @@ letterboxd = {
             tmdb_id = agent.match(/^com\.plexapp\.agents\.themoviedb:\/\/(.+)\?/)[1];
             debug("letterboxd plugin: tmdb id found - " + tmdb_id);
         }
+        // check if using the XBMCnfoMoviesImporter agent
+        else if (/com\.plexapp\.agents\.xbmcnfo/.test(agent)) {
+            imdb_id = agent.match(/^com\.plexapp\.agents\.xbmcnfo:\/\/(.+)\?/)[1];
+            debug("letterboxd plugin: imdb id found - " + imdb_id);
+        }
 
         // create letterboxd link element
         var letterboxd_element;

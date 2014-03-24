@@ -1,16 +1,27 @@
 missing_episodes = {
     server: null,
+    metadata_xml: null,
 
-    init: function(metadata_xml, server) {
+    init: function(metadata_xml, server, type) {
         missing_episodes.server = server;
+        missing_episodes.metadata_xml = metadata_xml;
 
-        var directory_metadata = metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0];
-        var show_id = directory_metadata.getAttribute("ratingKey");
+        if (type === "episodes") {
+            missing_episodes.processEpisodes();
+        }
+        else if (type === "seasons") {
+            missing_episodes.processSeasons();
+        }
+    },
+
+    processEpisodes: function() {
+        var directory_metadata = missing_episodes.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0];
+        var season_metadata_id = directory_metadata.getAttribute("ratingKey");
         var agent = directory_metadata.getAttribute("guid");
         var season_num = directory_metadata.getAttribute("index");
 
         var tvdb_id;
-        // check if using the movie database metadata agent
+        // check if using the tvdb metadata agent
         if (/com\.plexapp\.agents\.thetvdb/.test(agent)) {
             tvdb_id = agent.match(/^com\.plexapp\.agents\.thetvdb:\/\/(\d+)\//)[1];
             debug("missing_episodes plugin: tvdb id found - " + tvdb_id);
@@ -26,7 +37,7 @@ missing_episodes = {
         }
 
         debug("missing_episodes plugin: Finding all present and all existing episodes");
-        missing_episodes.getPresentEpisodes(show_id, function(present_episodes) {
+        missing_episodes.getPresentEpisodes(season_metadata_id, function(present_episodes) {
             missing_episodes.getAllEpisodes(tvdb_id, season_num, function(all_episodes) {
                 var tiles_to_insert = {};
                 for (var i = 0; i < all_episodes.length; i++) {
@@ -41,9 +52,52 @@ missing_episodes = {
         });
     },
 
-    getPresentEpisodes: function(show_id, callback) {
+    processSeasons: function() {
+        var directory_metadata = missing_episodes.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0];
+        var show_metadata_id = directory_metadata.getAttribute("ratingKey");
+        var agent = directory_metadata.getAttribute("guid");
+
+        var tvdb_id;
+        // check if using the tvdb metadata agent
+        if (/com\.plexapp\.agents\.thetvdb/.test(agent)) {
+            tvdb_id = agent.match(/^com\.plexapp\.agents\.thetvdb:\/\/(\d+)/)[1];
+            debug("missing_episodes plugin: tvdb id found - " + tvdb_id);
+        }
+        // check if using the XBMCnfoTVImporter agent
+        else if (/com\.plexapp\.agents\.xbmcnfotv/.test(agent)) {
+            tvdb_id = agent.match(/^com\.plexapp\.agents\.xbmcnfotv:\/\/(\d+)/)[1];
+            debug("missing_episodes plugin: tvdb id found - " + tvdb_id);
+        }
+        else {
+            debug("missing_episodes plugin: Agent is not tvdb. Aborting");
+            return;
+        }
+
+        debug("missing_episodes plugin: Finding all present and all existing seasons");
+        missing_episodes.getPresentSeasons(show_metadata_id, function(present_seasons) {
+            missing_episodes.getAllSeasons(tvdb_id, function(all_seasons) {
+                var tiles_to_insert = {};
+                for (var i = 0; i < all_seasons.length; i++) {
+                    var season = all_seasons[i];
+                    if (present_seasons.indexOf(season["season"]) === -1) {
+                        if (season["season"] == 0) {
+                            // ignore specials
+                            continue;
+                        }
+                        var season_tile = missing_episodes.createSeasonTile(season);
+                        tiles_to_insert[season["season"]] = season_tile;
+                    }
+                }
+                missing_episodes.insertSeasonTiles(tiles_to_insert);
+                // Fetch season air dates and insert them into tiles
+                missing_episodes.insertSeasonAirdates(tvdb_id, tiles_to_insert);
+            });
+        });
+    },
+
+    getPresentEpisodes: function(season_metadata_id, callback) {
         debug("missing_episodes plugin: Fetching season episodes xml");
-        var episodes_metadata_xml_url = "http://" + missing_episodes.server["address"] + ":" + missing_episodes.server["port"] + "/library/metadata/" + show_id + "/children?X-Plex-Token=" + missing_episodes.server["access_token"];
+        var episodes_metadata_xml_url = "http://" + missing_episodes.server["address"] + ":" + missing_episodes.server["port"] + "/library/metadata/" + season_metadata_id + "/children?X-Plex-Token=" + missing_episodes.server["access_token"];
         utils.getXML(episodes_metadata_xml_url, true, function(episodes_metadata_xml) {
             var episodes_xml = episodes_metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video");
             var episodes = [];
@@ -51,6 +105,22 @@ missing_episodes = {
                 episodes.push(parseInt(episodes_xml[i].getAttribute("index")));
             }
             callback(episodes);
+        });
+    },
+
+    getPresentSeasons: function(show_metadata_id, callback) {
+        debug("missing_episodes plugin: Fetching seasons xml");
+        var seasons_metadata_xml_url = "http://" + missing_episodes.server["address"] + ":" + missing_episodes.server["port"] + "/library/metadata/" + show_metadata_id + "/children?X-Plex-Token=" + missing_episodes.server["access_token"];
+        utils.getXML(seasons_metadata_xml_url, true, function(seasons_metadata_xml) {
+            var seasons_xml = seasons_metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory");
+            var seasons = [];
+            for (var i = 0; i < seasons_xml.length; i++) {
+                var season_index = parseInt(seasons_xml[i].getAttribute("index"));
+                if (!isNaN(season_index)) {
+                    seasons.push(season_index);
+                }
+            }
+            callback(seasons);
         });
     },
 
@@ -65,9 +135,18 @@ missing_episodes = {
         });
     },
 
-    createEpisodeTile: function(episode) {
-        var episode_tile_list = document.getElementsByClassName("episode-tile-list")[0];
+    getAllSeasons: function(tvdb_id, callback) {
+        debug("missing_episodes plugin: Reading API key");
+        var api_key = utils.getApiKey("trakt");
+        debug("missing_episodes plugin: Successfully read API key");
 
+        var api_url = "http://api.trakt.tv/show/seasons.json/" + api_key + "/" + tvdb_id;
+        utils.getJSON(api_url, true, function(trakt_json) {
+            callback(trakt_json);
+        });
+    },
+
+    createEpisodeTile: function(episode) {
         var episode_tile = document.createElement("li");
         episode_tile.setAttribute("class", "poster-item media-tile-list-item episode");
 
@@ -114,6 +193,43 @@ missing_episodes = {
         return episode_tile;
     },
 
+    createSeasonTile: function(season) {
+        var season_tile = document.createElement("li");
+        season_tile.setAttribute("class", "poster-item media-tile-list-item season");
+
+        var season_tile_link = document.createElement("a");
+        season_tile_link.setAttribute("class", "media-poster-container");
+        season_tile_link.setAttribute("href", season["url"]);
+        season_tile_link.setAttribute("target", "_blank");
+
+        var season_tile_poster = document.createElement("div");
+        season_tile_poster.setAttribute("class", "media-poster");
+        season_tile_poster.setAttribute("style", "background-image: url(" + season["poster"] + ");");
+
+        var season_tile_overlay = document.createElement("div");
+        season_tile_overlay.setAttribute("class", "media-poster-overlay-missing-season");
+
+        var season_title_overlay_text = document.createElement("div");
+        season_title_overlay_text.setAttribute("class", "overlay-missing-season-text");
+
+        var season_tile_title = document.createElement("div");
+        season_tile_title.setAttribute("class", "media-title media-heading");
+        season_tile_title.innerHTML = "Season " + season["season"];
+
+        var season_tile_number = document.createElement("div");
+        season_tile_number.setAttribute("class", "media-subtitle media-heading secondary");
+        season_tile_number.innerHTML = season["episodes"] + " episodes";
+
+        season_tile.appendChild(season_tile_link);
+        season_tile_link.appendChild(season_tile_poster);
+        season_tile_link.appendChild(season_tile_title);
+        season_tile_link.appendChild(season_tile_number);
+        season_tile_poster.appendChild(season_tile_overlay);
+        season_tile_overlay.appendChild(season_title_overlay_text);
+
+        return season_tile;
+    },
+
     insertEpisodeTiles: function(episode_tiles) {
         var episode_tile_list = document.getElementsByClassName("episode-tile-list")[0];
         var episode_tile_list_elements = episode_tile_list.getElementsByTagName("li");
@@ -137,5 +253,78 @@ missing_episodes = {
 
         // reinsert episode tile list node
         parent_node.appendChild(episode_tile_list);
+    },
+
+    insertSeasonTiles: function(season_tiles) {
+        var season_tile_list = document.getElementsByClassName("season-tile-list")[0];
+        var season_tile_list_elements = season_tile_list.getElementsByTagName("li");
+
+        var first_season_tile = season_tile_list_elements[0].getElementsByClassName("media-title media-heading")[0].innerHTML;
+
+        // remove season tile list node first
+        var parent_node = season_tile_list.parentNode;
+        parent_node.removeChild(season_tile_list);
+
+        for (var season_number in season_tiles) {
+            var season_tile = season_tiles[season_number];
+            season_number = parseInt(season_number);
+            if (season_number === 1) {
+                // insert into beginning of tile list
+                if (first_season_tile === "Specials") {
+                    season_tile_list.insertBefore(season_tile, season_tile_list_elements[1]);
+                }
+                else {
+                    season_tile_list.insertBefore(season_tile, season_tile_list_elements[0]);
+                }
+            }
+            else {
+                // insert after last season tile
+                if (first_season_tile === "Specials") {
+                    season_tile_list.insertBefore(season_tile, season_tile_list_elements[season_number-1].nextSibling);
+                }
+                else {
+                    season_tile_list.insertBefore(season_tile, season_tile_list_elements[season_number-2].nextSibling);
+                }
+            }
+        }
+
+        // reinsert season tile list node
+        parent_node.appendChild(season_tile_list);
+    },
+
+    insertSeasonAirdates: function(tvdb_id, season_tiles) {
+        var season_tile_list = document.getElementsByClassName("season-tile-list")[0];
+        var season_tile_list_elements = season_tile_list.getElementsByTagName("li");
+
+        var first_season_tile = season_tile_list_elements[0].getElementsByClassName("media-title media-heading")[0].innerHTML;
+
+        for (var season_number in season_tiles) {
+            var season_tile = season_tiles[season_number];
+
+            missing_episodes.getAllEpisodes(tvdb_id, season_number, function(all_episodes) {
+                var first_episode = all_episodes[0];
+                var air_date = first_episode["first_aired"];
+
+                var date_text;
+                if (air_date === 0) {
+                    date_text = "TBA";
+                }
+                else {
+                    var d = new Date(air_date * 1000);
+                    date_text = d.toDateString();
+                    debug("missing_episodes plugin: First episode air date - " + d);
+                }
+
+                var season_tile_element;
+                if (first_season_tile === "Specials") {
+                    season_tile_element = season_tile_list_elements[season_number];
+                    }
+                else {
+                    season_tile_element = season_tile_list_elements[season_number-1];
+                }
+                var overlay_text_element = season_tile_element.getElementsByClassName("overlay-missing-season-text")[0];
+                overlay_text_element.innerHTML = "Air Date:<br/>" + date_text;
+            });
+        }
     }
 }

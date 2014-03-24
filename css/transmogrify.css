@@ -118,7 +118,7 @@
     color: #EEE;
 }
 
-.media-poster-overlay-missing-episode {
+.media-poster-overlay-missing-episode, .media-poster-overlay-missing-season {
     position:absolute;
     top: 0;
     bottom: 0;
@@ -128,7 +128,7 @@
     background-color: black;
 }
 
-.media-poster-overlay-missing-episode:hover {
+.media-poster-overlay-missing-episode:hover, .media-poster-overlay-missing-season:hover {
     opacity: 0.85;
     box-shadow: 0 0 4px rgba(0,0,0,.3), inset 0 0 0 2px #cc7b19;
     -webkit-box-shadow: 0 0 4px rgba(0,0,0,.3), inset 0 0 0 2px #cc7b19;
@@ -140,6 +140,16 @@
     text-align: center;
     vertical-align: middle;
     line-height: 100px;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: bold;
+    color: white;
+}
+
+.overlay-missing-season-text {
+    margin-top: 70px;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 25px;
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-weight: bold;
     color: white;

@@ -263,6 +263,15 @@ function main(settings) {
                         else {
                             debug("trakt plugin is disabled");
                         }
+
+                        // insert missing seasons
+                        if (settings["missing_episodes"] === "on") {
+                            debug("missing_episodes plugin is enabled");
+                            missing_episodes.init(metadata_xml, server, "seasons");
+                        }
+                        else {
+                            debug("missing_episodes plugin is disabled");
+                        }
                     }
                     else if (metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("type") === "season") {
                         // we're on the season page
@@ -271,7 +280,7 @@ function main(settings) {
                         // insert missing episodes
                         if (settings["missing_episodes"] === "on") {
                             debug("missing_episodes plugin is enabled");
-                            missing_episodes.init(metadata_xml, server);
+                            missing_episodes.init(metadata_xml, server, "episodes");
                         }
                         else {
                             debug("missing_episodes plugin is disabled");

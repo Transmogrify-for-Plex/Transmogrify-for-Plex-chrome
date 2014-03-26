@@ -47,6 +47,7 @@ missing_episodes = {
                         tiles_to_insert[episode["number"]] = episode_tile;
                     }
                 }
+                missing_episodes.insertSwitch();
                 missing_episodes.insertEpisodeTiles(tiles_to_insert);
             });
         });
@@ -88,6 +89,7 @@ missing_episodes = {
                         tiles_to_insert[season["season"]] = season_tile;
                     }
                 }
+                missing_episodes.insertSwitch();
                 missing_episodes.insertSeasonTiles(tiles_to_insert);
                 // Fetch season air dates and insert them into tiles
                 missing_episodes.insertSeasonAirdates(tvdb_id, tiles_to_insert);
@@ -148,7 +150,7 @@ missing_episodes = {
 
     createEpisodeTile: function(episode) {
         var episode_tile = document.createElement("li");
-        episode_tile.setAttribute("class", "poster-item media-tile-list-item episode");
+        episode_tile.setAttribute("class", "poster-item media-tile-list-item episode missing-episode");
 
         var episode_tile_link = document.createElement("a");
         episode_tile_link.setAttribute("class", "media-poster-container");
@@ -195,7 +197,7 @@ missing_episodes = {
 
     createSeasonTile: function(season) {
         var season_tile = document.createElement("li");
-        season_tile.setAttribute("class", "poster-item media-tile-list-item season");
+        season_tile.setAttribute("class", "poster-item media-tile-list-item season missing-season");
 
         var season_tile_link = document.createElement("a");
         season_tile_link.setAttribute("class", "media-poster-container");
@@ -247,7 +249,13 @@ missing_episodes = {
             }
             else {
                 // insert after last episode tile
-                episode_tile_list.insertBefore(episode_tile, episode_tile_list_elements[episode_number-2].nextSibling);
+                try {
+                    episode_tile_list.insertBefore(episode_tile, episode_tile_list_elements[episode_number-2].nextSibling);
+                }
+                // some seasons do not have consecutive episode numbers for some bizarre reason, so this is a hack fix
+                catch(e) {
+                    episode_tile_list.insertBefore(episode_tile, episode_tile_list_elements[episode_number-3].nextSibling);
+                }
             }
         }
 
@@ -325,6 +333,59 @@ missing_episodes = {
                 var overlay_text_element = season_tile_element.getElementsByClassName("overlay-missing-season-text")[0];
                 overlay_text_element.innerHTML = "Air Date:<br/>" + date_text;
             });
+        }
+    },
+
+    insertSwitch: function() {
+        var action_bar = document.getElementsByClassName("action-bar-nav")[0];
+        var list_tag = document.createElement("li");
+
+        var a_tag = document.createElement("a");
+        a_tag.setAttribute("id", "missing-switch");
+
+        var glyph = document.createElement("i");
+        glyph.setAttribute("class", "glyphicon eye-open");
+
+        a_tag.appendChild(glyph);
+        list_tag.appendChild(a_tag);
+        action_bar.appendChild(list_tag);
+
+        a_tag.setAttribute("data-state", "show");
+        a_tag.addEventListener("click", missing_episodes.switchState, false);
+    },
+
+    switchState: function() {
+        var missing_switch = document.getElementById("missing-switch");
+        var glyph = missing_switch.getElementsByTagName("i")[0];
+        var state = missing_switch.getAttribute("data-state");
+
+        var missing_episodes = document.getElementsByClassName("missing-episode");
+        for (var i = 0; i < missing_episodes.length; i++) {
+            if (state === "show") {
+                missing_episodes[i].style.display = "none";
+            }
+            else {
+                missing_episodes[i].style.display = "block";
+            }
+        }
+
+        var missing_seasons = document.getElementsByClassName("missing-season");
+        for (var i = 0; i < missing_seasons.length; i++) {
+            if (state === "show") {
+                missing_seasons[i].style.display = "none";
+            }
+            else {
+                missing_seasons[i].style.display = "block";
+            }
+        }
+
+        if (state === "show") {
+            glyph.setAttribute("class", "glyphicon eye-close");
+            missing_switch.setAttribute("data-state", "hide");
+        }
+        else {
+            glyph.setAttribute("class", "glyphicon eye-open");
+            missing_switch.setAttribute("data-state", "show");
         }
     }
 }

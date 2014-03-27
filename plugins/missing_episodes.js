@@ -6,6 +6,7 @@ missing_episodes = {
         missing_episodes.server = server;
         missing_episodes.metadata_xml = metadata_xml;
 
+        missing_episodes.insertSwitch();
         if (type === "episodes") {
             missing_episodes.processEpisodes();
         }
@@ -47,7 +48,6 @@ missing_episodes = {
                         tiles_to_insert[episode["number"]] = episode_tile;
                     }
                 }
-                missing_episodes.insertSwitch();
                 missing_episodes.insertEpisodeTiles(tiles_to_insert);
             });
         });
@@ -89,7 +89,6 @@ missing_episodes = {
                         tiles_to_insert[season["season"]] = season_tile;
                     }
                 }
-                missing_episodes.insertSwitch();
                 missing_episodes.insertSeasonTiles(tiles_to_insert);
                 // Fetch season air dates and insert them into tiles
                 missing_episodes.insertSeasonAirdates(tvdb_id, tiles_to_insert);

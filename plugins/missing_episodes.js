@@ -175,15 +175,18 @@ missing_episodes = {
             date_text = d.toDateString();
             debug("missing_episodes plugin: Episode air date - " + d);
         }
-        episode_title_overlay_text.innerHTML = "Air Date: " + date_text;
+        var episode_title_overlay_text_node = document.createTextNode("Air Date: " + date_text);
+        episode_title_overlay_text.appendChild(episode_title_overlay_text_node);
 
         var episode_tile_title = document.createElement("div");
         episode_tile_title.setAttribute("class", "media-title media-heading");
-        episode_tile_title.innerHTML = episode["title"];
+        var episode_tile_title_text_node = document.createTextNode(episode["title"]);
+        episode_tile_title.appendChild(episode_tile_title_text_node);
 
         var episode_tile_number = document.createElement("div");
         episode_tile_number.setAttribute("class", "media-subtitle media-heading secondary");
-        episode_tile_number.innerHTML = "Episode " + episode["number"];
+        var episode_tile_number_text_node = document.createTextNode("Episode " + episode["number"]);
+        episode_tile_number.appendChild(episode_tile_number_text_node);
 
         episode_tile.appendChild(episode_tile_link);
         episode_tile_link.appendChild(episode_tile_poster);
@@ -216,11 +219,13 @@ missing_episodes = {
 
         var season_tile_title = document.createElement("div");
         season_tile_title.setAttribute("class", "media-title media-heading");
-        season_tile_title.innerHTML = "Season " + season["season"];
+        var season_tile_title_text_node = document.createTextNode("Season " + season["season"]);
+        season_tile_title.appendChild(season_tile_title_text_node);
 
         var season_tile_number = document.createElement("div");
         season_tile_number.setAttribute("class", "media-subtitle media-heading secondary");
-        season_tile_number.innerHTML = season["episodes"] + " episodes";
+        var season_tile_number_text_node = document.createTextNode(season["episodes"] + " episodes");
+        season_tile_number.appendChild(season_tile_number_text_node);
 
         season_tile.appendChild(season_tile_link);
         season_tile_link.appendChild(season_tile_poster);
@@ -330,8 +335,14 @@ missing_episodes = {
                 else {
                     season_tile_element = season_tile_list_elements[season_number-1];
                 }
+                var overlay_text_element_text_node = document.createTextNode("Air Date:");
+                var overlay_text_element_linebreak = document.createElement("br");
+                var overlay_text_element_date_text_node = document.createTextNode(date_text);
+
                 var overlay_text_element = season_tile_element.getElementsByClassName("overlay-missing-season-text")[0];
-                overlay_text_element.innerHTML = "Air Date:<br/>" + date_text;
+                overlay_text_element.appendChild(overlay_text_element_text_node);
+                overlay_text_element.appendChild(overlay_text_element_linebreak);
+                overlay_text_element.appendChild(overlay_text_element_date_text_node);
             });
         }
     },

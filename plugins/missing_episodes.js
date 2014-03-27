@@ -306,12 +306,7 @@ missing_episodes = {
     },
 
     insertSeasonAirdates: function(tvdb_id, season_tiles) {
-        var season_tile_list = document.getElementsByClassName("season-tile-list")[0];
-        var season_tile_list_elements = season_tile_list.getElementsByTagName("li");
-
-        var first_season_tile = season_tile_list_elements[0].getElementsByClassName("media-title media-heading")[0].innerHTML;
-
-        for (var season_number in season_tiles) {
+        Object.keys(season_tiles).forEach(function (season_number) {
             var season_tile = season_tiles[season_number];
 
             missing_episodes.getAllEpisodes(tvdb_id, season_number, function(all_episodes) {
@@ -328,23 +323,16 @@ missing_episodes = {
                     debug("missing_episodes plugin: First episode air date - " + d);
                 }
 
-                var season_tile_element;
-                if (first_season_tile === "Specials") {
-                    season_tile_element = season_tile_list_elements[season_number];
-                    }
-                else {
-                    season_tile_element = season_tile_list_elements[season_number-1];
-                }
                 var overlay_text_element_text_node = document.createTextNode("Air Date:");
                 var overlay_text_element_linebreak = document.createElement("br");
                 var overlay_text_element_date_text_node = document.createTextNode(date_text);
 
-                var overlay_text_element = season_tile_element.getElementsByClassName("overlay-missing-season-text")[0];
+                var overlay_text_element = season_tile.getElementsByClassName("overlay-missing-season-text")[0];
                 overlay_text_element.appendChild(overlay_text_element_text_node);
                 overlay_text_element.appendChild(overlay_text_element_linebreak);
                 overlay_text_element.appendChild(overlay_text_element_date_text_node);
             });
-        }
+        });
     },
 
     insertSwitch: function() {

@@ -118,6 +118,11 @@
     color: #EEE;
 }
 
+#missing-switch {
+    cursor: pointer;
+    cursor: hand;
+}
+
 .media-poster-overlay-missing-episode, .media-poster-overlay-missing-season {
     position:absolute;
     top: 0;

@@ -13,12 +13,13 @@ Features
 - Adds link to view the trakt page for movies and tv shows, and displays rating
 - Adds link to view the rotten tomatoes page for movies, and displays ratings
 - Adds a random tv show/movie picker
-- Adds a missing season episodes view
+- Adds a missing seasons and episodes view
 - Adds a Can I Stream It? widget for movies
 - More coming soon...
 
 Version History
 --------------
+- v0.6.2 - added missing seasons view, added switch to show/hide missing seasons/episodes, removed unsafe innerHTML usage
 - v0.6.1 - added support for XBMCnfo agent, improved placement of Can I Stream it? widget
 - v0.6.0 - added Can I Stream it? widget to movie pages
 - v0.5.1 - extension now loads faster on plex pages, removed unnecessary code

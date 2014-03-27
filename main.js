@@ -1,5 +1,5 @@
-var show_update_text = false;
-var update_text = "You can now display a Can I Stream It? widget on movie pages, to find out on which online streaming services the movie is available. You can enable it in the <a id='options-page-link' href='%OPTIONSURL%' target='_blank'>extension settings</a>"
+var show_update_text = true;
+var update_text = "Missing seasons view has been added, in addition to the missing episodes view, as well as a switch in the left action bar to show/hide missing season/episode tiles"
 
 var show_debug = null;
 function debug(output) {
@@ -71,8 +71,14 @@ function showPopup(messsage) {
     popup_container.appendChild(message);
     overlay.appendChild(popup_container);
 
-    document.getElementById("options-page-link").addEventListener("click", openOptionsPage, false);
-    overlay.addEventListener("click", closePopup, false);
+    try {
+        document.getElementById("options-page-link").addEventListener("click", openOptionsPage, false);
+    }
+    catch(e) {
+    }
+    finally {
+        overlay.addEventListener("click", closePopup, false);
+    }
 }
 
 function openOptionsPage() {

@@ -95,10 +95,18 @@ function runOnReady() {
         if (document.URL != page_url) {
             window.clearInterval(interval);
         }
+
+        if (/http:\/\/plex\.tv\/web\/app\#?$/.test(document.URL)) {
+            if (document.getElementsByTagName("h3").length > 0) {
+                debug("Instance of h3 tag detected. Page is ready");
+                window.clearInterval(interval);
+                init();
+            }
+        }
         // page is ready when certain elements exist.
 
         // check if on library section
-        if (/\/section\/\d+$/.test(document.URL)) {
+        else if (/\/section\/\d+$/.test(document.URL)) {
             if (document.getElementsByClassName("media-poster").length > 0) {
                 debug("Instance of .media-poster detected. Page is ready");
                 window.clearInterval(interval);
@@ -200,8 +208,15 @@ function main(settings) {
     getServerAddresses(plex_token, function(server_addresses) {
         var page_url = document.URL;
 
+        // check if on dashboard page
+        if (/http:\/\/plex\.tv\/web\/app\#?$/.test(page_url)) {
+            debug("main detected we are on dashboard page");
+
+            split_added_deck.init();
+        }
+
         // check if on library section
-        if (/\/section\/\d+$/.test(page_url)) {
+        else if (/\/section\/\d+$/.test(page_url)) {
             debug("main detected we are in library section");
             var page_identifier = page_url.match(/\/server\/(.[^\/]+)\/section\/(\d+)$/);
             var machine_identifier = page_identifier[1];

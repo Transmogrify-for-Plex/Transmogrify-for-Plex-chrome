@@ -252,13 +252,20 @@ missing_episodes = {
                 episode_tile_list.insertBefore(episode_tile, episode_tile_list_elements[0]);
             }
             else {
-                // insert after last episode tile
-                try {
-                    episode_tile_list.insertBefore(episode_tile, episode_tile_list_elements[episode_number-2].nextSibling);
-                }
-                // some seasons do not have consecutive episode numbers for some bizarre reason, so this is a hack fix
-                catch(e) {
-                    episode_tile_list.insertBefore(episode_tile, episode_tile_list_elements[episode_number-3].nextSibling);
+                // this is a hacky way of inserting episode tiles that is necessary because of how crappy tvdb is at
+                // maintaining their data and responding to fix requests. This attempts to insert each episode after
+                // the previous episode number. If this fails, it attempts the previous episode number - 1 and so on.
+                // This is necessary because tvdb, which trakt and Plex rely on, has some seasons with large gaps in
+                // episode numbers.
+                var n = 2;
+                while (true) {
+                    try {
+                        episode_tile_list.insertBefore(episode_tile, episode_tile_list_elements[episode_number-n].nextSibling);
+                        break;
+                    }
+                    catch(e) {
+                        n++;
+                    }
                 }
             }
         }

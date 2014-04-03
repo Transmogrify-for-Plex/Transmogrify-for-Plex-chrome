@@ -71,21 +71,20 @@ function showPopup(messsage) {
     popup_container.appendChild(message);
     overlay.appendChild(popup_container);
 
-    try {
-        document.getElementById("options-page-link").addEventListener("click", openOptionsPage, false);
+    var is_firefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+    if (is_firefox) {
+        try {
+            document.getElementById("options-page-link").addEventListener("click", openOptionsPage, false);
+        }
+        catch(e) {
+        }
     }
-    catch(e) {
-    }
-    finally {
-        overlay.addEventListener("click", closePopup, false);
-    }
+    overlay.addEventListener("click", closePopup, false);
 }
 
 function openOptionsPage() {
     // this function exists purely for firefox, because it has a stricter security policy for opening tabs
-    var options_url = utils.getOptionsURL();
-    var win = window.open(options_url, "_blank");
-    win.focus();
+    utils.openOptionsPage();
 }
 
 function runOnReady() {

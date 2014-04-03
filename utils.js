@@ -175,6 +175,10 @@ utils = {
                 utils.storage_set("canistreamit", "off");
             }
 
+            if (!("imdb_link" in results)) {
+                utils.storage_set("imdb_link", "on");
+            }
+
             if (!("last_version" in results)) {
                 utils.storage_set("last_version", "");
             }

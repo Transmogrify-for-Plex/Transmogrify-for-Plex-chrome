@@ -12,14 +12,15 @@
       "js": [
         "utils.js",
         "plugins/canistreamit.js",
+        "plugins/imdb.js",
         "plugins/letterboxd.js",
-        "plugins/youtube_trailer.js",
+        "plugins/missing_episodes.js",
         "plugins/random_picker.js",
-        "plugins/trakt.js",
         "plugins/rotten_tomatoes.js",
         "plugins/split_added_deck.js",
         "plugins/themoviedb.js",
-        "plugins/missing_episodes.js",
+        "plugins/trakt.js",
+        "plugins/youtube_trailer.js",
         "main.js"
       ]
     }

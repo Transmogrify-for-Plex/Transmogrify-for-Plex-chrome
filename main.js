@@ -330,6 +330,15 @@ function main(settings) {
                         debug("letterboxd_link plugin is disabled");
                     }
 
+                    // insert imdb link
+                    if (settings["imdb_link"] === "on") {
+                        debug("imdb plugin is enabled");
+                        imdb.init(metadata_xml);
+                    }
+                    else {
+                        debug("imdb plugin is disabled");
+                    }
+
                     // create youtube trailer button
                     if (settings["movie_trailers"] === "on") {
                         debug("youtube_trailer plugin is enabled");

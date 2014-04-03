@@ -10,7 +10,7 @@
     z-index: 5000;
 }
 
-#letterboxd-link, #trakt-container, #rotten-tomatoes-container {
+#letterboxd-link, #trakt-container, #rotten-tomatoes-container, #imdb-container {
     display: block;
     margin-top: 20px;
     margin-left: 5px;
@@ -47,6 +47,26 @@
 
 #trakt-rating-image {
     margin-left: 5px;
+}
+
+#imdb-logo {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+#imdb-rating {
+    line-height: 50px;
+    height: 45px;
+    width: 52px;
+    margin-left: 5px;
+    display: inline-block;
+    vertical-align: middle;
+    text-align: center;
+    color: black;
+    font-size: 15px;
+    font-weight: bold;
+    font-family: 'tahoma';
+    cursor: default;
 }
 
 .btn-trailer {

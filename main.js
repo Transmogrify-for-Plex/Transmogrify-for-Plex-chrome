@@ -1,5 +1,5 @@
 var show_update_text = true;
-var update_text = "Missing seasons view has been added, in addition to the missing episodes view, as well as a switch in the left action bar to show/hide missing season/episode tiles"
+var update_text = "IMDB ratings are now available to view on movie pages! Toggle it on the <a id='options-page-link' href='%OPTIONSURL%' target='_blank'>extension settings</a> page. Also new in this update is a movie/tv show filter for the main dashboard."
 
 var show_debug = null;
 function debug(output) {

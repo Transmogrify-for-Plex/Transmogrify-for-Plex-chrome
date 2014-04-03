@@ -10,15 +10,18 @@ Features
 --------------
 - Adds link to view the trailer for movies within Plex/Web
 - Adds link to view the letterboxd page for movies
-- Adds link to view the trakt page for movies and tv shows, and displays rating
+- Adds link to view the IMDB page for movies, and displays ratings
+- Adds link to view the trakt page for movies and tv shows, and displays ratings
 - Adds link to view the rotten tomatoes page for movies, and displays ratings
 - Adds a random tv show/movie picker
 - Adds a missing seasons and episodes view
 - Adds a Can I Stream It? widget for movies
+- Adds a movie/tv show filter for the main dashboard
 - More coming soon...
 
 Version History
 --------------
+- v0.7.0 - added imdb plugin, added split_added_deck plugin, fixed bug with missing episodes view
 - v0.6.2 - added missing seasons view, added switch to show/hide missing seasons/episodes, removed unsafe innerHTML usage
 - v0.6.1 - added support for XBMCnfo agent, improved placement of Can I Stream it? widget
 - v0.6.0 - added Can I Stream it? widget to movie pages

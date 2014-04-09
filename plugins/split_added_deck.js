@@ -8,7 +8,7 @@ split_added_deck = {
             var header_text = header_elements[i].innerHTML;
 
             if (header_text === "On Deck" || header_text === "Recently Added") {
-                header_elements[i].innerHTML = header_text + " <span class='split-text split-show split-movie'>Movies</span> <span class='split-text split-show split-tv-show'>TV Shows</span>";
+                header_elements[i].insertAdjacentHTML("beforeend", " <span class='split-text split-show split-movie'>Movies</span> <span class='split-text split-show split-tv-show'>TV Shows</span>");
             }
         }
 

@@ -170,9 +170,10 @@ missing_episodes = {
             date_text = "TBA";
         }
         else {
-            var d = new Date(episode["first_aired"] * 1000);
-            date_text = d.toDateString();
-            debug("missing_episodes plugin: Episode air date - " + d);
+            var local_utc_offset = new Date().getTimezoneOffset() * 60000;
+            var utc_air_date = episode["first_aired_utc"] * 1000;
+            var localized_air_date = new Date(utc_air_date - local_utc_offset);
+            date_text = localized_air_date.toDateString();
         }
         var episode_title_overlay_text_node = document.createTextNode("Air Date: " + date_text);
         episode_title_overlay_text.appendChild(episode_title_overlay_text_node);
@@ -317,16 +318,16 @@ missing_episodes = {
 
             missing_episodes.getAllEpisodes(tvdb_id, season_number, function(all_episodes) {
                 var first_episode = all_episodes[0];
-                var air_date = first_episode["first_aired"];
 
                 var date_text;
-                if (air_date === 0) {
+                if (first_episode["first_aired_utc"] === 0) {
                     date_text = "TBA";
                 }
                 else {
-                    var d = new Date(air_date * 1000);
-                    date_text = d.toDateString();
-                    debug("missing_episodes plugin: First episode air date - " + d);
+                    var local_utc_offset = new Date().getTimezoneOffset() * 60000;
+                    var utc_air_date = first_episode["first_aired_utc"] * 1000;
+                    var localized_air_date = new Date(utc_air_date - local_utc_offset);
+                    date_text = localized_air_date.toDateString();
                 }
 
                 var overlay_text_element_text_node = document.createTextNode("Air Date:");

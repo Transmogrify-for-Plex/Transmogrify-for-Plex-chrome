@@ -1,4 +1,4 @@
-var show_update_text = true;
+var show_update_text = false;
 var update_text = "IMDB ratings are now available to view on movie pages! Toggle it on the <a id='options-page-link' href='%OPTIONSURL%' target='_blank'>extension settings</a> page. Also new in this update is a movie/tv show filter for the main dashboard."
 
 var show_debug = null;

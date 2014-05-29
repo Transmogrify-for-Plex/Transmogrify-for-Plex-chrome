@@ -95,7 +95,7 @@ function runOnReady() {
             window.clearInterval(interval);
         }
 
-        if (/http:\/\/plex\.tv\/web\/app\#?$/.test(document.URL)) {
+        if ((/index\.html\#?$/.test(document.URL)) || (/http:\/\/plex\.tv\/web\/app\#?$/.test(document.URL))) {
             if (document.getElementsByTagName("h3").length > 0) {
                 debug("Instance of h3 tag detected. Page is ready");
                 window.clearInterval(interval);
@@ -129,7 +129,13 @@ function runOnReady() {
 
 function insertPlexToken() {
     var plex_token = PLEXWEB.myPlexAccessToken;
-    document.body.setAttribute("data-plextoken", plex_token);
+    if (plex_token) {
+        document.body.setAttribute("data-plexservertype", "hosted");
+        document.body.setAttribute("data-plextoken", plex_token);
+    }
+    else {
+        document.body.setAttribute("data-plexservertype", "bundled");
+    }
 }
 
 function getPlexToken() {
@@ -145,11 +151,18 @@ function getPlexToken() {
     (document.body || document.head || document.documentElement).appendChild(script);
 
     var plex_token = document.body.getAttribute("data-plextoken");
+    var server_type = document.body.getAttribute("data-plexservertype");
     debug("plex_token fetched from document body - " + plex_token);
-    return plex_token;
+    return {"plex_token": plex_token, "server_type": server_type};
 }
 
-function getServerAddresses(plex_token, callback) {
+function getServerAddresses(plex_token, server_type, callback) {
+    if (server_type === "bundled") {
+        // no need to fetch server addresses from plex.tv
+        debug("Local server, not fetching server addresses");
+        callback(null);
+        return;
+    }
     debug("Fetching server address");
     utils.getXML("https://plex.tv/pms/servers?X-Plex-Token=" + plex_token, true, function(servers_xml) {
         var servers = servers_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Server");
@@ -203,12 +216,22 @@ function main(settings) {
     // show popup if updated
     checkIfUpdated();
 
-    var plex_token = getPlexToken();
-    getServerAddresses(plex_token, function(server_addresses) {
-        var page_url = document.URL;
+    var page_url = document.URL;
+    var plex_server_data = getPlexToken();
+    var plex_token = plex_server_data["plex_token"];
+    var server_type = plex_server_data["server_type"];
 
+    var plex_requests_address;
+    var plex_requests_port;
+    if (server_type === "bundled") {
+        var url = page_url.match(/^https?\:\/\/(.+):(\d+)\/web\/.+/);
+        plex_requests_address = url[1];
+        plex_requests_port = url[2];
+    }
+
+    getServerAddresses(plex_token, server_type, function(server_addresses) {
         // check if on dashboard page
-        if (/http:\/\/plex\.tv\/web\/app\#?$/.test(page_url)) {
+        if ((/index\.html\#?$/.test(page_url)) || (/http:\/\/plex\.tv\/web\/app\#?$/.test(page_url))) {
             debug("main detected we are on dashboard page");
 
             split_added_deck.init();
@@ -224,10 +247,30 @@ function main(settings) {
             debug("library section - " + section_num);
 
             // get library sections xml
-            utils.getXML("https://plex.tv/pms/system/library/sections?X-Plex-Token=" + plex_token, true, function(sections_xml) {
+            var library_sections_url;
+            if (plex_requests_address) {
+                library_sections_url = "http://" + plex_requests_address + ":" + plex_requests_port + "/system/library/sections"
+            }
+            else {
+                library_sections_url = "https://plex.tv/pms/system/library/sections?X-Plex-Token=" + plex_token
+            }
+            utils.getXML(library_sections_url, true, function(sections_xml) {
                 var library_sections = processLibrarySections(sections_xml);
-                var server = server_addresses[machine_identifier];
+                var server;
+                if (server_addresses) {
+                    server = server_addresses[machine_identifier];
+                }
+                else {
+                    server = {};
+                }
                 var section = library_sections[machine_identifier][section_num];
+                // override server address if using local plex/web
+                if (plex_requests_address) {
+                    debug("Plex server is local");
+                    server["address"] = plex_requests_address;
+                    server["port"] = plex_requests_port;
+                }
+                // override server address if defined in settings
                 if (settings["plex_server_address"] != "" && settings["plex_server_port"] != "") {
                     debug("Plex server manual override");
                     server["address"] = settings["plex_server_address"];
@@ -252,7 +295,20 @@ function main(settings) {
             var parent_item_id = page_identifier[2];
             debug("metadata id - " + parent_item_id);
 
-            var server = server_addresses[machine_identifier];
+            var server
+                if (server_addresses) {
+                    server = server_addresses[machine_identifier];
+                }
+                else {
+                    server = {};
+                }
+            // override server address if using local plex/web
+            if (plex_requests_address) {
+                debug("Plex server is local");
+                server["address"] = plex_requests_address;
+                server["port"] = plex_requests_port;
+            }
+            // override server address if defined in settings
             if (settings["plex_server_address"] != "" && settings["plex_server_port"] != "") {
                 debug("Plex server manual override");
                 server["address"] = settings["plex_server_address"];
@@ -386,16 +442,14 @@ function main(settings) {
 utils.setDefaultOptions();
 debug("Set default options");
 
-// plex.tv uses a lot of JS to manipulate the DOM so the only way to tell when
+// Plex/Web uses a lot of JS to manipulate the DOM so the only way to tell when
 // plex's JS has finished is to check for the existance of certain elements.
 runOnReady();
 
-// because plex.tv uses JS to change pages Chrome extensions don't run on every
+// because Plex/Web uses JS to change pages Chrome extensions don't run on every
 // page load as expected. To fix this we run the script every time the window
 // url hash changes.
 window.onhashchange = function() {
     debug("Page change detected");
-    if (/^https?:\/\/plex\.tv\/web\/app/.test(document.URL)) {
-        runOnReady();
-    }
+    runOnReady();
 }

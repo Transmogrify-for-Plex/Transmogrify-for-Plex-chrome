@@ -21,6 +21,7 @@ Features
 
 Version History
 --------------
+- v0.7.2 - enabled the extension for local Plex/Web
 - v0.7.1 - localized air dates for missing seasons and episodes views
 - v0.7.0 - added imdb plugin, added split_added_deck plugin, fixed bug with missing episodes view
 - v0.6.2 - added missing seasons view, added switch to show/hide missing seasons/episodes, removed unsafe innerHTML usage

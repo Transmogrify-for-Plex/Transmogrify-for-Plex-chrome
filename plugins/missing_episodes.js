@@ -347,6 +347,7 @@ missing_episodes = {
         var list_tag = document.createElement("li");
 
         var a_tag = document.createElement("a");
+        a_tag.setAttribute("class", "btn-gray");
         a_tag.setAttribute("id", "missing-switch");
 
         var glyph = document.createElement("i");
@@ -354,7 +355,8 @@ missing_episodes = {
 
         a_tag.appendChild(glyph);
         list_tag.appendChild(a_tag);
-        action_bar.appendChild(list_tag);
+        // insert switch before secondary actions dropdown
+        action_bar.insertBefore(list_tag, action_bar.getElementsByClassName("secondary-actions-dropdown")[0]);
 
         a_tag.setAttribute("data-state", "show");
         a_tag.addEventListener("click", missing_episodes.switchState, false);

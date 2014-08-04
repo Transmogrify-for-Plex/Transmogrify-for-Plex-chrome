@@ -96,8 +96,8 @@ function runOnReady() {
         }
 
         if ((/index\.html\#?$/.test(document.URL)) || (/http:\/\/plex\.tv\/web\/app\#?$/.test(document.URL))) {
-            if (document.getElementsByTagName("h3").length > 0) {
-                debug("Instance of h3 tag detected. Page is ready");
+            if (document.getElementsByTagName("h2").length > 0) {
+                debug("Instance of h2 tag detected. Page is ready");
                 window.clearInterval(interval);
                 init();
             }

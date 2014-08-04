@@ -3,7 +3,7 @@ split_added_deck = {
     show_tv_shows: true,
 
     init: function() {
-        var header_elements = document.getElementsByTagName("h3");
+        var header_elements = document.getElementsByTagName("h2");
         for (var i = 0; i < header_elements.length; i++) {
             var header_text = header_elements[i].innerHTML;
 

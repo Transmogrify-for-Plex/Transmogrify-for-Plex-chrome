@@ -74,10 +74,10 @@ rotten_tomatoes = {
             // construct audience rating image
             var rotten_tomatoes_audience_rating_image_element = document.createElement("img");
             var audience_image_url;
-            if (audience_rating_image === "Upright") {
+            if (audience_rating_image === "Upright" || audience_score > 59) {
                 audience_image_url = utils.getResourcePath("rotten_tomatoes/rotten_tomatoes_upright.png");
             }
-            else if (audience_rating_image === "Spilled") {
+            else if (audience_rating_image === "Spilled" || audience_score < 60) {
                 audience_image_url = utils.getResourcePath("rotten_tomatoes/rotten_tomatoes_spilled.png");
             }
             rotten_tomatoes_audience_rating_image_element.setAttribute("src", audience_image_url);

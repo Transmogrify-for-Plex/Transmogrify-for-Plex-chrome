@@ -21,6 +21,7 @@ Features
 
 Version History
 --------------
+- v0.7.4 - fixed split_added_deck after recent plex/web update, fix Rotten Tomatoes API sometimes not returning audience rating graphic, fix colour and position of missing_episodes switch
 - v0.7.3 - new api key for Rotten Tomatoes
 - v0.7.2 - enabled the extension for local Plex/Web
 - v0.7.1 - localized air dates for missing seasons and episodes views

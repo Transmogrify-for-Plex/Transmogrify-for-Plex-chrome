@@ -47,13 +47,6 @@ function saveOptions() {
     utils.storage_set("plex_server_port", plex_server_port);
 
     utils.storage_set("debug", debug);
-
-    var save_button = document.getElementById("save");
-
-    save_button.innerHTML = "Saved";
-    setTimeout(function() {
-        save_button.innerHTML = "Save";
-    }, 1500);
 }
 
 function restoreOptions() {
@@ -156,6 +149,10 @@ function refreshRandomPickerExtraOptions() {
     }
 }
 
-document.getElementById("save").addEventListener("click", saveOptions);
+// add click listener on all inputs to automatically save changes
+var input_elements = document.getElementsByTagName('input');
+for (var i = 0; i < input_elements.length; i++) {
+    input_elements[i].addEventListener("click", saveOptions);
+}
 
 restoreOptions();

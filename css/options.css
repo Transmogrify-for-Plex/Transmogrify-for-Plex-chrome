@@ -67,25 +67,6 @@ input[type="number"] {
     margin-top: 120px;
 }
 
-#save {
-    float: left; 
-    clear: both;
-    margin-top: 50px;
-    margin-left: 110px;
-    background: none;
-    color: #E69533;
-    border: 1px solid #E69533;
-    border-color: #E69533 #E69533 #E69533;
-    cursor: pointer;
-    font-size: 40px;
-}
-
-#save:hover, #save:focus {
-    background-color: #E69533;
-    color: #EEEEEE;
-    outline: 0;
-}
-
 .thanks {
     font-size: 20px;
     position: absolute;

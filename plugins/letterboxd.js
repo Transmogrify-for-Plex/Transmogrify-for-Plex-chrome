@@ -29,7 +29,7 @@ letterboxd = {
             letterboxd_element = letterboxd.constructLetterboxdLink(tmdb_id, "tmdb");
         }
 
-        //if an unknown agent is used and neither imdb nor tmdb is filled letterboxed_element ist empty
+        // if an unknown agent is used and neither imdb nor tmdb is filled letterboxed_element is empty
         if (letterboxd_element) {
             // insert letterboxd link element to bottom of metadata container
             debug("letterboxd plugin: Inserting letterboxd link into page");

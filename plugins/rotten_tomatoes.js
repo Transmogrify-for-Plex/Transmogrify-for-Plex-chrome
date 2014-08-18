@@ -151,5 +151,9 @@ rotten_tomatoes = {
 
             rotten_tomatoes.createRottenTomatoesLink(imdb_id);
         }
+        // agent not recognized
+        else {
+            debug("rotten_tomatoes plugin: Movie agent not recognized, aborting");
+        }
     }
 }

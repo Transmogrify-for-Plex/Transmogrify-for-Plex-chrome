@@ -29,9 +29,12 @@ letterboxd = {
             letterboxd_element = letterboxd.constructLetterboxdLink(tmdb_id, "tmdb");
         }
 
-        // insert letterboxd link element to bottom of metadata container
-        debug("letterboxd plugin: Inserting letterboxd link into page");
-        document.getElementsByClassName("metadata-right")[0].appendChild(letterboxd_element);
+        //if an unknown agent is used and neither imdb nor tmdb is filled letterboxed_element ist empty
+        if (letterboxd_element) {
+            // insert letterboxd link element to bottom of metadata container
+            debug("letterboxd plugin: Inserting letterboxd link into page");
+            document.getElementsByClassName("metadata-right")[0].appendChild(letterboxd_element);
+        }
     },
 
     constructLetterboxdLink: function(id, agent) {

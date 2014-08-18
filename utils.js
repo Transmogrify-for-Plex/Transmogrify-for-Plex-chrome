@@ -142,6 +142,10 @@ utils = {
                 utils.storage_set("random_picker", "on");
             }
 
+            if (!("random_picker_only_unwatched" in results)) {
+                utils.storage_set("random_picker_only_unwatched", "off");
+            }
+
             if (!("missing_episodes" in results)) {
                 utils.storage_set("missing_episodes", "on");
             }

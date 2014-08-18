@@ -1,12 +1,14 @@
 random_picker = {
     server: null,
     section: null,
+    only_unwatched: null,
     overlay: null,
     media_list: null,
 
-    init: function(server, section) {
+    init: function(server, section, random_picker_only_unwatched) {
         random_picker.server = server;
         random_picker.section = section;
+        random_picker.only_unwatched = random_picker_only_unwatched;
 
         var random_button_element = document.createElement("span");
         random_button_element.setAttribute("id", "pick-random");
@@ -38,7 +40,22 @@ random_picker = {
         var media_xml_url = "http://" + random_picker.server["address"] + ":" + random_picker.server["port"] + "/library/sections/" + random_picker.section["section_num"] + "/all?X-Plex-Token=" + random_picker.server["access_token"];
         utils.getXML(media_xml_url, true, function(media_xml) {
             if (random_picker.section["type"] == "movie") {
-                random_picker.media_list = media_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video");
+                var movies_xml = media_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video");
+
+                if (random_picker.only_unwatched === "on") {
+                    // only return unwatched movies
+                    debug("random_picker plugin: Only returning unwatched media");
+                    var filtered_movies_xml = [];
+                    for (i = 0; i < movies_xml.length; i++) {
+                        if (movies_xml[i].getAttribute("viewCount") === null) {
+                            filtered_movies_xml.push(movies_xml[i]);
+                        }
+                    }
+                    random_picker.media_list = filtered_movies_xml;
+                }
+                else {
+                    random_picker.media_list = movies_xml;
+                }
             }
             else if (random_picker.section["type"] == "show") {
                 random_picker.media_list = media_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory");

@@ -279,7 +279,7 @@ function main(settings) {
 
                 if (settings["random_picker"] === "on") {
                     debug("random_picker plugin is enabled");
-                    random_picker.init(server, section);
+                    random_picker.init(server, section, settings["random_picker_only_unwatched"]);
                 }
                 else {
                     debug("random_picker plugin is disabled");

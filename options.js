@@ -8,6 +8,7 @@ function saveOptions() {
     var trakt_movies = document.querySelector("input[name='trakt_movies']").checked;
     var trakt_shows = document.querySelector("input[name='trakt_shows']").checked;
     var random_picker = document.querySelector("input[name='random_picker']:checked").value;
+    var random_picker_only_unwatched = document.querySelector("input[name='random_picker_only_unwatched']:checked").value;
     var missing_episodes = document.querySelector("input[name='missing_episodes']:checked").value;
     var canistreamit = document.querySelector("input[name='canistreamit']:checked").value;
     var plex_server_address = document.querySelector("input[name='plex_server_address']").value;
@@ -19,6 +20,7 @@ function saveOptions() {
     utils.storage_set("letterboxd_link", letterboxd_link);
     utils.storage_set("imdb_link", imdb_link);
     utils.storage_set("random_picker", random_picker);
+    utils.storage_set("random_picker_only_unwatched", random_picker_only_unwatched);
     utils.storage_set("rotten_tomatoes_link", rotten_tomatoes_link);
     utils.storage_set("rotten_tomatoes_citizen", rotten_tomatoes_citizen);
     utils.storage_set("missing_episodes", missing_episodes);
@@ -69,6 +71,10 @@ function restoreOptions() {
             var random_picker_radio_button = document.getElementById("random_" + results["random_picker"]);
             random_picker_radio_button.checked = true;
 
+            var random_picker_only_unwatched_radio_button = document.getElementById("random_picker_only_unwatched_" + results["random_picker_only_unwatched"]);
+            random_picker_only_unwatched_radio_button.checked = true;
+            refreshRandomPickerExtraOptions();
+
             var missing_episodes_radio_button = document.getElementById("missing_episodes_" + results["missing_episodes"]);
             missing_episodes_radio_button.checked = true;
 
@@ -77,7 +83,7 @@ function restoreOptions() {
 
             var rotten_tomatoes_link_radio_button = document.getElementById("rotten_tomatoes_" + results["rotten_tomatoes_link"]);
             rotten_tomatoes_link_radio_button.checked = true;
-            refreshExtraOptions();
+            refreshRottenTomatoesExtraOptions();
 
             var rotten_tomatoes_audience_checkbox = document.getElementById("rotten_tomatoes_audience");
             if (results["rotten_tomatoes_audience"] === "on") {
@@ -115,21 +121,37 @@ function restoreOptions() {
             debug_radio_button.checked = true;
         });
 
-        document.getElementById("rotten_tomatoes_on").addEventListener("click", refreshExtraOptions, false);
-        document.getElementById("rotten_tomatoes_off").addEventListener("click", refreshExtraOptions, false);
+        document.getElementById("rotten_tomatoes_on").addEventListener("click", refreshRottenTomatoesExtraOptions, false);
+        document.getElementById("rotten_tomatoes_off").addEventListener("click", refreshRottenTomatoesExtraOptions, false);
+        document.getElementById("random_on").addEventListener("click", refreshRandomPickerExtraOptions, false);
+        document.getElementById("random_off").addEventListener("click", refreshRandomPickerExtraOptions, false);
     });
 }
 
-function refreshExtraOptions() {
-    var extra_options_elements = document.querySelectorAll(".extra-options.rotten-tomatoes, .extra-options-label");
-    if (document.getElementById('rotten_tomatoes_on').checked) {
-        for (var i = 0; i < extra_options_elements.length; i++) {
-            extra_options_elements[i].style.display = "block";
+function refreshRottenTomatoesExtraOptions() {
+    var rotten_tomatoes_extra_options = document.querySelectorAll(".rotten-tomatoes-extra");
+    if (document.getElementById("rotten_tomatoes_on").checked) {
+        for (var i = 0; i < rotten_tomatoes_extra_options.length; i++) {
+            rotten_tomatoes_extra_options[i].style.display = "block";
         }
     }
     else {
-        for (var i = 0; i < extra_options_elements.length; i++) {
-            extra_options_elements[i].style.display = "none";
+        for (var i = 0; i < rotten_tomatoes_extra_options.length; i++) {
+            rotten_tomatoes_extra_options[i].style.display = "none";
+        }
+    }
+}
+
+function refreshRandomPickerExtraOptions() {
+    var random_picker_extra_options = document.querySelectorAll(".random-picker-extra");
+    if (document.getElementById("random_on").checked) {
+        for (var i = 0; i < random_picker_extra_options.length; i++) {
+            random_picker_extra_options[i].style.display = "block";
+        }
+    }
+    else {
+        for (var i = 0; i < random_picker_extra_options.length; i++) {
+            random_picker_extra_options[i].style.display = "none";
         }
     }
 }

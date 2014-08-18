@@ -54,12 +54,16 @@
                 <label for="rotten_tomatoes_off">OFF</label>
             </div>
 
-            <div class="field extra-options rotten-tomatoes-extra" id="rotten-tomatoes-audience-div">
-                <input type="checkbox" id="rotten_tomatoes_audience" name="rotten_tomatoes_audience" value="audience">
-                <label for="rotten_tomatoes_audience">SHOW AUDIENCE RATING</label>
+            <div class="label extra-options-label rotten-tomatoes-extra">Show audience rating?:</div>
+            <div class="field">
+                <input type="radio" id="rotten_tomatoes_audience_on" name="rotten_tomatoes_audience" value="on"/>
+                <label for="rotten_tomatoes_audience_on">YES</label>
+
+                <input type="radio" id="rotten_tomatoes_audience_off" name="rotten_tomatoes_audience" value="off"/>
+                <label for="rotten_tomatoes_audience_off">NO</label>
             </div>
 
-            <div class="label extra-options-label rotten-tomatoes-extra">Do you live in the US?:<br/><span class="subscript">(the rotten tomatoes API requires that you live in the US to use their data)</span></div>
+            <div class="label extra-options-label rotten-tomatoes-extra">Do you live in the US?:<br/><span class="subscript">(rotten tomatoes API requires that you live in the US to use their data)</span></div>
             <div class="field extra-options rotten-tomatoes-extra">
                 <input type="radio" id="rotten_tomatoes_citizen_us" name="rotten_tomatoes_citizen" value="us">
                 <label for="rotten_tomatoes_citizen_us">YES</label>
@@ -92,7 +96,7 @@
                 <label for="random_off">OFF</label>
             </div>
 
-            <div class="label extra-options-label random-picker-extra">Only show unwatched movies?</div>
+            <div class="label extra-options-label random-picker-extra">Only show unwatched movies?:</div>
             <div class="field extra-options random-picker-extra">
                 <input type="radio" id="random_picker_only_unwatched_on" name="random_picker_only_unwatched" value="on">
                 <label for="random_picker_only_unwatched_on">YES</label>

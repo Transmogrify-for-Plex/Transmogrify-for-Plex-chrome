@@ -71,6 +71,7 @@ input[type="number"] {
     font-size: 20px;
     position: absolute;
     right: 0;
+    bottom: 0;
 }
 
 .thanks li {

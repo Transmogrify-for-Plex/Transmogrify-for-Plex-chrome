@@ -127,6 +127,11 @@ actor_profiles = {
                     actor_profiles.actor_overlay.style.display = "none";
                 }
             }), false);
+
+            // also remove actor overlay on name click
+            cast_list_elements[i].addEventListener("click", (function(e) {
+                actor_profiles.actor_overlay.style.display = "none";
+            }), false);
         }
     },
 

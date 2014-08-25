@@ -1,5 +1,5 @@
-var show_update_text = false;
-var update_text = "IMDB ratings are now available to view on movie pages! Toggle it on the <a id='options-page-link' href='%OPTIONSURL%' target='_blank'>extension settings</a> page. Also new in this update is a movie/tv show filter for the main dashboard."
+var show_update_text = true;
+var update_text = "Actor profiles are now available when you hover over actor's names on movie pages! Also you now have the option to only return unwatched movies using the random picker. Check out the <a id='options-page-link' href='%OPTIONSURL%' target='_blank'>extension settings</a> page, which now automatically saves changes."
 
 var show_debug = null;
 function debug(output) {

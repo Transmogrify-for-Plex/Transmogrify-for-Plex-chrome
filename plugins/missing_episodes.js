@@ -126,9 +126,7 @@ missing_episodes = {
     },
 
     getAllEpisodes: function(tvdb_id, season_num, callback) {
-        debug("missing_episodes plugin: Reading API key");
         var api_key = utils.getApiKey("trakt");
-        debug("missing_episodes plugin: Successfully read API key");
 
         var api_url = "http://api.trakt.tv/show/season.json/" + api_key + "/" + tvdb_id + "/" + season_num;
         utils.getJSON(api_url, true, function(trakt_json) {
@@ -137,9 +135,7 @@ missing_episodes = {
     },
 
     getAllSeasons: function(tvdb_id, callback) {
-        debug("missing_episodes plugin: Reading API key");
         var api_key = utils.getApiKey("trakt");
-        debug("missing_episodes plugin: Successfully read API key");
 
         var api_url = "http://api.trakt.tv/show/seasons.json/" + api_key + "/" + tvdb_id;
         utils.getJSON(api_url, true, function(trakt_json) {

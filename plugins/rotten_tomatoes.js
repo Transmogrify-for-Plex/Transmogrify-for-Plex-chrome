@@ -17,9 +17,7 @@ rotten_tomatoes = {
     },
 
     createRottenTomatoesLink: function(imdb_id) {
-        debug("rotten_tomatoes plugin: Reading API key");
         var api_key = utils.getApiKey("rotten_tomatoes");
-        debug("rotten_tomatoes plugin: Successfully read API key");
 
         var api_url = "http://api.rottentomatoes.com/api/public/v1.0/movie_alias.json?apikey=" + api_key + "&type=imdb&id=" + imdb_id;
         utils.getJSON(api_url, true, function(movie_data) {

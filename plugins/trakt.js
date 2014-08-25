@@ -109,9 +109,7 @@ trakt = {
     },
 
     getTraktData: function(title, type, callback) {
-        debug("trakt plugin: Reading API key");
         var api_key = utils.getApiKey("trakt");
-        debug("trakt plugin: Successfully read API key");
 
         var api_url;
         if (type === "show") {

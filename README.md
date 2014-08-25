@@ -17,10 +17,12 @@ Features
 - Adds a missing seasons and episodes view
 - Adds a Can I Stream It? widget for movies
 - Adds a movie/tv show filter for the main dashboard
+- Adds an actor profile for cast members on movie pages
 - More coming soon...
 
 Version History
 --------------
+- v0.8.0 - added actor profiles plugin, added option to only return unwatched movies in random picker plugin, automatically save changes on option page, fixed bug with unmatched agents
 - v0.7.4 - fixed split_added_deck after recent plex/web update, fix Rotten Tomatoes API sometimes not returning audience rating graphic, fix colour and position of missing_episodes switch
 - v0.7.3 - new api key for Rotten Tomatoes
 - v0.7.2 - enabled the extension for local Plex/Web

@@ -183,6 +183,10 @@ utils = {
                 utils.storage_set("imdb_link", "on");
             }
 
+            if (!("actor_profiles" in results)) {
+                utils.storage_set("actor_profiles", "on");
+            }
+
             if (!("last_version" in results)) {
                 utils.storage_set("last_version", "");
             }

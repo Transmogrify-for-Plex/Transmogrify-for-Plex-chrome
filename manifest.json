@@ -11,6 +11,7 @@
       "css": ["css/transmogrify.css"],
       "js": [
         "utils.js",
+        "plugins/actor_profiles.js",
         "plugins/canistreamit.js",
         "plugins/imdb.js",
         "plugins/letterboxd.js",

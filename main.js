@@ -420,6 +420,15 @@ function main(settings) {
                     else {
                         debug("trakt plugin is disabled");
                     }
+
+                    // create actors profiles
+                    if (settings["actor_profiles"] === "on") {
+                        debug("actor_profiles plugin is enabled");
+                        actor_profiles.init(metadata_xml);
+                    }
+                    else {
+                        debug("actor_profiles plugin is disabled");
+                    }
                 }
                 else if (metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("type") === "episode") {
                     // we're on an episode page

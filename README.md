@@ -46,3 +46,13 @@ Version History
 - v0.2.0 - added options page
 - v0.1.1 - added random show/movie picker
 - v0.0.1 - initial release
+
+![trailer and rotten tomatoes feature](http://i.imgur.com/61lCbn9.jpg)
+
+![actor profile feature](http://i.imgur.com/zCmRb39.jpg)
+
+![trailer feature](http://i.imgur.com/yl8sNUr.png)
+
+![random picker feature](http://i.imgur.com/lLMw5Kk.jpg)
+
+![missing episodes feature](http://i.imgur.com/6CKE3Bl.jpg)

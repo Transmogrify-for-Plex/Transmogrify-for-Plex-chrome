@@ -139,19 +139,19 @@ function insertPlexToken() {
 }
 
 function getPlexToken() {
-    var existing_plex_token = document.body.getAttribute("data-plextoken");
-    if (existing_plex_token) {
-        debug("plex_token fetched from document body - " + existing_plex_token);
-        return existing_plex_token;
-    }
-
-    debug("Inserting plex_token into document body");
-    var script = document.createElement("script");
-    script.appendChild(document.createTextNode("("+ insertPlexToken +")();"));
-    (document.body || document.head || document.documentElement).appendChild(script);
-
     var plex_token = document.body.getAttribute("data-plextoken");
     var server_type = document.body.getAttribute("data-plexservertype");
+
+    if (plex_token === null) {
+        debug("Inserting plex_token into document body");
+        var script = document.createElement("script");
+        script.appendChild(document.createTextNode("("+ insertPlexToken +")();"));
+        (document.body || document.head || document.documentElement).appendChild(script);
+
+        plex_token = document.body.getAttribute("data-plextoken");
+        server_type = document.body.getAttribute("data-plexservertype");
+    }
+
     debug("plex_token fetched from document body - " + plex_token);
     return {"plex_token": plex_token, "server_type": server_type};
 }

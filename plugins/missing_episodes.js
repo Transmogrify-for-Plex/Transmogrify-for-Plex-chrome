@@ -37,6 +37,9 @@ missing_episodes = {
             return;
         }
 
+        // store current page hash so plugin doesn't insert tiles if page changed
+        var current_hash = location.hash;
+
         debug("missing_episodes plugin: Finding all present and all existing episodes");
         missing_episodes.getPresentEpisodes(season_metadata_id, function(present_episodes) {
             missing_episodes.getAllEpisodes(tvdb_id, season_num, function(all_episodes) {
@@ -48,7 +51,14 @@ missing_episodes = {
                         tiles_to_insert[episode["number"]] = episode_tile;
                     }
                 }
-                missing_episodes.insertEpisodeTiles(tiles_to_insert);
+
+                // check if page changed before inserting tiles
+                if (current_hash === location.hash) {
+                    missing_episodes.insertEpisodeTiles(tiles_to_insert);
+                }
+                else {
+                    debug("missing_episodes plugin: Page changed before episode tiles could be inserted");
+                }
             });
         });
     },
@@ -74,6 +84,9 @@ missing_episodes = {
             return;
         }
 
+        // store current page hash so plugin doesn't insert tiles if page changed
+        var current_hash = location.hash;
+
         debug("missing_episodes plugin: Finding all present and all existing seasons");
         missing_episodes.getPresentSeasons(show_metadata_id, function(present_seasons) {
             missing_episodes.getAllSeasons(tvdb_id, function(all_seasons) {
@@ -89,9 +102,16 @@ missing_episodes = {
                         tiles_to_insert[season["season"]] = season_tile;
                     }
                 }
-                missing_episodes.insertSeasonTiles(tiles_to_insert);
-                // Fetch season air dates and insert them into tiles
-                missing_episodes.insertSeasonAirdates(tvdb_id, tiles_to_insert);
+
+                // check if page changed before inserting tiles
+                if (current_hash === location.hash) {
+                    missing_episodes.insertSeasonTiles(tiles_to_insert);
+                    // Fetch season air dates and insert them into tiles
+                    missing_episodes.insertSeasonAirdates(tvdb_id, tiles_to_insert);
+                }
+                else {
+                    debug("missing_episodes plugin: Page changed before season tiles could be inserted");
+                }
             });
         });
     },

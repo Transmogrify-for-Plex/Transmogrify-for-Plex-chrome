@@ -17,10 +17,7 @@ rotten_tomatoes = {
     },
 
     createRottenTomatoesLink: function(imdb_id) {
-        var api_key = utils.getApiKey("rotten_tomatoes");
-
-        var api_url = "http://api.rottentomatoes.com/api/public/v1.0/movie_alias.json?apikey=" + api_key + "&type=imdb&id=" + imdb_id;
-        utils.getJSON(api_url, true, function(movie_data) {
+        rotten_tomatoes_api.getMovie(imdb_id, function(movie_data) {
             if ("error" in movie_data) {
                 debug("rotten_tomatoes plugin: No results for movie. Aborting");
                 return;
@@ -134,7 +131,7 @@ rotten_tomatoes = {
             var tmdb_id = agent.match(/^com\.plexapp\.agents\.themoviedb:\/\/(.+)\?/)[1];
             debug("rotten_tomatoes plugin: tmdb id found - " + tmdb_id);
             // async call to get imdb id using themoviedb
-            themoviedb.getImdbId(tmdb_id, function(imdb_id) {
+            themoviedb_api.getImdbId(tmdb_id, function(imdb_id) {
                 // chop off tt prefix
                 imdb_id = imdb_id.slice(2);
                 debug("rotten_tomatoes plugin: imdb id found - " + imdb_id);

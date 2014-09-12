@@ -31,41 +31,29 @@ imdb = {
             debug("imdb plugin: imdb id not found, falling back to movie name");
         }
 
-        var query;
-        var type;
+        // use OMDb API to fetch movie data
         if (imdb_id) {
-            query = imdb_id;
-            type = "imdb_id";
+            omdb_api.searchByImdbId(imdb_id, function(movie_data) {
+                imdb.processOMDbData(movie_data);
+            });
         }
         else {
-            query = movie_title;
-            type = "title";
+            omdb_api.searchByMovieTitle(movie_title, movie_year, function(movie_data) {
+                imdb.processOMDbData(movie_data);
+            });
         }
-        imdb.getOMDbData(query, type, movie_year, function(movie_data) {
-            if ("Error" in movie_data) {
-                debug("imdb plugin: Error response recieved. Aborting")
-                return;
-            }
-
-            var url = "http://www.imdb.com/title/" + movie_data["imdbID"];
-            var rating = movie_data["imdbRating"];
-
-            imdb.insertImdbLink(url, rating);
-        });
     },
 
-    getOMDbData: function(query, type, movie_year, callback) {
-        var api_url;
-        if (type === "imdb_id") {
-            api_url = "http://www.omdbapi.com/?i=" + query;
-        }
-        else if (type === "title") {
-            api_url = "http://www.omdbapi.com/?t=" + encodeURIComponent(query) + "&y=" + movie_year;
+    processOMDbData: function(movie_data) {
+        if ("Error" in movie_data) {
+            debug("imdb plugin: Error response recieved. Aborting")
+            return;
         }
 
-        utils.getJSON(api_url, true, function(omdb_json) {
-            callback(omdb_json);
-        });
+        var url = "http://www.imdb.com/title/" + movie_data["imdbID"];
+        var rating = movie_data["imdbRating"];
+
+        imdb.insertImdbLink(url, rating);
     },
 
     insertImdbLink: function(url, rating) {

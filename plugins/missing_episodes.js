@@ -42,7 +42,7 @@ missing_episodes = {
 
         debug("missing_episodes plugin: Finding all present and all existing episodes");
         missing_episodes.getPresentEpisodes(season_metadata_id, function(present_episodes) {
-            missing_episodes.getAllEpisodes(tvdb_id, season_num, function(all_episodes) {
+            trakt_api.getAllEpisodes(tvdb_id, season_num, function(all_episodes) {
                 var tiles_to_insert = {};
                 for (var i = 0; i < all_episodes.length; i++) {
                     var episode = all_episodes[i];
@@ -89,7 +89,7 @@ missing_episodes = {
 
         debug("missing_episodes plugin: Finding all present and all existing seasons");
         missing_episodes.getPresentSeasons(show_metadata_id, function(present_seasons) {
-            missing_episodes.getAllSeasons(tvdb_id, function(all_seasons) {
+            trakt_api.getAllSeasons(tvdb_id, function(all_seasons) {
                 var tiles_to_insert = {};
                 for (var i = 0; i < all_seasons.length; i++) {
                     var season = all_seasons[i];
@@ -142,24 +142,6 @@ missing_episodes = {
                 }
             }
             callback(seasons);
-        });
-    },
-
-    getAllEpisodes: function(tvdb_id, season_num, callback) {
-        var api_key = utils.getApiKey("trakt");
-
-        var api_url = "http://api.trakt.tv/show/season.json/" + api_key + "/" + tvdb_id + "/" + season_num;
-        utils.getJSON(api_url, true, function(trakt_json) {
-            callback(trakt_json);
-        });
-    },
-
-    getAllSeasons: function(tvdb_id, callback) {
-        var api_key = utils.getApiKey("trakt");
-
-        var api_url = "http://api.trakt.tv/show/seasons.json/" + api_key + "/" + tvdb_id;
-        utils.getJSON(api_url, true, function(trakt_json) {
-            callback(trakt_json);
         });
     },
 
@@ -332,7 +314,7 @@ missing_episodes = {
         Object.keys(season_tiles).forEach(function (season_number) {
             var season_tile = season_tiles[season_number];
 
-            missing_episodes.getAllEpisodes(tvdb_id, season_number, function(all_episodes) {
+            trakt_api.getAllEpisodes(tvdb_id, season_number, function(all_episodes) {
                 var first_episode = all_episodes[0];
 
                 var date_text;

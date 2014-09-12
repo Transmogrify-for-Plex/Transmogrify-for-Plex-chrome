@@ -11,6 +11,10 @@
       "css": ["css/transmogrify.css"],
       "js": [
         "utils.js",
+        "apis/omdb.js",
+        "apis/rotten_tomatoes.js",
+        "apis/themoviedb.js",
+        "apis/trakt.js",
         "plugins/actor_profiles.js",
         "plugins/canistreamit.js",
         "plugins/imdb.js",
@@ -19,7 +23,6 @@
         "plugins/random_picker.js",
         "plugins/rotten_tomatoes.js",
         "plugins/split_added_deck.js",
-        "plugins/themoviedb.js",
         "plugins/trakt.js",
         "plugins/youtube_trailer.js",
         "main.js"

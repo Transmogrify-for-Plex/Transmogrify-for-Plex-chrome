@@ -33,7 +33,7 @@ actor_profiles = {
 
         if (imdb_id) {
             // need to retrieve tmdb_id first through tmdb API, then get movie cast
-            themoviedb.getTmdbId(imdb_id, "movie", actor_profiles.getMovieCast);
+            themoviedb_api.getTmdbId(imdb_id, "movie", actor_profiles.getMovieCast);
         }
         else if (tmdb_id) {
             // get movie cast
@@ -102,7 +102,7 @@ actor_profiles = {
     },
 
     getMovieCast: function(tmdb_id) {
-        themoviedb.getMovieCast(tmdb_id, function(cast_json) {
+        themoviedb_api.getMovieCast(tmdb_id, function(cast_json) {
             actor_profiles.movie_cast = cast_json;
             actor_profiles.createHoverEvents();
         })
@@ -152,7 +152,7 @@ actor_profiles = {
                 }
             }
             // use tmdb actor id to fetch bio from tmdb, and then cache information
-            themoviedb.getActorDetails(actor["id"], function(actor_json) {
+            themoviedb_api.getActorDetails(actor["id"], function(actor_json) {
                 actor_json["character"] = actor["character"];
                 actor_profiles.cast_bios[actor_name] = actor_json;
                 

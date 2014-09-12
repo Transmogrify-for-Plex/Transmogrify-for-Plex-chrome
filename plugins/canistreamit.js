@@ -23,7 +23,7 @@ canistreamit = {
             var tmdb_id = agent.match(/^com\.plexapp\.agents\.themoviedb:\/\/(.+)\?/)[1];
             debug("canistreamit plugin: tmdb id found - " + tmdb_id);
             // async call to get imdb id using themoviedb
-            themoviedb.getImdbId(tmdb_id, function(imdb_id) {
+            themoviedb_api.getImdbId(tmdb_id, function(imdb_id) {
                 debug("canistreamit plugin: imdb id found - " + imdb_id);
 
                 canistreamit.createCanIStreamItLink(imdb_id);

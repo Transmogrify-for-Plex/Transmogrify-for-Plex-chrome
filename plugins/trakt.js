@@ -27,7 +27,7 @@ trakt = {
         }
         debug("trakt plugin: Got show name - " + show_name);
 
-        trakt.getTraktData(show_name, "show", function(show_data) {
+        trakt_api.getShow(show_name, function(show_data) {
             var url = show_data["url"];
             var rating = show_data["ratings"]["percentage"];
 
@@ -56,7 +56,7 @@ trakt = {
             debug("trakt plugin: Got season number - " + season);
             debug("trakt plugin: Got episode number - " + episode);
 
-            trakt.getTraktData(show_name, "show", function(show_data) {
+            trakt_api.getShow(show_name, function(show_data) {
                 var url = show_data["url"] + "/season/" + season + "/episode/" + episode;
                 var rating = show_data["ratings"]["percentage"];
 
@@ -91,7 +91,7 @@ trakt = {
             query = movie_title;
         }
 
-        trakt.getTraktData(query, "movie", function(movie_data) {
+        trakt_api.getMovie(query, function(movie_data) {
             var url = movie_data["url"];
             var rating = movie_data["ratings"]["percentage"];
 
@@ -106,22 +106,6 @@ trakt = {
         // insert trakt link element to bottom of metadata container
         debug("trakt plugin: Inserting trakt container into page");
         document.getElementsByClassName("metadata-right")[0].appendChild(trakt_container);
-    },
-
-    getTraktData: function(title, type, callback) {
-        var api_key = utils.getApiKey("trakt");
-
-        var api_url;
-        if (type === "show") {
-            api_url = "http://api.trakt.tv/search/shows.json/" + api_key + "?query=" + encodeURIComponent(title) + "&limit=1";
-        }
-        else if (type === "movie") {
-            api_url = "http://api.trakt.tv/search/movies.json/" + api_key + "?query=" + encodeURIComponent(title) + "&limit=1";
-        }
-
-        utils.getJSON(api_url, true, function(trakt_json) {
-            callback(trakt_json[0]);
-        });
     },
 
     constructTraktLink: function(trakt_url, trakt_rating) {

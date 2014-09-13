@@ -50,7 +50,7 @@ youtube_trailer = {
 
         var request_url = youtube_api_url + "?q=" + search_params + "&paid_content=false&format=5&max-results=1&alt=json";
 
-        utils.getJSON(request_url, true, function(search_results) {
+        utils.getJSON(request_url, function(search_results) {
             var video_string = search_results["feed"]["entry"][0]["id"]["$t"];
             debug("youtube_trailer plugin: Video string - " + video_string);
 

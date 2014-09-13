@@ -38,7 +38,7 @@ random_picker = {
     getMediaList: function() {
         debug("random_picker plugin: Fetching media list");
         var media_xml_url = "http://" + random_picker.server["address"] + ":" + random_picker.server["port"] + "/library/sections/" + random_picker.section["section_num"] + "/all?X-Plex-Token=" + random_picker.server["access_token"];
-        utils.getXML(media_xml_url, true, function(media_xml) {
+        utils.getXML(media_xml_url, function(media_xml) {
             if (random_picker.section["type"] == "movie") {
                 var movies_xml = media_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video");
 

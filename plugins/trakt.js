@@ -44,7 +44,7 @@ trakt = {
 
         var grandparent_xml_url = "http://" + trakt.server["address"] + ":" + trakt.server["port"] + "/library/metadata/" + grandparent_id + "?X-Plex-Token=" + trakt.server["access_token"]
         // fetch grandparent xml
-        utils.getXML(grandparent_xml_url, true, function(grandparent_xml) {
+        utils.getXML(grandparent_xml_url, function(grandparent_xml) {
             var show_name;
             if (grandparent_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("originalTitle") != null) {
                 show_name = grandparent_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("originalTitle");

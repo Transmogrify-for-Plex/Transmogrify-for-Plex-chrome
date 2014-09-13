@@ -4,7 +4,7 @@ rotten_tomatoes_api = {
     getMovie: function(imdb_id, callback) {
         var api_url = "http://api.rottentomatoes.com/api/public/v1.0/movie_alias.json?apikey=" + rotten_tomatoes_api.api_key + "&type=imdb&id=" + imdb_id;
 
-        utils.getJSON(api_url, true, function(movie_data) {
+        utils.getJSONWithCache(api_url, function(movie_data) {
             callback(movie_data);
         });
     }

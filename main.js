@@ -164,7 +164,7 @@ function getServerAddresses(plex_token, server_type, callback) {
         return;
     }
     debug("Fetching server address");
-    utils.getXML("https://plex.tv/pms/servers?X-Plex-Token=" + plex_token, true, function(servers_xml) {
+    utils.getXML("https://plex.tv/pms/servers?X-Plex-Token=" + plex_token, function(servers_xml) {
         var servers = servers_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Server");
         var server_addresses = {};
         for (var i = 0; i < servers.length; i++) {
@@ -254,7 +254,7 @@ function main(settings) {
             else {
                 library_sections_url = "https://plex.tv/pms/system/library/sections?X-Plex-Token=" + plex_token
             }
-            utils.getXML(library_sections_url, true, function(sections_xml) {
+            utils.getXML(library_sections_url, function(sections_xml) {
                 var library_sections = processLibrarySections(sections_xml);
                 var server;
                 if (server_addresses) {
@@ -321,7 +321,7 @@ function main(settings) {
             var metadata_xml_url = "http://" + server["address"] + ":" + server["port"] + "/library/metadata/" + parent_item_id + "?X-Plex-Token=" + server["access_token"];
 
             // fetch metadata xml asynchronously
-            utils.getXML(metadata_xml_url, true, function(metadata_xml) {
+            utils.getXML(metadata_xml_url, function(metadata_xml) {
 
                 if (metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory").length > 0) {
                     // we're on a tv show page

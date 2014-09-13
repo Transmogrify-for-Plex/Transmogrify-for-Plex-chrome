@@ -34,15 +34,42 @@ utils = {
     },
 
     storage_get: function(key, callback) {
-        chrome.storage.sync.get(key, function (result) {
+        chrome.storage.sync.get(key, function(result) {
             var value = result[key];
             callback(value);
         });
     },
 
     storage_get_all: function(callback) {
-        chrome.storage.sync.get(function (results) {
+        chrome.storage.sync.get(function(results) {
             callback(results);
+        });
+    },
+
+    cache_set: function(key, data) {
+        var hash = {};
+        hash[key] = {"data": data, "timestamp": new Date().getTime()};
+        chrome.storage.local.set(hash);
+    },
+
+    cache_get: function(key, callback) {
+        chrome.storage.local.get(key, function(result) {
+            if (result[key]) {
+                // check if cached data is older than 5 days
+                if (new Date().getTime() - result[key]["timestamp"] > 432000000) {
+                    debug("Stale cache, recaching");
+                    callback(null);
+                }
+                else {
+                    debug("Cache hit");
+                    var data = result[key]["data"];
+                    callback(data);
+                }
+            }
+            else {
+                debug("Cache miss");
+                callback(null);
+            }
         });
     },
 
@@ -66,66 +93,63 @@ utils = {
         return text;
     },
 
-    getXML: function(url, async, callback) {
-        debug("Fetching XML from " + url + " with async=" + async);
+    getXML: function(url, callback) {
+        debug("Fetching XML from " + url);
         var xhr = new XMLHttpRequest();
-        xhr.open("GET", url, async);
-        if (async) {
-            xhr.onload = function (e) {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        debug("Recieved XML response");
-                        debug(xhr.responseXML);
-                        callback(xhr.responseXML);
-                    }
-                    else {
-                        callback(xhr.statusText);
-                    }
+        xhr.open("GET", url, true);
+        xhr.onload = function(e) {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    debug("Recieved XML response");
+                    debug(xhr.responseXML);
+                    callback(xhr.responseXML);
                 }
-            };
-            xhr.onerror = function () {
-                callback(xhr.statusText);
+                else {
+                    callback(xhr.statusText);
+                }
             }
-            xhr.send();
+        };
+        xhr.onerror = function() {
+            callback(xhr.statusText);
         }
-        else {
-            xhr.send();
-            var resp = xhr.responseXML;
-            debug("Recieved XML response");
-            debug(resp);
-            return resp;
-        }
+        xhr.send();
     },
 
-    getJSON: function(url, async, callback) {
-        debug("Fetching JSON from " + url + " with async=" + async);
-        var xhr = new XMLHttpRequest();
-        xhr.open("GET", url, async);
-        if (async) {
-            xhr.onload = function (e) {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        debug("Recieved JSON response");
-                        debug(xhr.responseText);
-                        callback(JSON.parse(xhr.responseText));
-                    }
-                    else {
-                        callback({"error": xhr.statusText});
-                    }
-                }
-            };
-            xhr.onerror = function () {
-                callback({"error": xhr.statusText});
+    getJSONWithCache: function(url, callback) {
+        utils.cache_get("cache-" + url, function(result) {
+            if (result) {
+                callback(result);
             }
-            xhr.send();
+            else {
+                // cache missed or stale, grabbing new data
+                utils.getJSON(url, function(result) {
+                    utils.cache_set("cache-" + url, result);
+                    callback(result);
+                });
+            }
+        });
+    },
+
+    getJSON: function(url, callback) {
+        debug("Fetching JSON from " + url);
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", url, true);
+        xhr.onload = function(e) {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    debug("Recieved JSON response");
+                    debug(xhr.responseText);
+                    callback(JSON.parse(xhr.responseText));
+                }
+                else {
+                    callback({"error": xhr.statusText});
+                }
+            }
+        };
+        xhr.onerror = function() {
+            callback({"error": xhr.statusText});
         }
-        else {
-            xhr.send();
-            var resp = JSON.parse(xhr.responseText);
-            debug("Recieved JSON response");
-            debug(resp);
-            return resp;
-        }
+        xhr.send();
     },
 
     setDefaultOptions: function(callback) {

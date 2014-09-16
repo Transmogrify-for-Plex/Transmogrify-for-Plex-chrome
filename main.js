@@ -87,6 +87,32 @@ function openOptionsPage() {
     utils.openOptionsPage();
 }
 
+function purgeStaleCaches() {
+    utils.local_storage_get("cache_keys", function(cache_keys) {
+        // check if there is any cached data yet
+        if (!cache_keys) {
+            debug("No cached data, skipping cache purge");
+            return;
+        }
+
+        var time_now = new Date().getTime();
+
+        // iterate over cache keys and check if stale
+        for (var key in cache_keys) {
+            var timestamp = cache_keys[key]["timestamp"];
+
+            // 3 day cache
+            if (time_now - timestamp > 259200000) {
+                debug("Found stale data, removing " + key);
+                utils.local_storage_remove(key);
+
+                delete cache_keys[key];
+                utils.local_storage_set("cache_keys", cache_keys);
+            }
+        }
+    });
+}
+
 function runOnReady() {
     debug("runOnReady called. Starting watch");
     var page_url = document.URL;
@@ -235,6 +261,8 @@ function main(settings) {
             debug("main detected we are on dashboard page");
 
             split_added_deck.init();
+            // only purge caches when viewing main page
+            purgeStaleCaches();
         }
 
         // check if on library section

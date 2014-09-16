@@ -46,25 +46,45 @@ utils = {
         });
     },
 
-    cache_set: function(key, data) {
+    local_storage_set: function(key, value) {
         var hash = {};
-        hash[key] = {"data": data, "timestamp": new Date().getTime()};
+        hash[key] = value;
         chrome.storage.local.set(hash);
     },
 
-    cache_get: function(key, callback) {
+    local_storage_get: function(key, callback) {
         chrome.storage.local.get(key, function(result) {
-            if (result[key]) {
-                // check if cached data is older than 5 days
-                if (new Date().getTime() - result[key]["timestamp"] > 432000000) {
-                    debug("Stale cache, recaching");
-                    callback(null);
-                }
-                else {
-                    debug("Cache hit");
-                    var data = result[key]["data"];
-                    callback(data);
-                }
+            var value = result[key];
+            callback(value);
+        });
+    },
+
+    local_storage_remove: function(key) {
+        chrome.storage.local.remove(key);
+    },
+
+    cache_set: function(key, data) {
+        utils.local_storage_get("cache_keys", function(cache_keys) {
+            // check if cache keys don't exist yet
+            if (!cache_keys) {
+                cache_keys = {};
+            }
+
+            // store cached url keys with timestamps
+            cache_keys[key] = {"timestamp": new Date().getTime()};
+            utils.local_storage_set("cache_keys", cache_keys);
+
+            // store cached data with url key
+            utils.local_storage_set(key, data);
+        });
+    },
+
+    cache_get: function(key, callback) {
+        utils.local_storage_get(key, function(result) {
+            if (result) {
+                debug("Cache hit");
+                var data = result["data"];
+                callback(data);
             }
             else {
                 debug("Cache miss");
@@ -116,6 +136,7 @@ utils = {
     },
 
     getJSONWithCache: function(url, callback) {
+        debug("Fetching JSON from " + url);
         utils.cache_get("cache-" + url, function(result) {
             if (result) {
                 callback(result);

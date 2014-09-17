@@ -220,6 +220,10 @@ utils = {
                 utils.storage_set("plex_server_port", "");
             }
 
+            if (!("split_added_deck" in results)) {
+                utils.storage_set("split_added_deck", "on");
+            }
+
             if (!("canistreamit" in results)) {
                 utils.storage_set("canistreamit", "off");
             }

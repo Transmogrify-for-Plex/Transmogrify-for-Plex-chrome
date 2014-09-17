@@ -260,7 +260,13 @@ function main(settings) {
         if ((/index\.html\#?$/.test(page_url)) || (/http:\/\/plex\.tv\/web\/app\#?$/.test(page_url))) {
             debug("main detected we are on dashboard page");
 
-            split_added_deck.init();
+            if (settings["split_added_deck"] === "on") {
+                debug("split_added_deck plugin is enabled");
+                split_added_deck.init();
+            }
+            else {
+                debug("split_added_deck plugin is disabled");
+            }
             // only purge caches when viewing main page
             purgeStaleCaches();
         }

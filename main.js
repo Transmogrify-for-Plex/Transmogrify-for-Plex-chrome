@@ -100,6 +100,7 @@ function purgeStaleCaches() {
         // iterate over cache keys and check if stale
         for (var key in cache_keys) {
             var timestamp = cache_keys[key]["timestamp"];
+            console.log(key)
 
             // 3 day cache
             if (time_now - timestamp > 259200000) {

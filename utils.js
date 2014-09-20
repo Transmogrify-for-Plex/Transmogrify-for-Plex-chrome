@@ -83,8 +83,7 @@ utils = {
         utils.local_storage_get(key, function(result) {
             if (result) {
                 debug("Cache hit");
-                var data = result["data"];
-                callback(data);
+                callback(result);
             }
             else {
                 debug("Cache miss");

@@ -10,6 +10,10 @@ random_picker = {
         random_picker.section = section;
         random_picker.only_unwatched = random_picker_only_unwatched;
 
+        random_picker.getMediaList();
+    },
+
+    insertElements: function() {
         var random_button_element = document.createElement("span");
         random_button_element.setAttribute("id", "pick-random");
         var text = document.createTextNode("Pick random");
@@ -23,7 +27,6 @@ random_picker = {
         document.getElementById("pick-random").addEventListener("click", random_picker.displayRandom, false);
 
         random_picker.overlay = utils.insertOverlay();
-        random_picker.getMediaList();
     },
 
     closeRandom: function() {
@@ -60,23 +63,34 @@ random_picker = {
             else if (random_picker.section["type"] == "show") {
                 random_picker.media_list = media_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory");
             }
+
+            // insert selector elements
+            random_picker.insertElements();
         });
     },
 
-    getRandomId: function() {
+    getRandomItem: function() {
         var random_num =Math.floor(Math.random() * random_picker.media_list.length);
         debug("random_picker plugin: Generated random number - " + random_num.toString() + " out of possible " + random_picker.media_list.length.toString() + " items");
 
-        var random_id = random_picker.media_list[random_num].getAttribute("ratingKey");
-        debug("random_picker plugin: Got random media key - " + random_id);
+        var id = random_picker.media_list[random_num].getAttribute("ratingKey");
+        var thumb = random_picker.media_list[random_num].getAttribute("thumb");
+        debug("random_picker plugin: Got random media key - " + id);
 
-        return random_id;
+        return {"id": id, "thumb": thumb};
+    },
+
+    getPosterURL: function(thumb) {
+        var server_url = "http://" + random_picker.server["address"] + ":" + random_picker.server["port"];
+        var poster_url = server_url + "/photo/:/transcode?width=450&height=675&url=" + encodeURIComponent("http://127.0.0.1:" + random_picker.server["port"] + thumb) + "&X-Plex-Token=" + random_picker.server["access_token"];
+
+        return poster_url;
     },
 
     displayRandom: function() {
         debug("random_picker plugin: pick-random button clicked");
-        var random_id = random_picker.getRandomId();
-        var poster_url = "http://" + random_picker.server["address"] + ":" + random_picker.server["port"] + "/library/metadata/" + random_id + "/poster?X-Plex-Token=" + random_picker.server["access_token"];
+        var random_item = random_picker.getRandomItem();
+        var poster_url = random_picker.getPosterURL(random_item["thumb"]);
         debug("random_picker plugin: Generated poster URL - " + poster_url);
 
         random_picker.overlay.style.display = "block";
@@ -88,7 +102,7 @@ random_picker = {
         var poster_image_element = document.createElement("img");
         poster_image_element.setAttribute("id", "random-poster-image");
         poster_image_element.setAttribute("src", poster_url);
-        poster_image_element.setAttribute("data-libraryid", random_id);
+        poster_image_element.setAttribute("data-libraryid", random_item["id"]);
         poster_element.appendChild(poster_image_element);
 
         debug("random_picker plugin: Inserting poster element into document body");
@@ -107,13 +121,13 @@ random_picker = {
 
     refreshRandom: function() {
         debug("random_picker plugin: Refresh random button clicked");
-        var random_id = random_picker.getRandomId();
-        var poster_url = "http://" + random_picker.server["address"] + ":" + random_picker.server["port"] + "/library/metadata/" + random_id + "/poster?X-Plex-Token=" + random_picker.server["access_token"];
+        var random_item = random_picker.getRandomItem();
+        var poster_url = random_picker.getPosterURL(random_item["thumb"]);
         debug("random_picker plugin: Generated poster URL - " + poster_url);
 
         var poster_image_element = document.getElementById("random-poster-image");
         poster_image_element.setAttribute("src", poster_url);
-        poster_image_element.setAttribute("data-libraryid", random_id);
+        poster_image_element.setAttribute("data-libraryid", random_item["id"]);
     },
 
     loadChoice: function() {

@@ -154,19 +154,14 @@ function runOnReady() {
 }
 
 function insertPlexToken() {
-    var plex_token = PLEXWEB.myPlexAccessToken;
+    var plex_token = PLEXWEB.myPlexAccessToken || localStorage["myPlexAccessToken"];
     if (plex_token) {
-        document.body.setAttribute("data-plexservertype", "hosted");
         document.body.setAttribute("data-plextoken", plex_token);
-    }
-    else {
-        document.body.setAttribute("data-plexservertype", "bundled");
     }
 }
 
 function getPlexToken() {
     var plex_token = document.body.getAttribute("data-plextoken");
-    var server_type = document.body.getAttribute("data-plexservertype");
 
     if (plex_token === null) {
         debug("Inserting plex_token into document body");
@@ -175,22 +170,15 @@ function getPlexToken() {
         (document.body || document.head || document.documentElement).appendChild(script);
 
         plex_token = document.body.getAttribute("data-plextoken");
-        server_type = document.body.getAttribute("data-plexservertype");
     }
 
     debug("plex_token fetched from document body - " + plex_token);
-    return {"plex_token": plex_token, "server_type": server_type};
+    return plex_token;
 }
 
-function getServerAddresses(plex_token, server_type, callback) {
-    if (server_type === "bundled") {
-        // no need to fetch server addresses from plex.tv
-        debug("Local server, not fetching server addresses");
-        callback(null);
-        return;
-    }
-    debug("Fetching server address");
-    utils.getXML("https://plex.tv/pms/servers?X-Plex-Token=" + plex_token, function(servers_xml) {
+function getServerAddresses(requests_url, plex_token, callback) {
+    debug("Fetching server addresses");
+    utils.getXML(requests_url + "/servers?includeLite=1&X-Plex-Token=" + plex_token, function(servers_xml) {
         var servers = servers_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Server");
         var server_addresses = {};
         for (var i = 0; i < servers.length; i++) {
@@ -243,19 +231,19 @@ function main(settings) {
     checkIfUpdated();
 
     var page_url = document.URL;
-    var plex_server_data = getPlexToken();
-    var plex_token = plex_server_data["plex_token"];
-    var server_type = plex_server_data["server_type"];
+    var plex_token = getPlexToken();
 
-    var plex_requests_address;
-    var plex_requests_port;
-    if (server_type === "bundled") {
-        var url = page_url.match(/^https?\:\/\/(.+):(\d+)\/web\/.+/);
-        plex_requests_address = url[1];
-        plex_requests_port = url[2];
+    // use plex.tv for API requests if we have plex token, otherwise use server URL as user is not signed in
+    var requests_url;
+    if (plex_token) {
+        requests_url = "https://plex.tv/pms";
+    }
+    else {
+        var url_matches = page_url.match(/^https?\:\/\/(.+):(\d+)\/web\/.+/);
+        requests_url = "http://" + url_matches[1] + ":" + url_matches[2];
     }
 
-    getServerAddresses(plex_token, server_type, function(server_addresses) {
+    getServerAddresses(requests_url, plex_token, function(server_addresses) {
         // check if on dashboard page
         if ((/index\.html\#?$/.test(page_url)) || (/http:\/\/plex\.tv\/web\/app\#?$/.test(page_url))) {
             debug("main detected we are on dashboard page");
@@ -281,13 +269,7 @@ function main(settings) {
             debug("library section - " + section_num);
 
             // get library sections xml
-            var library_sections_url;
-            if (plex_requests_address) {
-                library_sections_url = "http://" + plex_requests_address + ":" + plex_requests_port + "/system/library/sections"
-            }
-            else {
-                library_sections_url = "https://plex.tv/pms/system/library/sections?X-Plex-Token=" + plex_token
-            }
+            var library_sections_url = requests_url + "/system/library/sections?X-Plex-Token=" + plex_token;
             utils.getXML(library_sections_url, function(sections_xml) {
                 var library_sections = processLibrarySections(sections_xml);
                 var server;
@@ -298,12 +280,7 @@ function main(settings) {
                     server = {};
                 }
                 var section = library_sections[machine_identifier][section_num];
-                // override server address if using local plex/web
-                if (plex_requests_address) {
-                    debug("Plex server is local");
-                    server["address"] = plex_requests_address;
-                    server["port"] = plex_requests_port;
-                }
+
                 // override server address if defined in settings
                 if (settings["plex_server_address"] != "" && settings["plex_server_port"] != "") {
                     debug("Plex server manual override");
@@ -329,19 +306,8 @@ function main(settings) {
             var parent_item_id = page_identifier[2];
             debug("metadata id - " + parent_item_id);
 
-            var server
-                if (server_addresses) {
-                    server = server_addresses[machine_identifier];
-                }
-                else {
-                    server = {};
-                }
-            // override server address if using local plex/web
-            if (plex_requests_address) {
-                debug("Plex server is local");
-                server["address"] = plex_requests_address;
-                server["port"] = plex_requests_port;
-            }
+            var server = server_addresses[machine_identifier];
+
             // override server address if defined in settings
             if (settings["plex_server_address"] != "" && settings["plex_server_port"] != "") {
                 debug("Plex server manual override");

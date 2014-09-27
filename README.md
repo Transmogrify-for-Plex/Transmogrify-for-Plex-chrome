@@ -22,6 +22,7 @@ Features
 
 Version History
 --------------
+- v0.8.3 - random picker button now only shows up when it's ready (needed for large libraries), use photo transcoder to generate poster images, fixes and better handling of shared servers, improved code for local/plex.tv extension usage, more reliable plex token retrieval (thanks to sam0)
 - v0.8.2 - separated API calls into separate modules, added caching for all API requests, added split_added_deck to options page, fixed rotten tomatoes button on options page not hiding correctly
 - v0.8.1 - fixed bug with extension not correctly fetching Plex token on first page load, stop missing_episodes plugin from inserting episode tiles on wrong pages
 - v0.8.0 - added actor profiles plugin, added option to only return unwatched movies in random picker plugin, automatically save changes on option page, fixed bug with unmatched agents

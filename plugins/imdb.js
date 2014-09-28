@@ -10,25 +10,25 @@ imdb = {
     processMovie: function() {
         var movie_title = imdb.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("title");
         var movie_year = imdb.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("year");
-        debug("imdb plugin: Got movie title - " + movie_title);
+        utils.debug("imdb plugin: Got movie title - " + movie_title);
 
         // it's more accurate to search by imdb id, otherwise fall back to movie name
-        debug("imdb plugin: Grabbing imdb id");
+        utils.debug("imdb plugin: Grabbing imdb id");
         var agent = imdb.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("guid");
 
         var imdb_id;
         // check if using the freebase metadata agent
         if (/com\.plexapp\.agents\.imdb/.test(agent)) {
             var imdb_id = agent.match(/^com\.plexapp\.agents\.imdb:\/\/(.+)\?/)[1];
-            debug("imdb plugin: imdb id found - " + imdb_id);
+            utils.debug("imdb plugin: imdb id found - " + imdb_id);
         }
         // check if using the XBMCnfoMoviesImporter agent
         else if (/com\.plexapp\.agents\.xbmcnfo/.test(agent)) {
             var imdb_id = agent.match(/^com\.plexapp\.agents\.xbmcnfo:\/\/(.+)\?/)[1];
-            debug("imdb plugin: imdb id found - " + imdb_id);
+            utils.debug("imdb plugin: imdb id found - " + imdb_id);
         }
         else {
-            debug("imdb plugin: imdb id not found, falling back to movie name");
+            utils.debug("imdb plugin: imdb id not found, falling back to movie name");
         }
 
         // use OMDb API to fetch movie data
@@ -46,7 +46,7 @@ imdb = {
 
     processOMDbData: function(movie_data) {
         if ("Error" in movie_data) {
-            debug("imdb plugin: Error response recieved. Aborting")
+            utils.debug("imdb plugin: Error response recieved. Aborting")
             return;
         }
 
@@ -61,7 +61,7 @@ imdb = {
         var imdb_container = imdb.constructImdbLink(url, rating);
 
         // insert imdb link element to bottom of metadata container
-        debug("imdb plugin: Inserting imdb container into page");
+        utils.debug("imdb plugin: Inserting imdb container into page");
         document.getElementsByClassName("metadata-right")[0].appendChild(imdb_container);
     },
 

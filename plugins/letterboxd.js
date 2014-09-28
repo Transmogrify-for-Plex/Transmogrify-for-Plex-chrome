@@ -7,17 +7,17 @@ letterboxd = {
         // check if using the freebase metadata agent
         if (/com\.plexapp\.agents\.imdb/.test(agent)) {
             imdb_id = agent.match(/^com\.plexapp\.agents\.imdb:\/\/(.+)\?/)[1];
-            debug("letterboxd plugin: imdb id found - " + imdb_id);
+            utils.debug("letterboxd plugin: imdb id found - " + imdb_id);
         }
         // check if using the movie database metadata agent
         else if (/com\.plexapp\.agents\.themoviedb/.test(agent)) {
             tmdb_id = agent.match(/^com\.plexapp\.agents\.themoviedb:\/\/(.+)\?/)[1];
-            debug("letterboxd plugin: tmdb id found - " + tmdb_id);
+            utils.debug("letterboxd plugin: tmdb id found - " + tmdb_id);
         }
         // check if using the XBMCnfoMoviesImporter agent
         else if (/com\.plexapp\.agents\.xbmcnfo/.test(agent)) {
             imdb_id = agent.match(/^com\.plexapp\.agents\.xbmcnfo:\/\/(.+)\?/)[1];
-            debug("letterboxd plugin: imdb id found - " + imdb_id);
+            utils.debug("letterboxd plugin: imdb id found - " + imdb_id);
         }
 
         // create letterboxd link element
@@ -32,7 +32,7 @@ letterboxd = {
         // if an unknown agent is used and neither imdb nor tmdb is filled letterboxed_element is empty
         if (letterboxd_element) {
             // insert letterboxd link element to bottom of metadata container
-            debug("letterboxd plugin: Inserting letterboxd link into page");
+            utils.debug("letterboxd plugin: Inserting letterboxd link into page");
             document.getElementsByClassName("metadata-right")[0].appendChild(letterboxd_element);
         }
     },

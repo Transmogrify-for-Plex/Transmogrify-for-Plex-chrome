@@ -25,7 +25,7 @@ trakt = {
         else {
             show_name = trakt.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("title");
         }
-        debug("trakt plugin: Got show name - " + show_name);
+        utils.debug("trakt plugin: Got show name - " + show_name);
 
         trakt_api.getShow(show_name, function(show_data) {
             var url = show_data["url"];
@@ -38,9 +38,9 @@ trakt = {
     processEpisode: function() {
         var season = trakt.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("parentIndex");
         var episode = trakt.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("index");
-        debug("trakt plugin: Fetching grandparent metadata xml");
+        utils.debug("trakt plugin: Fetching grandparent metadata xml");
         var grandparent_id = trakt.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("grandparentRatingKey");
-        debug("trakt plugin: Grandparent id - " + grandparent_id);
+        utils.debug("trakt plugin: Grandparent id - " + grandparent_id);
 
         var grandparent_xml_url = "http://" + trakt.server["address"] + ":" + trakt.server["port"] + "/library/metadata/" + grandparent_id + "?X-Plex-Token=" + trakt.server["access_token"]
         // fetch grandparent xml
@@ -52,9 +52,9 @@ trakt = {
             else {
                 show_name = grandparent_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("title");
             }
-            debug("trakt plugin: Got show name - " + show_name);
-            debug("trakt plugin: Got season number - " + season);
-            debug("trakt plugin: Got episode number - " + episode);
+            utils.debug("trakt plugin: Got show name - " + show_name);
+            utils.debug("trakt plugin: Got season number - " + season);
+            utils.debug("trakt plugin: Got episode number - " + episode);
 
             trakt_api.getShow(show_name, function(show_data) {
                 var url = show_data["url"] + "/season/" + season + "/episode/" + episode;
@@ -67,27 +67,27 @@ trakt = {
 
     processMovie: function() {
         var movie_title = trakt.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("title");
-        debug("trakt plugin: Got movie title - " + movie_title);
+        utils.debug("trakt plugin: Got movie title - " + movie_title);
 
         // it's more accurate to search by imdb id, otherwise fall back to movie name
-        debug("trakt plugin: Grabbing imdb id");
+        utils.debug("trakt plugin: Grabbing imdb id");
         var agent = trakt.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("guid");
 
         var query;
         // check if using the freebase metadata agent
         if (/com\.plexapp\.agents\.imdb/.test(agent)) {
             var imdb_id = agent.match(/^com\.plexapp\.agents\.imdb:\/\/(.+)\?/)[1];
-            debug("trakt plugin: imdb id found - " + imdb_id);
+            utils.debug("trakt plugin: imdb id found - " + imdb_id);
             query = imdb_id;
         }
         // check if using the XBMCnfoMoviesImporter agent
         else if (/com\.plexapp\.agents\.xbmcnfo/.test(agent)) {
             var imdb_id = agent.match(/^com\.plexapp\.agents\.xbmcnfo:\/\/(.+)\?/)[1];
-            debug("trakt plugin: imdb id found - " + imdb_id);
+            utils.debug("trakt plugin: imdb id found - " + imdb_id);
             query = imdb_id;
         }
         else {
-            debug("trakt plugin: imdb id not found, falling back to movie name");
+            utils.debug("trakt plugin: imdb id not found, falling back to movie name");
             query = movie_title;
         }
 
@@ -104,7 +104,7 @@ trakt = {
         var trakt_container = trakt.constructTraktLink(url, rating);
 
         // insert trakt link element to bottom of metadata container
-        debug("trakt plugin: Inserting trakt container into page");
+        utils.debug("trakt plugin: Inserting trakt container into page");
         document.getElementsByClassName("metadata-right")[0].appendChild(trakt_container);
     },
 

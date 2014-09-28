@@ -13,12 +13,12 @@ youtube_trailer = {
         trailer_button.appendChild(button_text);
 
         // insert trailer button after play button and before audio codecs container
-        debug("youtube_trailer plugin: Inserting movie trailer button into details-poster-container");
+        utils.debug("youtube_trailer plugin: Inserting movie trailer button into details-poster-container");
         var audio_container = document.getElementsByClassName("video-audio-flags-container")[0];
         document.getElementsByClassName("details-poster-container")[0].insertBefore(trailer_button, audio_container);
 
         // attach click event listener to play trailer
-        debug("youtube_trailer plugin: Attaching event listener to btn-trailer button");
+        utils.debug("youtube_trailer plugin: Attaching event listener to btn-trailer button");
         document.getElementById("btn-trailer").addEventListener("click", youtube_trailer.openTrailer, false);
 
         // insert dark overlay for when trailer plays
@@ -26,16 +26,16 @@ youtube_trailer = {
     },
 
     openTrailer: function() {
-        debug("youtube_trailer plugin: Trailer button clicked");
+        utils.debug("youtube_trailer plugin: Trailer button clicked");
         var movie_title = youtube_trailer.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("title");
         var movie_year = youtube_trailer.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("year");
-        debug("youtube_trailer plugin: Got movie year and title - " + movie_title + " (" + movie_year + ")");
+        utils.debug("youtube_trailer plugin: Got movie year and title - " + movie_title + " (" + movie_year + ")");
 
         youtube_trailer.getYoutubeEmbedLink(movie_title, movie_year);
     },
 
     closeTrailer: function() {
-        debug("youtube_trailer plugin: Close trailer clicked. Removing YouTube video");
+        utils.debug("youtube_trailer plugin: Close trailer clicked. Removing YouTube video");
         var trailer = document.getElementById("trailer");
         trailer.parentNode.removeChild(trailer);
 
@@ -46,18 +46,18 @@ youtube_trailer = {
     getYoutubeEmbedLink: function(movie_title, movie_year) {
         var youtube_api_url = "https://gdata.youtube.com/feeds/api/videos";
         var search_params = encodeURIComponent(movie_title + " (" + movie_year + ") official trailer");
-        debug("youtube_trailer plugin: Search query - " + search_params);
+        utils.debug("youtube_trailer plugin: Search query - " + search_params);
 
         var request_url = youtube_api_url + "?q=" + search_params + "&paid_content=false&format=5&max-results=1&alt=json";
 
         utils.getJSON(request_url, function(search_results) {
             var video_string = search_results["feed"]["entry"][0]["id"]["$t"];
-            debug("youtube_trailer plugin: Video string - " + video_string);
+            utils.debug("youtube_trailer plugin: Video string - " + video_string);
 
             var video_id = video_string.match(/^http:\/\/gdata\.youtube\.com\/feeds\/api\/videos\/(.+)/)[1];
-            debug("youtube_trailer plugin: Video ID - " + video_id);
+            utils.debug("youtube_trailer plugin: Video ID - " + video_id);
             var youtube_url = "//www.youtube.com/embed/" + video_id + "?rel=0&iv_load_policy=3&vq=hd1080&autoplay=1";
-            debug("youtube_trailer plugin: YouTube embed link - " + youtube_url);
+            utils.debug("youtube_trailer plugin: YouTube embed link - " + youtube_url);
 
             youtube_trailer.insertTrailer(youtube_url);
         });

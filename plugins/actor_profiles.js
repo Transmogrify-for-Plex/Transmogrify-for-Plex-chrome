@@ -13,21 +13,21 @@ actor_profiles = {
         // check if using the freebase metadata agent
         if (/com\.plexapp\.agents\.imdb/.test(agent)) {
             imdb_id = agent.match(/^com\.plexapp\.agents\.imdb:\/\/(.+)\?/)[1];
-            debug("actor_profiles plugin: imdb id found - " + imdb_id);
+            utils.debug("actor_profiles plugin: imdb id found - " + imdb_id);
         }
         // check if using the movie database metadata agent
         else if (/com\.plexapp\.agents\.themoviedb/.test(agent)) {
             tmdb_id = agent.match(/^com\.plexapp\.agents\.themoviedb:\/\/(.+)\?/)[1];
-            debug("actor_profiles plugin: tmdb id found - " + tmdb_id);
+            utils.debug("actor_profiles plugin: tmdb id found - " + tmdb_id);
         }
         // check if using the XBMCnfoMoviesImporter agent
         else if (/com\.plexapp\.agents\.xbmcnfo/.test(agent)) {
             imdb_id = agent.match(/^com\.plexapp\.agents\.xbmcnfo:\/\/(.+)\?/)[1];
-            debug("actor_profiles plugin: imdb id found - " + imdb_id);
+            utils.debug("actor_profiles plugin: imdb id found - " + imdb_id);
         }
         // agent not recognized
         else {
-            debug("actor_profiles plugin: Movie agent not recognized, aborting");
+            utils.debug("actor_profiles plugin: Movie agent not recognized, aborting");
             return;
         }
 
@@ -43,10 +43,10 @@ actor_profiles = {
 
     insertActorOverlay: function() {
         // don't run if overlay exists on page
-        debug("actor_profiles plugin: Checking if overlay already exists before creating");
+        utils.debug("actor_profiles plugin: Checking if overlay already exists before creating");
         var existing_overlay = document.getElementById("actor-overlay");
         if (existing_overlay) {
-            debug("actor_profiles plugin: Overlay already exists. Passing");
+            utils.debug("actor_profiles plugin: Overlay already exists. Passing");
             return;
         }
 
@@ -98,7 +98,7 @@ actor_profiles = {
 
         actor_profiles.actor_overlay = actor_overlay;
 
-        debug("actor_profiles plugin: Inserted actor_profile overlay");
+        utils.debug("actor_profiles plugin: Inserted actor_profile overlay");
     },
 
     getMovieCast: function(tmdb_id) {

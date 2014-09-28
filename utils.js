@@ -1,4 +1,28 @@
+var show_debug = null;
+
 utils = {
+    debug: function(output) {
+        if (show_debug == null) {
+            // set show_debug for first run on this page
+            utils.storage_get("debug", function (debug_){
+                if (debug_ === "on") {
+                    show_debug = true;
+                }
+                else {
+                    show_debug = false;
+                }
+            });
+        }
+        if (show_debug) {
+            if (typeof output === "string") {
+                console.log("Transmogrify for Plex log: " + output);
+            }
+            else {
+                console.log(output);
+            }
+        }
+    },
+
     getExtensionVersion: function() {
         var version = chrome.runtime.getManifest()["version"];
         return version;
@@ -11,10 +35,10 @@ utils = {
 
     insertOverlay: function() {
         // don't run if overlay exists on page
-        debug("Checking if overlay already exists before creating");
+        utils.debug("Checking if overlay already exists before creating");
         var existing_overlay = document.getElementById("overlay");
         if (existing_overlay) {
-            debug("Overlay already exists. Passing");
+            utils.debug("Overlay already exists. Passing");
             return existing_overlay;
         }
 
@@ -22,7 +46,7 @@ utils = {
         overlay.setAttribute("id", "overlay");
 
         document.body.appendChild(overlay);
-        debug("Inserted overlay");
+        utils.debug("Inserted overlay");
 
         return overlay;
     },
@@ -82,11 +106,11 @@ utils = {
     cache_get: function(key, callback) {
         utils.local_storage_get(key, function(result) {
             if (result) {
-                debug("Cache hit");
+                utils.debug("Cache hit");
                 callback(result);
             }
             else {
-                debug("Cache miss");
+                utils.debug("Cache miss");
                 callback(null);
             }
         });
@@ -113,14 +137,14 @@ utils = {
     },
 
     getXML: function(url, callback) {
-        debug("Fetching XML from " + url);
+        utils.debug("Fetching XML from " + url);
         var xhr = new XMLHttpRequest();
         xhr.open("GET", url, true);
         xhr.onload = function(e) {
             if (xhr.readyState === 4) {
                 if (xhr.status === 200) {
-                    debug("Recieved XML response");
-                    debug(xhr.responseXML);
+                    utils.debug("Recieved XML response");
+                    utils.debug(xhr.responseXML);
                     callback(xhr.responseXML);
                 }
                 else {
@@ -135,7 +159,7 @@ utils = {
     },
 
     getJSONWithCache: function(url, callback) {
-        debug("Fetching JSON from " + url);
+        utils.debug("Fetching JSON from " + url);
         utils.cache_get("cache-" + url, function(result) {
             if (result) {
                 callback(result);
@@ -151,14 +175,14 @@ utils = {
     },
 
     getJSON: function(url, callback) {
-        debug("Fetching JSON from " + url);
+        utils.debug("Fetching JSON from " + url);
         var xhr = new XMLHttpRequest();
         xhr.open("GET", url, true);
         xhr.onload = function(e) {
             if (xhr.readyState === 4) {
                 if (xhr.status === 200) {
-                    debug("Recieved JSON response");
-                    debug(xhr.responseText);
+                    utils.debug("Recieved JSON response");
+                    utils.debug(xhr.responseText);
                     callback(JSON.parse(xhr.responseText));
                 }
                 else {

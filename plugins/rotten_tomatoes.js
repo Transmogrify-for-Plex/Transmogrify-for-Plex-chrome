@@ -12,14 +12,14 @@ rotten_tomatoes = {
             rotten_tomatoes.getMovieId();
         }
         else {
-            debug("rotten_tomatoes plugin: User is not in US. Aborting");
+            utils.debug("rotten_tomatoes plugin: User is not in US. Aborting");
         }
     },
 
     createRottenTomatoesLink: function(imdb_id) {
         rotten_tomatoes_api.getMovie(imdb_id, function(movie_data) {
             if ("error" in movie_data) {
-                debug("rotten_tomatoes plugin: No results for movie. Aborting");
+                utils.debug("rotten_tomatoes plugin: No results for movie. Aborting");
                 return;
             }
 
@@ -27,7 +27,7 @@ rotten_tomatoes = {
             var rotten_tomatoes_container = rotten_tomatoes.constructRottenTomatoesLink(movie_data);
 
             // insert rotten tomatoes link element to bottom of metadata container
-            debug("rotten_tomatoes plugin: Inserting rotten_tomatoes container into page");
+            utils.debug("rotten_tomatoes plugin: Inserting rotten_tomatoes container into page");
             document.getElementsByClassName("metadata-right")[0].appendChild(rotten_tomatoes_container);
         });
     },
@@ -117,24 +117,24 @@ rotten_tomatoes = {
 
     getMovieId: function() {
         var imdb_id;
-        debug("rotten_tomatoes plugin: Grabbing imdb id");
+        utils.debug("rotten_tomatoes plugin: Grabbing imdb id");
         var agent = rotten_tomatoes.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("guid");
         // check if using the freebase metadata agent
         if (/com\.plexapp\.agents\.imdb/.test(agent)) {
             imdb_id = agent.match(/^com\.plexapp\.agents\.imdb:\/\/tt(.+)\?/)[1];
-            debug("rotten_tomatoes plugin: imdb id found - " + imdb_id);
+            utils.debug("rotten_tomatoes plugin: imdb id found - " + imdb_id);
 
             rotten_tomatoes.createRottenTomatoesLink(imdb_id);
         }
         // check if using the movie database metadata agent
         else if (/com\.plexapp\.agents\.themoviedb/.test(agent)) {
             var tmdb_id = agent.match(/^com\.plexapp\.agents\.themoviedb:\/\/(.+)\?/)[1];
-            debug("rotten_tomatoes plugin: tmdb id found - " + tmdb_id);
+            utils.debug("rotten_tomatoes plugin: tmdb id found - " + tmdb_id);
             // async call to get imdb id using themoviedb
             themoviedb_api.getImdbId(tmdb_id, function(imdb_id) {
                 // chop off tt prefix
                 imdb_id = imdb_id.slice(2);
-                debug("rotten_tomatoes plugin: imdb id found - " + imdb_id);
+                utils.debug("rotten_tomatoes plugin: imdb id found - " + imdb_id);
 
                 rotten_tomatoes.createRottenTomatoesLink(imdb_id);
             });
@@ -142,13 +142,13 @@ rotten_tomatoes = {
         // check if using the XBMCnfoMoviesImporter agent
         else if (/com\.plexapp\.agents\.xbmcnfo/.test(agent)) {
             imdb_id = agent.match(/^com\.plexapp\.agents\.xbmcnfo:\/\/tt(.+)\?/)[1];
-            debug("rotten_tomatoes plugin: imdb id found - " + imdb_id);
+            utils.debug("rotten_tomatoes plugin: imdb id found - " + imdb_id);
 
             rotten_tomatoes.createRottenTomatoesLink(imdb_id);
         }
         // agent not recognized
         else {
-            debug("rotten_tomatoes plugin: Movie agent not recognized, aborting");
+            utils.debug("rotten_tomatoes plugin: Movie agent not recognized, aborting");
         }
     }
 }

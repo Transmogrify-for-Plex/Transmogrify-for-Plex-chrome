@@ -25,22 +25,22 @@ missing_episodes = {
         // check if using the tvdb metadata agent
         if (/com\.plexapp\.agents\.thetvdb/.test(agent)) {
             tvdb_id = agent.match(/^com\.plexapp\.agents\.thetvdb:\/\/(\d+)\//)[1];
-            debug("missing_episodes plugin: tvdb id found - " + tvdb_id);
+            utils.debug("missing_episodes plugin: tvdb id found - " + tvdb_id);
         }
         // check if using the XBMCnfoTVImporter agent
         else if (/com\.plexapp\.agents\.xbmcnfotv/.test(agent)) {
             tvdb_id = agent.match(/^com\.plexapp\.agents\.xbmcnfotv:\/\/(\d+)\//)[1];
-            debug("missing_episodes plugin: tvdb id found - " + tvdb_id);
+            utils.debug("missing_episodes plugin: tvdb id found - " + tvdb_id);
         }
         else {
-            debug("missing_episodes plugin: Agent is not tvdb. Aborting");
+            utils.debug("missing_episodes plugin: Agent is not tvdb. Aborting");
             return;
         }
 
         // store current page hash so plugin doesn't insert tiles if page changed
         var current_hash = location.hash;
 
-        debug("missing_episodes plugin: Finding all present and all existing episodes");
+        utils.debug("missing_episodes plugin: Finding all present and all existing episodes");
         missing_episodes.getPresentEpisodes(season_metadata_id, function(present_episodes) {
             trakt_api.getAllEpisodes(tvdb_id, season_num, function(all_episodes) {
                 var tiles_to_insert = {};
@@ -57,7 +57,7 @@ missing_episodes = {
                     missing_episodes.insertEpisodeTiles(tiles_to_insert);
                 }
                 else {
-                    debug("missing_episodes plugin: Page changed before episode tiles could be inserted");
+                    utils.debug("missing_episodes plugin: Page changed before episode tiles could be inserted");
                 }
             });
         });
@@ -72,22 +72,22 @@ missing_episodes = {
         // check if using the tvdb metadata agent
         if (/com\.plexapp\.agents\.thetvdb/.test(agent)) {
             tvdb_id = agent.match(/^com\.plexapp\.agents\.thetvdb:\/\/(\d+)/)[1];
-            debug("missing_episodes plugin: tvdb id found - " + tvdb_id);
+            utils.debug("missing_episodes plugin: tvdb id found - " + tvdb_id);
         }
         // check if using the XBMCnfoTVImporter agent
         else if (/com\.plexapp\.agents\.xbmcnfotv/.test(agent)) {
             tvdb_id = agent.match(/^com\.plexapp\.agents\.xbmcnfotv:\/\/(\d+)/)[1];
-            debug("missing_episodes plugin: tvdb id found - " + tvdb_id);
+            utils.debug("missing_episodes plugin: tvdb id found - " + tvdb_id);
         }
         else {
-            debug("missing_episodes plugin: Agent is not tvdb. Aborting");
+            utils.debug("missing_episodes plugin: Agent is not tvdb. Aborting");
             return;
         }
 
         // store current page hash so plugin doesn't insert tiles if page changed
         var current_hash = location.hash;
 
-        debug("missing_episodes plugin: Finding all present and all existing seasons");
+        utils.debug("missing_episodes plugin: Finding all present and all existing seasons");
         missing_episodes.getPresentSeasons(show_metadata_id, function(present_seasons) {
             trakt_api.getAllSeasons(tvdb_id, function(all_seasons) {
                 var tiles_to_insert = {};
@@ -110,14 +110,14 @@ missing_episodes = {
                     missing_episodes.insertSeasonAirdates(tvdb_id, tiles_to_insert);
                 }
                 else {
-                    debug("missing_episodes plugin: Page changed before season tiles could be inserted");
+                    utils.debug("missing_episodes plugin: Page changed before season tiles could be inserted");
                 }
             });
         });
     },
 
     getPresentEpisodes: function(season_metadata_id, callback) {
-        debug("missing_episodes plugin: Fetching season episodes xml");
+        utils.debug("missing_episodes plugin: Fetching season episodes xml");
         var episodes_metadata_xml_url = "http://" + missing_episodes.server["address"] + ":" + missing_episodes.server["port"] + "/library/metadata/" + season_metadata_id + "/children?X-Plex-Token=" + missing_episodes.server["access_token"];
         utils.getXML(episodes_metadata_xml_url, function(episodes_metadata_xml) {
             var episodes_xml = episodes_metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video");
@@ -130,7 +130,7 @@ missing_episodes = {
     },
 
     getPresentSeasons: function(show_metadata_id, callback) {
-        debug("missing_episodes plugin: Fetching seasons xml");
+        utils.debug("missing_episodes plugin: Fetching seasons xml");
         var seasons_metadata_xml_url = "http://" + missing_episodes.server["address"] + ":" + missing_episodes.server["port"] + "/library/metadata/" + show_metadata_id + "/children?X-Plex-Token=" + missing_episodes.server["access_token"];
         utils.getXML(seasons_metadata_xml_url, function(seasons_metadata_xml) {
             var seasons_xml = seasons_metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory");

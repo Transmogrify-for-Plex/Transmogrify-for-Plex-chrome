@@ -1,29 +1,6 @@
 var show_update_text = false;
 var update_text = "Actor profiles are now available when you hover over actor's names on movie pages! Also you now have the option to only return unwatched movies using the random picker. Check out the <a id='options-page-link' href='%OPTIONSURL%' target='_blank'>extension settings</a> page, which now automatically saves changes."
 
-var show_debug = null;
-function debug(output) {
-    if (show_debug == null) {
-        // set show_debug for first run on this page
-        utils.storage_get("debug", function (debug_){
-            if (debug_ === "on") {
-                show_debug = true;
-            }
-            else {
-                show_debug = false;
-            }
-        });
-    }
-    if (show_debug) {
-        if (typeof output === "string") {
-            console.log("Transmogrify for Plex log: " + output);
-        }
-        else {
-            console.log(output);
-        }
-    }
-}
-
 function checkIfUpdated() {
     utils.storage_get("last_version", function (last_version) {
         var version = utils.getExtensionVersion();
@@ -91,7 +68,7 @@ function purgeStaleCaches() {
     utils.local_storage_get("cache_keys", function(cache_keys) {
         // check if there is any cached data yet
         if (!cache_keys) {
-            debug("No cached data, skipping cache purge");
+            utils.debug("No cached data, skipping cache purge");
             return;
         }
 
@@ -103,7 +80,7 @@ function purgeStaleCaches() {
 
             // 3 day cache
             if (time_now - timestamp > 259200000) {
-                debug("Found stale data, removing " + key);
+                utils.debug("Found stale data, removing " + key);
                 utils.local_storage_remove(key);
 
                 delete cache_keys[key];
@@ -114,7 +91,7 @@ function purgeStaleCaches() {
 }
 
 function runOnReady() {
-    debug("runOnReady called. Starting watch");
+    utils.debug("runOnReady called. Starting watch");
     var page_url = document.URL;
     var interval = window.setInterval(function() {
         if (document.URL != page_url) {
@@ -123,7 +100,7 @@ function runOnReady() {
 
         if ((/index\.html\#?$/.test(document.URL)) || (/http:\/\/plex\.tv\/web\/app\#?$/.test(document.URL))) {
             if (document.getElementsByTagName("h2").length > 0) {
-                debug("Instance of h2 tag detected. Page is ready");
+                utils.debug("Instance of h2 tag detected. Page is ready");
                 window.clearInterval(interval);
                 init();
             }
@@ -133,7 +110,7 @@ function runOnReady() {
         // check if on library section
         else if (/\/section\/\d+$/.test(document.URL)) {
             if (document.getElementsByClassName("media-poster").length > 0) {
-                debug("Instance of .media-poster detected. Page is ready");
+                utils.debug("Instance of .media-poster detected. Page is ready");
                 window.clearInterval(interval);
                 init();
             }
@@ -141,20 +118,20 @@ function runOnReady() {
         // check if on movie/tv show details page
         else if (/\/details\/%2Flibrary%2Fmetadata%2F(\d+)$/.test(document.URL)) {
             if (document.getElementsByClassName("item-title").length > 0 || document.getElementsByClassName("show-title").length > 0) {
-                debug("Instance of .item-title or .show-title detected. Page is ready");
+                utils.debug("Instance of .item-title or .show-title detected. Page is ready");
                 window.clearInterval(interval);
                 init();
             }
         }
         else {
-            debug("runOnReady not on recognized page");
+            utils.debug("runOnReady not on recognized page");
             window.clearInterval(interval);
         }
     }, 0);
 }
 
 function getServerAddresses(requests_url, plex_token, callback) {
-    debug("Fetching server addresses");
+    utils.debug("Fetching server addresses");
     utils.getXML(requests_url + "/servers?includeLite=1&X-Plex-Token=" + plex_token, function(servers_xml) {
         var servers = servers_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Server");
         var server_addresses = {};
@@ -167,8 +144,8 @@ function getServerAddresses(requests_url, plex_token, callback) {
             server_addresses[machine_identifier] = {"address": address, "port": port, "machine_identifier": machine_identifier, "access_token": access_token};
         }
 
-        debug("Server addresses fetched");
-        debug(server_addresses);
+        utils.debug("Server addresses fetched");
+        utils.debug(server_addresses);
         callback(server_addresses);
     });
 }
@@ -190,8 +167,8 @@ function processLibrarySections(sections_xml) {
         }
     }
 
-    debug("Parsed library sections");
-    debug(dir_metadata);
+    utils.debug("Parsed library sections");
+    utils.debug(dir_metadata);
     return dir_metadata;
 }
 
@@ -202,7 +179,7 @@ function init() {
 }
 
 function main(settings) {
-    debug("Running main()");
+    utils.debug("Running main()");
 
     // show popup if updated
     checkIfUpdated();
@@ -220,19 +197,19 @@ function main(settings) {
         var url_matches = page_url.match(/^https?\:\/\/(.+):(\d+)\/web\/.+/);
         requests_url = "http://" + url_matches[1] + ":" + url_matches[2];
     }
-    debug("requests_url set as " + requests_url);
+    utils.debug("requests_url set as " + requests_url);
 
     getServerAddresses(requests_url, plex_token, function(server_addresses) {
         // check if on dashboard page
         if ((/index\.html\#?$/.test(page_url)) || (/http:\/\/plex\.tv\/web\/app\#?$/.test(page_url))) {
-            debug("main detected we are on dashboard page");
+            utils.debug("main detected we are on dashboard page");
 
             if (settings["split_added_deck"] === "on") {
-                debug("split_added_deck plugin is enabled");
+                utils.debug("split_added_deck plugin is enabled");
                 split_added_deck.init();
             }
             else {
-                debug("split_added_deck plugin is disabled");
+                utils.debug("split_added_deck plugin is disabled");
             }
             // only purge caches when viewing main page
             purgeStaleCaches();
@@ -240,12 +217,12 @@ function main(settings) {
 
         // check if on library section
         else if (/\/section\/\d+$/.test(page_url)) {
-            debug("main detected we are in library section");
+            utils.debug("main detected we are in library section");
             var page_identifier = page_url.match(/\/server\/(.[^\/]+)\/section\/(\d+)$/);
             var machine_identifier = page_identifier[1];
             var section_num = page_identifier[2];
-            debug("machine identifier - " + machine_identifier);
-            debug("library section - " + section_num);
+            utils.debug("machine identifier - " + machine_identifier);
+            utils.debug("library section - " + section_num);
 
             // get library sections xml
             var library_sections_url = requests_url + "/system/library/sections?X-Plex-Token=" + plex_token;
@@ -262,40 +239,40 @@ function main(settings) {
 
                 // override server address if defined in settings
                 if (settings["plex_server_address"] != "" && settings["plex_server_port"] != "") {
-                    debug("Plex server manual override");
+                    utils.debug("Plex server manual override");
                     server["address"] = settings["plex_server_address"];
                     server["port"] = settings["plex_server_port"];
                 }
 
                 if (settings["random_picker"] === "on") {
-                    debug("random_picker plugin is enabled");
+                    utils.debug("random_picker plugin is enabled");
                     random_picker.init(server, section, settings["random_picker_only_unwatched"]);
                 }
                 else {
-                    debug("random_picker plugin is disabled");
+                    utils.debug("random_picker plugin is disabled");
                 }
             });
         }
 
         // check if on movie/tv show details page
         else if (/\/details\/%2Flibrary%2Fmetadata%2F(\d+)$/.test(page_url)) {
-            debug("main detected we are on movie/tv show details page");
+            utils.debug("main detected we are on movie/tv show details page");
             var page_identifier = page_url.match(/\/server\/(.[^\/]+)\/details\/%2Flibrary%2Fmetadata%2F(\d+)$/);
             var machine_identifier = page_identifier[1];
             var parent_item_id = page_identifier[2];
-            debug("metadata id - " + parent_item_id);
+            utils.debug("metadata id - " + parent_item_id);
 
             var server = server_addresses[machine_identifier];
 
             // override server address if defined in settings
             if (settings["plex_server_address"] != "" && settings["plex_server_port"] != "") {
-                debug("Plex server manual override");
+                utils.debug("Plex server manual override");
                 server["address"] = settings["plex_server_address"];
                 server["port"] = settings["plex_server_port"];
             }
 
             // construct metadata xml link
-            debug("Fetching metadata for id - " + parent_item_id);
+            utils.debug("Fetching metadata for id - " + parent_item_id);
 
             var metadata_xml_url = "http://" + server["address"] + ":" + server["port"] + "/library/metadata/" + parent_item_id + "?X-Plex-Token=" + server["access_token"];
 
@@ -304,109 +281,109 @@ function main(settings) {
 
                 if (metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory").length > 0) {
                     // we're on a tv show page
-                    debug("main detected we are on tv show index page");
+                    utils.debug("main detected we are on tv show index page");
 
                     if (metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("type") === "show") {
                         // we're on the root show page
-                        debug("main detected we are on root show page");
+                        utils.debug("main detected we are on root show page");
 
                         // create trakt link
                         if (settings["trakt_shows"] === "on") {
-                            debug("trakt plugin is enabled");
+                            utils.debug("trakt plugin is enabled");
                             trakt.init(metadata_xml, "show", server);
                         }
                         else {
-                            debug("trakt plugin is disabled");
+                            utils.debug("trakt plugin is disabled");
                         }
 
                         // insert missing seasons
                         if (settings["missing_episodes"] === "on") {
-                            debug("missing_episodes plugin is enabled");
+                            utils.debug("missing_episodes plugin is enabled");
                             missing_episodes.init(metadata_xml, server, "seasons");
                         }
                         else {
-                            debug("missing_episodes plugin is disabled");
+                            utils.debug("missing_episodes plugin is disabled");
                         }
                     }
                     else if (metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("type") === "season") {
                         // we're on the season page
-                        debug("main detected we are on a season page");
+                        utils.debug("main detected we are on a season page");
 
                         // insert missing episodes
                         if (settings["missing_episodes"] === "on") {
-                            debug("missing_episodes plugin is enabled");
+                            utils.debug("missing_episodes plugin is enabled");
                             missing_episodes.init(metadata_xml, server, "episodes");
                         }
                         else {
-                            debug("missing_episodes plugin is disabled");
+                            utils.debug("missing_episodes plugin is disabled");
                         }
                     }
                 }
                 else if (metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("type") === "movie") {
                     // we're on a movie page
-                    debug("main detected we are on a movie page");
+                    utils.debug("main detected we are on a movie page");
 
                     // insert canistreamit widget
                     if (settings["canistreamit"] === "on") {
-                        debug("canistreamit plugin is enabled");
+                        utils.debug("canistreamit plugin is enabled");
                         canistreamit.init(metadata_xml);
                     }
                     else {
-                        debug("canistreamit plugin is disabled");
+                        utils.debug("canistreamit plugin is disabled");
                     }
 
                     // create letterboxd link
                     if (settings["letterboxd_link"] === "on") {
-                        debug("letterboxd_link plugin is enabled");
+                        utils.debug("letterboxd_link plugin is enabled");
                         letterboxd.init(metadata_xml);
                     }
                     else {
-                        debug("letterboxd_link plugin is disabled");
+                        utils.debug("letterboxd_link plugin is disabled");
                     }
 
                     // insert imdb link
                     if (settings["imdb_link"] === "on") {
-                        debug("imdb plugin is enabled");
+                        utils.debug("imdb plugin is enabled");
                         imdb.init(metadata_xml);
                     }
                     else {
-                        debug("imdb plugin is disabled");
+                        utils.debug("imdb plugin is disabled");
                     }
 
                     // create youtube trailer button
                     if (settings["movie_trailers"] === "on") {
-                        debug("youtube_trailer plugin is enabled");
+                        utils.debug("youtube_trailer plugin is enabled");
                         youtube_trailer.init(metadata_xml);
                     }
                     else {
-                        debug("youtube_trailer plugin is disabled");
+                        utils.debug("youtube_trailer plugin is disabled");
                     }
 
                     // create rotten tomatoes link
                     if (settings["rotten_tomatoes_link"] === "on") {
-                        debug("rotten_tomatoes_link plugin is enabled");
+                        utils.debug("rotten_tomatoes_link plugin is enabled");
                         rotten_tomatoes.init(metadata_xml, settings["rotten_tomatoes_citizen"], settings["rotten_tomatoes_audience"]);
                     }
                     else {
-                        debug("rotten_tomatoes_link plugin is disabled");
+                        utils.debug("rotten_tomatoes_link plugin is disabled");
                     }
 
                     // create trakt link
                     if (settings["trakt_movies"] === "on") {
-                        debug("trakt plugin is enabled");
+                        utils.debug("trakt plugin is enabled");
                         trakt.init(metadata_xml, "movie", server);
                     }
                     else {
-                        debug("trakt plugin is disabled");
+                        utils.debug("trakt plugin is disabled");
                     }
 
                     // create actors profiles
                     if (settings["actor_profiles"] === "on") {
-                        debug("actor_profiles plugin is enabled");
+                        utils.debug("actor_profiles plugin is enabled");
                         actor_profiles.init(metadata_xml);
                     }
                     else {
-                        debug("actor_profiles plugin is disabled");
+                        utils.debug("actor_profiles plugin is disabled");
                     }
                 }
                 else if (metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("type") === "episode") {
@@ -414,11 +391,11 @@ function main(settings) {
 
                     // create trakt link
                     if (settings["trakt_shows"] === "on") {
-                        debug("trakt plugin is enabled");
+                        utils.debug("trakt plugin is enabled");
                         trakt.init(metadata_xml, "episode", server);
                     }
                     else {
-                        debug("trakt plugin is disabled");
+                        utils.debug("trakt plugin is disabled");
                     }
                 }
             });
@@ -428,7 +405,6 @@ function main(settings) {
 
 // set the default options for extension
 utils.setDefaultOptions();
-debug("Set default options");
 
 // Plex/Web uses a lot of JS to manipulate the DOM so the only way to tell when
 // plex's JS has finished is to check for the existance of certain elements.
@@ -438,6 +414,6 @@ runOnReady();
 // page load as expected. To fix this we run the script every time the window
 // url hash changes.
 window.onhashchange = function() {
-    debug("Page change detected");
+    utils.debug("Page change detected");
     runOnReady();
 }

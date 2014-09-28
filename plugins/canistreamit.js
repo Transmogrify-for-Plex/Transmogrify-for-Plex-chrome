@@ -9,22 +9,22 @@ canistreamit = {
 
     getMovieId: function() {
         var imdb_id;
-        debug("canistreamit plugin: Grabbing imdb id");
+        utils.debug("canistreamit plugin: Grabbing imdb id");
         var agent = canistreamit.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("guid");
         // check if using the freebase metadata agent
         if (/com\.plexapp\.agents\.imdb/.test(agent)) {
             imdb_id = agent.match(/^com\.plexapp\.agents\.imdb:\/\/(.+)\?/)[1];
-            debug("canistreamit plugin: imdb id found - " + imdb_id);
+            utils.debug("canistreamit plugin: imdb id found - " + imdb_id);
 
             canistreamit.createCanIStreamItLink(imdb_id);
         }
         // check if using the movie database metadata agent
         else if (/com\.plexapp\.agents\.themoviedb/.test(agent)) {
             var tmdb_id = agent.match(/^com\.plexapp\.agents\.themoviedb:\/\/(.+)\?/)[1];
-            debug("canistreamit plugin: tmdb id found - " + tmdb_id);
+            utils.debug("canistreamit plugin: tmdb id found - " + tmdb_id);
             // async call to get imdb id using themoviedb
             themoviedb_api.getImdbId(tmdb_id, function(imdb_id) {
-                debug("canistreamit plugin: imdb id found - " + imdb_id);
+                utils.debug("canistreamit plugin: imdb id found - " + imdb_id);
 
                 canistreamit.createCanIStreamItLink(imdb_id);
             });
@@ -32,7 +32,7 @@ canistreamit = {
         // check if using the XBMCnfoMoviesImporter agent
         else if (/com\.plexapp\.agents\.xbmcnfo/.test(agent)) {
             imdb_id = agent.match(/^com\.plexapp\.agents\.xbmcnfo:\/\/(.+)\?/)[1];
-            debug("canistreamit plugin: imdb id found - " + imdb_id);
+            utils.debug("canistreamit plugin: imdb id found - " + imdb_id);
 
             canistreamit.createCanIStreamItLink(imdb_id);
         }
@@ -43,7 +43,7 @@ canistreamit = {
         var canistreamit_container = canistreamit.constructCanIStreamItFrame(imdb_id);
 
         // insert canistreamit container to bottom right of .details-metadata-container
-        debug("canistreamit plugin: Inserting canistreamit container into page");
+        utils.debug("canistreamit plugin: Inserting canistreamit container into page");
         document.getElementsByClassName("details-metadata-container")[0].appendChild(canistreamit_container);
     },
 

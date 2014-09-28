@@ -51,6 +51,16 @@ utils = {
         return overlay;
     },
 
+    background_storage_set: function(key, value) {
+        chrome.runtime.sendMessage({"type": "set", "key": key, "value": value});
+    },
+
+    background_storage_get: function(key, callback) {
+        chrome.runtime.sendMessage({"type": "get", "key": key}, function(results) {
+            callback(results);
+        });
+    },
+
     storage_set: function(key, value) {
         var hash = {};
         hash[key] = value;

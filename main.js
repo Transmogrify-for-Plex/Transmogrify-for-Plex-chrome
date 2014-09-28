@@ -153,29 +153,6 @@ function runOnReady() {
     }, 0);
 }
 
-function insertPlexToken() {
-    var plex_token = PLEXWEB.myPlexAccessToken || localStorage["myPlexAccessToken"];
-    if (plex_token) {
-        document.body.setAttribute("data-plextoken", plex_token);
-    }
-}
-
-function getPlexToken() {
-    var plex_token = document.body.getAttribute("data-plextoken");
-
-    if (plex_token === null) {
-        debug("Inserting plex_token into document body");
-        var script = document.createElement("script");
-        script.appendChild(document.createTextNode("("+ insertPlexToken +")();"));
-        (document.body || document.head || document.documentElement).appendChild(script);
-
-        plex_token = document.body.getAttribute("data-plextoken");
-    }
-
-    debug("plex_token fetched from document body - " + plex_token);
-    return plex_token;
-}
-
 function getServerAddresses(requests_url, plex_token, callback) {
     debug("Fetching server addresses");
     utils.getXML(requests_url + "/servers?includeLite=1&X-Plex-Token=" + plex_token, function(servers_xml) {
@@ -231,17 +208,19 @@ function main(settings) {
     checkIfUpdated();
 
     var page_url = document.URL;
-    var plex_token = getPlexToken();
+    var plex_token = localStorage["myPlexAccessToken"];
 
-    // use plex.tv for API requests if we have plex token, otherwise use server URL as user is not signed in
+    // use plex.tv for API requests if we have plex token, otherwise use server URL
+    // as user is on local server and not signed in
     var requests_url;
-    if (plex_token) {
+    if (plex_token || page_url.indexOf("plex.tv/web/app") != -1) {
         requests_url = "https://plex.tv/pms";
     }
     else {
         var url_matches = page_url.match(/^https?\:\/\/(.+):(\d+)\/web\/.+/);
         requests_url = "http://" + url_matches[1] + ":" + url_matches[2];
     }
+    debug("requests_url set as " + requests_url);
 
     getServerAddresses(requests_url, plex_token, function(server_addresses) {
         // check if on dashboard page

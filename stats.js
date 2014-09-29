@@ -1,3 +1,18 @@
+function msToString(duration) {
+    var seconds = parseInt((duration / 1000) % 60)
+        , minutes = parseInt((duration / (1000 * 60)) % 60)
+        , hours = parseInt((duration / (1000 * 60 * 60)) % 24)
+        , days = parseInt((duration / (1000 * 60 * 60 * 24)) % 7)
+        , weeks = parseInt((duration / (1000 * 60 * 60 * 24 * 7)));
+
+    var weeks_string = (weeks === 1) ? " week, " : " weeks, ";
+    var days_string = (days === 1) ? " day, " : " days, ";
+    var hours_string = (hours === 1) ? " hour, " : " hours, ";
+    var minutes_string = (minutes === 1) ? " minute, and " : " minutes, and ";
+
+    return weeks + weeks_string + days + days_string + hours + hours_string + minutes + minutes_string + seconds + " seconds";
+}
+
 function getServerAddresses(callback) {
     utils.background_storage_get("server_addresses", function(response) {
         callback(response["value"]);
@@ -28,30 +43,90 @@ function getAllMovies(address, port, plex_token, section_key, callback) {
     var library_section_url = "http://" + address + ":" + port + "/library/sections/" + section_key + "/all?X-Plex-Token=" + plex_token;
     utils.getXML(library_section_url, function(section_xml) {
         var movies_xml = section_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video");
-
         var movies = [];
-        for (i = 0; i < movies_xml.length; i++) {
+        for (var i = 0; i < movies_xml.length; i++) {
             var movie_data = {};
-            movie_data["title"] = movies_xml[i].getAttribute("title");
             movie_data["content_rating"] = movies_xml[i].getAttribute("contentRating");
             movie_data["rating"] = movies_xml[i].getAttribute("rating");
-            movie_data["view_count"] = movies_xml[i].getAttribute("viewCount");
             movie_data["year"] = movies_xml[i].getAttribute("year");
             movie_data["added_at"] = movies_xml[i].getAttribute("addedAt");
 
             var metadata_xml = movies_xml[i].getElementsByTagName("Media")[0];
             movie_data["video_resolution"] = metadata_xml.getAttribute("videoResolution");
-            movie_data["duration"] = parseInt(metadata_xml.getAttribute("duration"));
-            // won't handle multiple copies of a movie gracefully
+            movie_data["duration"] = metadata_xml.getAttribute("duration");
+            // won't handle multiple copies of a movie properly
 
             var part_xml = metadata_xml.getElementsByTagName("Part")[0];
-            movie_data["size"] = parseInt(part_xml.getAttribute("size"));
+            movie_data["size"] = part_xml.getAttribute("size");
+
+            var genre_xml = movies_xml[i].getElementsByTagName("Genre");
+            movie_data["genres"] = [];
+            for (var j = 0; j < genre_xml.length; j++) {
+                var genre = genre_xml[j].getAttribute("tag");
+                movie_data["genres"].push(genre);
+            }
 
             movies.push(movie_data);
         }
 
         callback(movies);
     });
+}
+
+function generateMovieStats(movies) {
+    var total_duration = 0;
+    var total_size = 0;
+    var content_rating_count = {};
+    var movie_rating_count = {};
+    var resolution_count = {};
+    var year_count = {};
+    for (var i = 0; i < movies.length; i++) {
+        total_duration += parseInt(movies[i]["duration"]);
+        total_size += parseInt(movies[i]["size"]);
+
+        // content rating count
+        var content_rating = movies[i]["content_rating"];
+        if (content_rating_count[content_rating]) {
+            content_rating_count[content_rating]++;
+        }
+        else {
+            content_rating_count[content_rating] = 1;
+        }
+        // remove movies with no content rating
+        delete content_rating_count[null];
+
+        // movie ratings partioning
+        // round down movie rating so that ratings 4.0-4.9 = 4 etc
+        var movie_rating = parseInt(movies[i]["rating"]);
+        if (movie_rating_count[movie_rating]) {
+            movie_rating_count[movie_rating]++;
+        }
+        else {
+            movie_rating_count[movie_rating] = 1;
+        }
+        // remove movies with no rating
+        delete movie_rating_count[NaN];
+
+        // resolutions count
+        var resolution = movies[i]["video_resolution"];
+        if (resolution_count[resolution]) {
+            resolution_count[resolution]++;
+        }
+        else {
+            resolution_count[resolution] = 1;
+        }
+
+        // years count
+        var year = parseInt(movies[i]["year"]);
+        if (year_count[year]) {
+            year_count[year]++;
+        }
+        else {
+            year_count[year] = 1;
+        }
+    }
+
+    //return stuff
 }
 
 function generateStats() {
@@ -71,7 +146,7 @@ function generateStats() {
                 for (var key in processed_sections) {
                     if (processed_sections[key]["type"] === "movie" && processed_sections[key]["scanner"] === "Plex Movie Scanner") {
                         getAllMovies(address, port, plex_token, key, function(movies) {
-                            console.log(movies);
+                            var movie_stats = generateMovieStats(movies);
                         });
                     }
                     else if (processed_sections[key]["type"] === "show" && processed_sections[key]["scanner"] === "Plex Series Scanner") {

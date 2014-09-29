@@ -80,6 +80,7 @@ function generateMovieStats(movies) {
     var movie_rating_count = {};
     var resolution_count = {};
     var year_count = {};
+    var genre_count = {};
     for (var i = 0; i < movies.length; i++) {
         total_duration += parseInt(movies[i]["duration"]);
         total_size += parseInt(movies[i]["size"]);
@@ -124,9 +125,21 @@ function generateMovieStats(movies) {
         else {
             year_count[year] = 1;
         }
+
+        // genre count
+        var genres = movies[i]["genres"];
+        for (var j = 0; j < genres.length; j++) {
+            if (genre_count[genres[j]]) {
+                genre_count[genres[j]]++;
+            }
+            else {
+                genre_count[genres[j]] = 1;
+            }
+        }
     }
 
     //return stuff
+    drawGenresChart(genre_count)
 }
 
 function generateStats() {

@@ -42,5 +42,6 @@
     "48": "resources/icon48.png",
     "128": "resources/icon128.png"
   },
-  "web_accessible_resources": ["resources/*", "options.html"]
+  "web_accessible_resources": ["resources/*", "options.html"],
+  "content_security_policy": "script-src 'self' https://www.google.com 'unsafe-eval'; object-src 'self'"
 }

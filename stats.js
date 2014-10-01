@@ -125,21 +125,29 @@ function generateMovieStats(movies) {
         else {
             year_count[year] = 1;
         }
+        //add missing years
+        var sorted_years = Object.keys(year_count).sort();
+        for (var j = sorted_years[0]; j < sorted_years[sorted_years.length - 1]; j++) {
+            if (!year_count[j]) {
+                year_count[j] = 0;
+            }
+        }
 
         // genre count
         var genres = movies[i]["genres"];
-        for (var j = 0; j < genres.length; j++) {
-            if (genre_count[genres[j]]) {
-                genre_count[genres[j]]++;
+        for (var k = 0; k < genres.length; k++) {
+            if (genre_count[genres[k]]) {
+                genre_count[genres[k]]++;
             }
             else {
-                genre_count[genres[j]] = 1;
+                genre_count[genres[k]] = 1;
             }
         }
     }
 
     //return stuff
-    drawGenresChart(genre_count)
+    drawYearsChart(year_count)
+    drawGenreChart(genre_count)
 }
 
 function generateStats() {

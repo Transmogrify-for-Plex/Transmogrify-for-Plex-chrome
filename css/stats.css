@@ -1,6 +1,15 @@
 body {
     font-family: "segoe ui";
     font-size: 30px;
-    color: #EEEEEE;
-    background-color: #000000;
+    background-color: #1f1f1f;
+}
+
+#genre-chart, #year-chart {
+    width:100%;
+    height:500px;
+}
+
+.c3-legend-item text, .tick text {
+    fill: #FFFFFF;
+    font-size: 1.3em;
 }

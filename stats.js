@@ -39,38 +39,38 @@ function processLibrarySections(sections_xml) {
     return dir_metadata;
 }
 
-function getAllMovies(address, port, plex_token, section_key, callback) {
+function getAllMovies(address, port, plex_token, section_key) {
     var library_section_url = "http://" + address + ":" + port + "/library/sections/" + section_key + "/all?X-Plex-Token=" + plex_token;
-    utils.getXML(library_section_url, function(section_xml) {
-        var movies_xml = section_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video");
-        var movies = [];
-        for (var i = 0; i < movies_xml.length; i++) {
-            var movie_data = {};
-            movie_data["content_rating"] = movies_xml[i].getAttribute("contentRating");
-            movie_data["rating"] = movies_xml[i].getAttribute("rating");
-            movie_data["year"] = movies_xml[i].getAttribute("year");
-            movie_data["added_at"] = movies_xml[i].getAttribute("addedAt");
+    var section_xml = utils.getSyncXML(library_section_url);
 
-            var metadata_xml = movies_xml[i].getElementsByTagName("Media")[0];
-            movie_data["video_resolution"] = metadata_xml.getAttribute("videoResolution");
-            movie_data["duration"] = metadata_xml.getAttribute("duration");
-            // won't handle multiple copies of a movie properly
+    var movies_xml = section_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video");
+    var movies = [];
+    for (var i = 0; i < movies_xml.length; i++) {
+        var movie_data = {};
+        movie_data["content_rating"] = movies_xml[i].getAttribute("contentRating");
+        movie_data["rating"] = movies_xml[i].getAttribute("rating");
+        movie_data["year"] = movies_xml[i].getAttribute("year");
+        movie_data["added_at"] = movies_xml[i].getAttribute("addedAt");
 
-            var part_xml = metadata_xml.getElementsByTagName("Part")[0];
-            movie_data["size"] = part_xml.getAttribute("size");
+        var metadata_xml = movies_xml[i].getElementsByTagName("Media")[0];
+        movie_data["video_resolution"] = metadata_xml.getAttribute("videoResolution");
+        movie_data["duration"] = metadata_xml.getAttribute("duration");
+        // won't handle multiple copies of a movie properly
 
-            var genre_xml = movies_xml[i].getElementsByTagName("Genre");
-            movie_data["genres"] = [];
-            for (var j = 0; j < genre_xml.length; j++) {
-                var genre = genre_xml[j].getAttribute("tag");
-                movie_data["genres"].push(genre);
-            }
+        var part_xml = metadata_xml.getElementsByTagName("Part")[0];
+        movie_data["size"] = part_xml.getAttribute("size");
 
-            movies.push(movie_data);
+        var genre_xml = movies_xml[i].getElementsByTagName("Genre");
+        movie_data["genres"] = [];
+        for (var j = 0; j < genre_xml.length; j++) {
+            var genre = genre_xml[j].getAttribute("tag");
+            movie_data["genres"].push(genre);
         }
 
-        callback(movies);
-    });
+        movies.push(movie_data);
+    }
+
+    return movies;
 }
 
 function generateMovieStats(movies) {
@@ -145,39 +145,59 @@ function generateMovieStats(movies) {
         }
     }
 
-    //return stuff
-    drawYearsChart(year_count)
-    drawGenreChart(genre_count)
+    return {
+        "total_duration": total_duration,
+        "total_size": total_size,
+        "content_rating_count": content_rating_count,
+        "movie_rating_count": movie_rating_count,
+        "resolution_count": resolution_count,
+        "year_count": year_count,
+        "genre_count": genre_count
+        };
 }
 
-function generateStats() {
+function generateStats(address, port, plex_token, callback) {
+    getSections(address, port, plex_token, function(sections_xml) {
+        var processed_sections = processLibrarySections(sections_xml);
+
+        var all_movies = [];
+        var tv_shows = [];
+
+        for (var key in processed_sections) {
+            if (processed_sections[key]["type"] === "movie" && processed_sections[key]["scanner"] === "Plex Movie Scanner") {
+                var movies = getAllMovies(address, port, plex_token, key);
+                all_movies = all_movies.concat(movies);
+            }
+            else if (processed_sections[key]["type"] === "show" && processed_sections[key]["scanner"] === "Plex Series Scanner") {
+                // get stats for tv shows
+            }
+        }
+
+        var movie_stats = generateMovieStats(all_movies);
+        callback(movie_stats);
+    });
+}
+
+function getStats() {
     getServerAddresses(function(response) {
         // make this into a proper loop later
         for (var machine_identifier in response) {
+            // if cache
+            // fetch cache
+            // else
+
             var address = response[machine_identifier]["address"];
             var port = response[machine_identifier]["port"];
             var plex_token = response[machine_identifier]["access_token"];
 
-            getSections(address, port, plex_token, function(sections_xml) {
-                var processed_sections = processLibrarySections(sections_xml);
-
-                var movies = {};
-                var tv_shows = {};
-
-                for (var key in processed_sections) {
-                    if (processed_sections[key]["type"] === "movie" && processed_sections[key]["scanner"] === "Plex Movie Scanner") {
-                        getAllMovies(address, port, plex_token, key, function(movies) {
-                            var movie_stats = generateMovieStats(movies);
-                        });
-                    }
-                    else if (processed_sections[key]["type"] === "show" && processed_sections[key]["scanner"] === "Plex Series Scanner") {
-
-                    }
-                }
+            generateStats(address, port, plex_token, function(stats) {
+                console.log(stats);
+                drawYearsChart(stats["year_count"]);
+                drawGenreChart(stats["genre_count"]);
             });
             break;
         }
     });
 }
 
-generateStats();
+getStats();

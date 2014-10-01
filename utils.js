@@ -168,6 +168,18 @@ utils = {
         xhr.send();
     },
 
+    getSyncXML: function(url) {
+        utils.debug("Fetching synchronous XML from " + url);
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", url, false);
+        xhr.send();
+        var resp = xhr.responseXML;
+
+        utils.debug("Recieved XML response");
+        utils.debug(resp);
+        return resp;
+    },
+
     getJSONWithCache: function(url, callback) {
         utils.debug("Fetching JSON from " + url);
         utils.cache_get("cache-" + url, function(result) {

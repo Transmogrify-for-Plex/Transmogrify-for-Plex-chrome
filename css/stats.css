@@ -1,7 +1,7 @@
 body {
     font-family: "segoe ui";
     font-size: 30px;
-    background-color: #1f1f1f;
+    background-color: #000000;
 }
 
 #genre-chart, #year-chart {
@@ -12,4 +12,8 @@ body {
 .c3-legend-item text, .tick text {
     fill: #FFFFFF;
     font-size: 1.3em;
+}
+
+.c3 .c3-axis-x path, .c3 .c3-axis-x line, .c3 .c3-axis-y path, .c3 .c3-axis-y line {
+    stroke: #FFFFFF;
 }

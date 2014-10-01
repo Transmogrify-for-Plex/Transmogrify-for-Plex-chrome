@@ -14,7 +14,10 @@ function drawYearsChart(year_data) {
             columns: [
                 x_labels,
                 y_data,
-            ]
+            ],
+            color: function(color, d) {
+                return '#55DD55';
+            }
         },
         bar: {
             width: {
@@ -23,7 +26,7 @@ function drawYearsChart(year_data) {
         },
         axis: {
             x: {
-                type : "number",
+                type: "number",
                 tick: {
                     fit: false
                 }
@@ -48,9 +51,9 @@ function drawGenreChart(genre_data) {
         bindto: "#genre-chart",
         data: {
             json: genre_data,
-            type : "donut"
+            type: "donut"
         },
-        donut : {
+        donut: {
             label: {
                 format: function(value, ratio, id) {
                     return id;
@@ -63,7 +66,7 @@ function drawGenreChart(genre_data) {
         },
         tooltip: {
             format: {
-                value: function (value, ratio, id) {
+                value: function(value, ratio, id) {
                     var format = d3.format(".1%");
                     return value + " Movies (" + format(ratio) + ")";
                 }

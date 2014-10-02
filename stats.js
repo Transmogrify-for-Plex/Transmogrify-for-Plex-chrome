@@ -167,7 +167,7 @@ function generateMovieStats(movies) {
         };
 }
 
-function generateStats(address, port, plex_token, id, callback) {
+function generateStats(address, port, plex_token, callback) {
     getSections(address, port, plex_token, function(sections_xml) {
         var processed_sections = processLibrarySections(sections_xml);
 
@@ -186,34 +186,39 @@ function generateStats(address, port, plex_token, id, callback) {
 
         var movie_stats = generateMovieStats(all_movies);
         // add tv show stats here
-        callback(id, movie_stats);
+        callback(movie_stats);
     });
 }
 
 function getStats(callback) {
-    getServerAddresses(function(response) {
+    getServerAddresses(function(pms_servers) {
         // make this into a proper loop later
 
         // stat aggregation is all done when our counter reaches the number of servers
-        var done = counter(Object.keys(response).length, function() {
+        var done = counter(Object.keys(pms_servers).length, function() {
             // all done!
             callback();
         });
 
-        for (var machine_identifier in response) {
+        for (var machine_identifier in pms_servers) {
             // if cache
             // fetch cache
             // else
-            var name = response[machine_identifier]["name"];
-            var address = response[machine_identifier]["address"];
-            var port = response[machine_identifier]["port"];
-            var plex_token = response[machine_identifier]["access_token"];
 
-            // need to pass in machine_identifier too to prevent race condition when it changes
-            generateStats(address, port, plex_token, machine_identifier, function(id, stats) {
-                servers[id] = {"name": name, "stats": stats};
-                done();
-            });
+            // use closure otherwise due to generateStats being async value of machine_identifier will go out of scope
+            // on each loop, and you only end up with values of last server in loop
+            (function (machine_identifier) {
+                var name = pms_servers[machine_identifier]["name"];
+                var address = pms_servers[machine_identifier]["address"];
+                var port = pms_servers[machine_identifier]["port"];
+                var plex_token = pms_servers[machine_identifier]["access_token"];
+
+                // need to pass in machine_identifier too to prevent race condition when it changes
+                generateStats(address, port, plex_token, function(stats) {
+                    servers[machine_identifier] = {"name": name, "stats": stats};
+                    done();
+                });
+            }(machine_identifier));
         }
     });
 }

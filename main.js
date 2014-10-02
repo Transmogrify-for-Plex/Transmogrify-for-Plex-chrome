@@ -136,12 +136,13 @@ function getServerAddresses(requests_url, plex_token, callback) {
         var servers = servers_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Server");
         var server_addresses = {};
         for (var i = 0; i < servers.length; i++) {
+            var name = servers[i].getAttribute("name");
             var address = servers[i].getAttribute("address");
             var port = servers[i].getAttribute("port");
             var machine_identifier = servers[i].getAttribute("machineIdentifier");
             var access_token = servers[i].getAttribute("accessToken");
 
-            server_addresses[machine_identifier] = {"address": address, "port": port, "machine_identifier": machine_identifier, "access_token": access_token};
+            server_addresses[machine_identifier] = {"name": name, "address": address, "port": port, "machine_identifier": machine_identifier, "access_token": access_token};
         }
 
         utils.debug("Server addresses fetched");

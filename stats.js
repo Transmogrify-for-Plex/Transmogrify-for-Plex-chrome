@@ -1,3 +1,14 @@
+var servers = {};
+var active_server;
+
+function counter(limit, callback) {
+    return function() {
+        if(--limit === 0) {
+            callback();
+        }
+    }
+}
+
 function msToString(duration) {
     var seconds = parseInt((duration / 1000) % 60)
         , minutes = parseInt((duration / (1000 * 60)) % 60)
@@ -156,7 +167,7 @@ function generateMovieStats(movies) {
         };
 }
 
-function generateStats(address, port, plex_token, callback) {
+function generateStats(address, port, plex_token, id, callback) {
     getSections(address, port, plex_token, function(sections_xml) {
         var processed_sections = processLibrarySections(sections_xml);
 
@@ -174,30 +185,48 @@ function generateStats(address, port, plex_token, callback) {
         }
 
         var movie_stats = generateMovieStats(all_movies);
-        callback(movie_stats);
+        // add tv show stats here
+        callback(id, movie_stats);
     });
 }
 
-function getStats() {
+function getStats(callback) {
     getServerAddresses(function(response) {
         // make this into a proper loop later
+
+        // stat aggregation is all done when our counter reaches the number of servers
+        var done = counter(Object.keys(response).length, function() {
+            // all done!
+            callback();
+        });
+
         for (var machine_identifier in response) {
             // if cache
             // fetch cache
             // else
-
+            var name = response[machine_identifier]["name"];
             var address = response[machine_identifier]["address"];
             var port = response[machine_identifier]["port"];
             var plex_token = response[machine_identifier]["access_token"];
 
-            generateStats(address, port, plex_token, function(stats) {
-                console.log(stats);
-                drawYearsChart(stats["year_count"]);
-                drawGenreChart(stats["genre_count"]);
+            // need to pass in machine_identifier too to prevent race condition when it changes
+            generateStats(address, port, plex_token, machine_identifier, function(id, stats) {
+                servers[id] = {"name": name, "stats": stats};
+                done();
             });
-            break;
         }
     });
 }
 
-getStats();
+getStats(function() {
+    if (active_server) {
+        drawYearsChart(active_server["stats"]["year_count"]);
+        drawGenreChart(active_server["stats"]["genre_count"]);
+    }
+    else {
+        // temp set active server
+        active_server = servers[Object.keys(servers)[0]];
+        drawYearsChart(active_server["stats"]["year_count"]);
+        drawGenreChart(active_server["stats"]["genre_count"]);
+    }
+});

@@ -1,10 +1,9 @@
 body {
     font-family: "segoe ui";
     font-size: 30px;
-    background-color: #000000;
+    background-color: #1f1f1f;
     padding-top: 50px;
-/*    padding: 0;
-margin: 0;*/
+    margin: 0;
 }
 
 #nav {
@@ -15,7 +14,7 @@ margin: 0;*/
     height: 50px;
     text-align: center;
     background-color: #000000;
-    opacity: 0.6;
+    opacity: 0.4;
     transition: opacity .4s ease-out;
     -moz-transition: opacity .4s ease-out;
     -webkit-transition: opacity .4s ease-out;
@@ -27,8 +26,8 @@ margin: 0;*/
 
 
 #genre-chart, #year-chart {
-    width:100%;
-    height:500px;
+    width: 100%;
+    height: 500px;
 }
 
 .c3-legend-item text, .tick text {

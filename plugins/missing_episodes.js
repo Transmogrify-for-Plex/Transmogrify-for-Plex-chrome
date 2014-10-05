@@ -243,30 +243,19 @@ missing_episodes = {
         var parent_node = episode_tile_list.parentNode;
         parent_node.removeChild(episode_tile_list);
 
+        // insert already present episodes into episode_tiles array
+        for (var i = 0; i < episode_tile_list_elements.length; i++) {
+            var episode_num = episode_tile_list_elements[i].getElementsByClassName("media-heading secondary")[0].innerHTML.match(/\d+/);
+            episode_tiles[episode_num] = episode_tile_list_elements[i];
+        }
+
+        // iterate over all episode tiles, present and missing, to reinsert back into episode tile list in order
+        var j = 0;
         for (var episode_number in episode_tiles) {
             var episode_tile = episode_tiles[episode_number];
-            episode_number = parseInt(episode_number);
-            if (episode_number === 1) {
-                // insert into beginning of tile list
-                episode_tile_list.insertBefore(episode_tile, episode_tile_list_elements[0]);
-            }
-            else {
-                // this is a hacky way of inserting episode tiles that is necessary because of how crappy tvdb is at
-                // maintaining their data and responding to fix requests. This attempts to insert each episode after
-                // the previous episode number. If this fails, it attempts the previous episode number - 1 and so on.
-                // This is necessary because tvdb, which trakt and Plex rely on, has some seasons with large gaps in
-                // episode numbers.
-                var n = 2;
-                while (true) {
-                    try {
-                        episode_tile_list.insertBefore(episode_tile, episode_tile_list_elements[episode_number-n].nextSibling);
-                        break;
-                    }
-                    catch(e) {
-                        n++;
-                    }
-                }
-            }
+
+            episode_tile_list.insertBefore(episode_tile, episode_tile_list_elements[j]);
+            j++;
         }
 
         // reinsert episode tile list node
@@ -277,32 +266,34 @@ missing_episodes = {
         var season_tile_list = document.getElementsByClassName("season-tile-list")[0];
         var season_tile_list_elements = season_tile_list.getElementsByTagName("li");
 
-        var first_season_tile = season_tile_list_elements[0].getElementsByClassName("media-title media-heading")[0].innerHTML;
-
         // remove season tile list node first
         var parent_node = season_tile_list.parentNode;
         parent_node.removeChild(season_tile_list);
 
-        for (var season_number in season_tiles) {
-            var season_tile = season_tiles[season_number];
-            season_number = parseInt(season_number);
-            if (season_number === 1) {
-                // insert into beginning of tile list
-                if (first_season_tile === "Specials") {
-                    season_tile_list.insertBefore(season_tile, season_tile_list_elements[1]);
-                }
-                else {
-                    season_tile_list.insertBefore(season_tile, season_tile_list_elements[0]);
-                }
+        // insert already present seasons into season_tiles array
+        for (var i = 0; i < season_tile_list_elements.length; i++) {
+            var season_num = season_tile_list_elements[i].getElementsByClassName("media-title media-heading")[0].innerHTML.match(/\d+/);
+
+            if (season_num) {
+                season_tiles[season_num] = season_tile_list_elements[i];
             }
             else {
-                // insert after last season tile
-                if (first_season_tile === "Specials") {
-                    season_tile_list.insertBefore(season_tile, season_tile_list_elements[season_number-1].nextSibling);
-                }
-                else {
-                    season_tile_list.insertBefore(season_tile, season_tile_list_elements[season_number-2].nextSibling);
-                }
+                season_tiles["specials"] = season_tile_list_elements[i];
+            }
+        }
+
+        // iterate over all season tiles, present and missing, to reinsert back into season tile list in order
+        var j = 0;
+        for (var season_number in season_tiles) {
+            var season_tile = season_tiles[season_number];
+
+            // Stick specials season first
+            if (season_number === "specials") {
+                season_tile_list.insertBefore(season_tile, season_tile_list_elements[0]);
+            }
+            else {
+                season_tile_list.insertBefore(season_tile, season_tile_list_elements[j]);
+                j++;
             }
         }
 
@@ -313,6 +304,11 @@ missing_episodes = {
     insertSeasonAirdates: function(tvdb_id, season_tiles) {
         Object.keys(season_tiles).forEach(function (season_number) {
             var season_tile = season_tiles[season_number];
+
+            // skip if not missing season
+            if (!season_tiles[season_number].classList.contains("missing-season")) {
+                return;
+            }
 
             trakt_api.getAllEpisodes(tvdb_id, season_number, function(all_episodes) {
                 var first_episode = all_episodes[0];

@@ -201,10 +201,6 @@ function getStats(callback) {
         });
 
         for (var machine_identifier in pms_servers) {
-            // if cache
-            // fetch cache
-            // else
-
             // use closure otherwise due to generateStats being async value of machine_identifier will go out of scope
             // on each loop, and you only end up with values of last server in loop
             (function (machine_identifier) {
@@ -213,10 +209,21 @@ function getStats(callback) {
                 var port = pms_servers[machine_identifier]["port"];
                 var plex_token = pms_servers[machine_identifier]["access_token"];
 
-                // need to pass in machine_identifier too to prevent race condition when it changes
-                generateStats(address, port, plex_token, function(stats) {
-                    servers[machine_identifier] = {"name": name, "stats": stats};
-                    done();
+                utils.local_storage_get("cache-stats-" + machine_identifier, function(data) {
+                    var timestamp = data["timestamp"];
+                    var stats = data["stats"];
+
+                    if (stats) {
+                        servers[machine_identifier] = {"name": pms_servers[machine_identifier]["name"], "stats": stats};
+                        done();
+                    }
+                    else {
+                        generateStats(address, port, plex_token, function(stats) {
+                            servers[machine_identifier] = {"name": name, "stats": stats, "timestamp": new Date().getTime()};
+                            utils.local_storage_set("cache-stats-" + machine_identifier, servers[machine_identifier]);
+                            done();
+                        });
+                    }
                 });
             }(machine_identifier));
         }
@@ -224,14 +231,12 @@ function getStats(callback) {
 }
 
 getStats(function() {
-    if (active_server) {
-        drawYearsChart(active_server["stats"]["year_count"]);
-        drawGenreChart(active_server["stats"]["genre_count"]);
-    }
-    else {
+    if (!active_server) {
         // temp set active server
         active_server = servers[Object.keys(servers)[0]];
-        drawYearsChart(active_server["stats"]["year_count"]);
-        drawGenreChart(active_server["stats"]["genre_count"]);
     }
+
+    drawYearsChart(active_server["stats"]["year_count"]);
+    drawGenreChart(active_server["stats"]["genre_count"]);
+    drawContentRatingChart(active_server["stats"]["content_rating_count"]);
 });

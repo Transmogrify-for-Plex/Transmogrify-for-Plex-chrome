@@ -24,10 +24,28 @@ body {
     opacity: 1.0;
 }
 
+.chart-title {
+    color: white;
+}
 
-#genre-chart, #year-chart {
-    width: 100%;
+#year-chart{
+    width: 90%;
     height: 500px;
+    margin: auto;
+}
+
+#genre-chart, #content-rating-chart {
+    width: 50%;
+    height: 500px;
+    margin: auto;
+}
+
+#genre-chart {
+    float: left;
+}
+
+#content-rating-chart {
+    float: right;
 }
 
 .c3-legend-item text, .tick text {

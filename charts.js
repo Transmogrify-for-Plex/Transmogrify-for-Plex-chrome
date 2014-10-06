@@ -16,7 +16,7 @@ function drawYearsChart(year_data) {
                 y_data,
             ],
             color: function(color, d) {
-                return '#55DD55';
+                return "#FF9900";
             }
         },
         bar: {
@@ -51,6 +51,35 @@ function drawGenreChart(genre_data) {
         bindto: "#genre-chart",
         data: {
             json: genre_data,
+            type: "donut"
+        },
+        donut: {
+            label: {
+                format: function(value, ratio, id) {
+                    return id;
+                }
+            },
+            width: 140
+        },
+        legend: {
+            position: "right"
+        },
+        tooltip: {
+            format: {
+                value: function(value, ratio, id) {
+                    var format = d3.format(".1%");
+                    return value + " Movies (" + format(ratio) + ")";
+                }
+            }
+        }
+    });
+}
+
+function drawContentRatingChart(content_rating_data) {
+    var chart = c3.generate({
+        bindto: "#content-rating-chart",
+        data: {
+            json: content_rating_data,
             type: "donut"
         },
         donut: {

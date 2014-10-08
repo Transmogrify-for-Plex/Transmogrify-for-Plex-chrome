@@ -27,8 +27,18 @@ function drawYearsChart(year_data) {
         axis: {
             x: {
                 type: "number",
+                label: {
+                    text: "Year",
+                    position: "outer-center"
+                },
                 tick: {
                     fit: false
+                }
+            },
+            y: {
+                label: {
+                    text: "Number of Movies",
+                    position: "outer-middle"
                 }
             }
         },

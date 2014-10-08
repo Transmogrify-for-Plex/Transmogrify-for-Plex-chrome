@@ -1,7 +1,7 @@
 body {
     font-family: "segoe ui";
     font-size: 30px;
-    background-color: #1f1f1f;
+    background: url(/resources/stats_bg.png);
     padding-top: 50px;
     margin: 0;
 }
@@ -24,28 +24,64 @@ body {
     opacity: 1.0;
 }
 
-.chart-title {
-    color: white;
+.row-container {
+    height: 600px;
+    clear: both;
+    padding-bottom: 80px;
 }
 
-#year-chart{
+.chart-title-container {
+    height: 50px;
+    font-size: 1.5em;
+    color: #FFFFFF;
+    padding-bottom: 20px;
+    clear: both;
+}
+
+.chart-title-left {
+    margin-left: 50px;
+    float: left;
+}
+
+.chart-title-right {
+    margin-right: 50px;
+    float: right;
+}
+
+.chart-container {
+    height: 550px;
+}
+
+.chart {
+    height: 100%;
+}
+
+.chart-left {
+    float: left;
+}
+
+.chart-right {
+    float: right;
+}
+
+#year-chart {
     width: 90%;
-    height: 500px;
     margin: auto;
+}
+
+/* hacky fix for x axis label being cut off */
+#year-chart svg {
+    height: 600px;
 }
 
 #genre-chart, #content-rating-chart {
     width: 50%;
-    height: 500px;
     margin: auto;
 }
 
-#genre-chart {
-    float: left;
-}
-
-#content-rating-chart {
-    float: right;
+.c3-axis-x-label, .c3-axis-y-label {
+    fill: #FFFFFF;
+    font-size: 1.7em;
 }
 
 .c3-legend-item text, .tick text {

@@ -1,6 +1,6 @@
 function drawYearsChart(year_data) {
-    var x_labels = ['x'];
-    var y_data = ['Movies'];
+    var x_labels = ["x"];
+    var y_data = ["Count"];
     for (var year in year_data) {
         x_labels.push(year);
         y_data.push(year_data[year]);

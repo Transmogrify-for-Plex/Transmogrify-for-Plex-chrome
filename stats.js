@@ -230,13 +230,38 @@ function getStats(callback) {
     });
 }
 
+function setServerSelections(active_server) {
+    var server_list_element = document.getElementById("server-choices");
+
+    for (var server in servers) {
+        if (active_server === server) {
+            continue;
+        }
+
+        var li = document.createElement("li");
+        var server_element = document.createElement("a");
+        server_element.setAttribute("href", "#");
+        var text_node = document.createTextNode(servers[server]["name"]);
+
+        server_element.appendChild(text_node);
+        li.appendChild(server_element);
+        server_list_element.appendChild(li);
+    }
+}
+
 getStats(function() {
     if (!active_server) {
         // temp set active server
-        active_server = servers[Object.keys(servers)[0]];
+        active_server = Object.keys(servers)[0];
     }
+    var server_data = servers[active_server];
 
-    drawYearsChart(active_server["stats"]["year_count"]);
-    drawGenreChart(active_server["stats"]["genre_count"]);
-    drawContentRatingChart(active_server["stats"]["content_rating_count"]);
+    // set active server name on nav bar
+    document.getElementById("active-server-name").innerHTML = server_data["name"];
+
+    drawYearsChart(server_data["stats"]["year_count"]);
+    drawGenreChart(server_data["stats"]["genre_count"]);
+    drawContentRatingChart(server_data["stats"]["content_rating_count"]);
+
+    setServerSelections(active_server);
 });

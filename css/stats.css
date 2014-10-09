@@ -6,7 +6,7 @@ body {
     margin: 0;
 }
 
-#nav {
+nav {
     position: fixed;
     top: 0;
     z-index: 100;
@@ -20,9 +20,67 @@ body {
     -webkit-transition: opacity .4s ease-out;
 }
 
-#nav:hover {
+nav:hover {
     opacity: 1.0;
 }
+
+nav ul ul {
+    display: none;
+}
+
+nav ul li:hover > ul {
+    display: block;
+}
+
+nav ul {
+    margin-top: 0;
+    list-style: none;
+    position: relative;
+    display: inline-table;
+    float: left;
+}
+    nav ul:after {
+        content: "";
+        clear: both;
+        display: block;
+    }
+
+    nav ul li {
+        float: left;
+    }
+        nav ul li:hover a {
+            color: #fff;
+        }
+
+        nav ul li a {
+            display: block;
+            padding: 5px 40px;
+            margin: auto;
+            color: #707070;
+            text-decoration: none;
+        }
+
+    nav ul ul {
+        background: #000000;
+        border-radius: 0px;
+        padding: 0;
+        position: absolute;
+        top: 100%;
+    }
+        nav ul ul li {
+            float: none;
+            border-bottom: 1px solid #FFFFFF;
+            position: relative;
+        }
+        nav ul ul li:first-child {
+            border-top: 1px solid #FFFFFF;
+        }
+            nav ul ul li a {
+                padding: 10px 40px;
+            }
+                nav ul ul li a:hover {
+                    background: #2B2B2B;
+                }
 
 .row-container {
     height: 600px;

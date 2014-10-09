@@ -130,6 +130,35 @@ function runOnReady() {
     }, 0);
 }
 
+function insertPlexToken() {
+    var plex_token = PLEXWEB.myPlexAccessToken;
+    if (plex_token) {
+        document.body.setAttribute("data-plextoken", plex_token);
+    }
+}
+
+function getPlexToken() {
+    if (localStorage["myPlexAccessToken"]) {
+        utils.debug("plex_token fetched from localStorage - " + localStorage["myPlexAccessToken"]);
+        return localStorage["myPlexAccessToken"];
+    }
+    else {
+        var plex_token = document.body.getAttribute("data-plextoken");
+
+        if (plex_token === null) {
+            utils.debug("Inserting plex_token into document body");
+            var script = document.createElement("script");
+            script.appendChild(document.createTextNode("("+ insertPlexToken +")();"));
+            (document.body || document.head || document.documentElement).appendChild(script);
+
+            plex_token = document.body.getAttribute("data-plextoken");
+        }
+
+        utils.debug("plex_token fetched from document body - " + plex_token);
+        return plex_token;
+    }
+}
+
 function getServerAddresses(requests_url, plex_token, callback) {
     utils.debug("Fetching server addresses");
     utils.getXML(requests_url + "/servers?includeLite=1&X-Plex-Token=" + plex_token, function(servers_xml) {
@@ -185,12 +214,12 @@ function main(settings) {
     checkIfUpdated();
 
     var page_url = document.URL;
-    var plex_token = localStorage["myPlexAccessToken"];
+    var plex_token = getPlexToken();
 
     // use plex.tv for API requests if we have plex token, otherwise use server URL
     // as user is on local server and not signed in
     var requests_url;
-    if (plex_token || page_url.indexOf("plex.tv/web/app") != -1) {
+    if (plex_token) {
         requests_url = "https://plex.tv/pms";
     }
     else {

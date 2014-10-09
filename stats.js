@@ -1,13 +1,5 @@
 var servers;
 
-function counter(limit, callback) {
-    return function() {
-        if(--limit === 0) {
-            callback();
-        }
-    }
-}
-
 function msToString(duration) {
     var seconds = parseInt((duration / 1000) % 60)
         , minutes = parseInt((duration / (1000 * 60)) % 60)
@@ -86,14 +78,37 @@ function getAllMovies(address, port, plex_token, section_key, callback) {
     });
 }
 
-function generateMovieStats(movies) {
+function getSectionGenres(address, port, plex_token, section_key, callback){
+    var library_section_genres_url = "http://" + address + ":" + port + "/library/sections/" + section_key + "/genre?X-Plex-Token=" + plex_token;
+    utils.getXML(library_section_genres_url, function(genres_xml) {
+        var genre_nodes = genres_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory");
+
+        var genres = {};
+        for (var i = 0; i < genre_nodes.length; i++) {
+            var genre_key = genre_nodes[i].getAttribute("key");
+            var genre_title = genre_nodes[i].getAttribute("title");
+            genres[genre_key] = genre_title;
+        }
+
+        callback(genres);
+    });
+}
+
+function getMoviesByGenre(address, port, plex_token, section_key, genre_key, callback){
+    var filtered_movies_url = "http://" + address + ":" + port + "/library/sections/" + section_key + "/all?genre=" + genre_key + "&X-Plex-Token=" + plex_token;
+    utils.getXML(filtered_movies_url, function(movies_xml) {
+        var movies = movies_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video");
+        callback(movies);
+    });
+}
+
+function generateMovieStats(movies, genre_count) {
     var total_duration = 0;
     var total_size = 0;
     var content_rating_count = {};
     var movie_rating_count = {};
     var resolution_count = {};
     var year_count = {};
-    var genre_count = {};
     for (var i = 0; i < movies.length; i++) {
         total_duration += parseInt(movies[i]["duration"]);
         total_size += parseInt(movies[i]["size"]);
@@ -145,17 +160,6 @@ function generateMovieStats(movies) {
                 year_count[j] = 0;
             }
         }
-
-        // genre count
-        var genres = movies[i]["genres"];
-        for (var k = 0; k < genres.length; k++) {
-            if (genre_count[genres[k]]) {
-                genre_count[genres[k]]++;
-            }
-            else {
-                genre_count[genres[k]] = 1;
-            }
-        }
     }
 
     return {
@@ -176,24 +180,54 @@ function generateStats(address, port, plex_token, callback) {
     getSections(address, port, plex_token, function(sections_xml) {
         var processed_sections = processLibrarySections(sections_xml);
 
-        var done = counter(Object.keys(processed_sections).length, function() {
-            // all done!
-            var movie_stats = generateMovieStats(all_movies);
-            // add tv show stats here
-            callback(movie_stats);
-        });
+        // set up counters to keep track of running tasks
+        var counters = {"movies": 0, "movie_genres": 0}
+        var reduce_counter = function(key) {
+            counters[key]--;
 
-        for (var key in processed_sections) {
-            if (processed_sections[key]["type"] === "movie") {
-                getAllMovies(address, port, plex_token, key, function(movies){
-                    all_movies = all_movies.concat(movies);
-                    done();
-                });
+            // check if all async tasks are finished
+            if (counters["movies"] === 0 && counters["movie_genres"] === 0) {
+                var movie_stats = generateMovieStats(all_movies, movie_genres_count);
+                callback(movie_stats);
             }
-            else if (processed_sections[key]["type"] === "show") {
-                // get stats for tv shows
-                done();
-            }
+        };
+
+        var movie_genres_count = {};
+        for (var section_key in processed_sections) {
+            // use closures because of scoping issues
+            (function (section_key) {
+                if (processed_sections[section_key]["type"] === "movie") {
+                    counters["movies"]++;
+                    getAllMovies(address, port, plex_token, section_key, function(movies){
+                        all_movies = all_movies.concat(movies);
+
+                        // because the plex web api for a library section only returns the first two genres
+                        // of each movie we need to get all the genre mappings and count the number of movies
+                        // returned by the api with that genre filtered out
+                        getSectionGenres(address, port, plex_token, section_key, function(genres) {
+                            counters["movie_genres"] += Object.keys(genres).length;
+                            for (var genre_key in genres) {
+                                (function (genre_key) {
+                                    var genre_title = genres[genre_key];
+                                    getMoviesByGenre(address, port, plex_token, section_key, genre_key, function(genre_movies) {
+                                        if (movie_genres_count[genre_title]) {
+                                            movie_genres_count[genre_title] += genre_movies.length;
+                                        }
+                                        else {
+                                            movie_genres_count[genre_title] = genre_movies.length;
+                                        }
+                                        reduce_counter("movie_genres");
+                                    });
+                                }(genre_key));
+                            }
+                            reduce_counter("movies");
+                        })
+                    });
+                }
+                else if (processed_sections[section_key]["type"] === "show") {
+                    // get stats for tv shows
+                }
+            }(section_key));
         }
     });
 }

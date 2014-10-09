@@ -1,5 +1,4 @@
-var servers = {};
-var active_server;
+var servers;
 
 function counter(limit, callback) {
     return function() {
@@ -169,10 +168,15 @@ function generateMovieStats(movies) {
 
 function generateStats(address, port, plex_token, callback) {
     getSections(address, port, plex_token, function(sections_xml) {
+        // var done = counter(Object.keys(pms_servers).length, function() {
+        //     // all done!
+        //     callback();
+        // });
+
         var processed_sections = processLibrarySections(sections_xml);
 
         var all_movies = [];
-        var tv_shows = [];
+        var all_tv_shows = [];
 
         for (var key in processed_sections) {
             if (processed_sections[key]["type"] === "movie" && processed_sections[key]["scanner"] === "Plex Movie Scanner") {
@@ -190,42 +194,26 @@ function generateStats(address, port, plex_token, callback) {
     });
 }
 
-function getStats(callback) {
-    getServerAddresses(function(pms_servers) {
-        // make this into a proper loop later
+function getStats(server, callback) {
+    var machine_identifier = server["machine_identifier"];
+    var name = server["name"];
+    var address = server["address"];
+    var port = server["port"];
+    var plex_token = server["access_token"];
 
-        // stat aggregation is all done when our counter reaches the number of servers
-        var done = counter(Object.keys(pms_servers).length, function() {
-            // all done!
-            callback();
-        });
+    utils.local_storage_get("cache-stats-" + machine_identifier, function(data) {
+        var timestamp = data["timestamp"];
+        var stats = data["stats"];
 
-        for (var machine_identifier in pms_servers) {
-            // use closure otherwise due to generateStats being async value of machine_identifier will go out of scope
-            // on each loop, and you only end up with values of last server in loop
-            (function (machine_identifier) {
-                var name = pms_servers[machine_identifier]["name"];
-                var address = pms_servers[machine_identifier]["address"];
-                var port = pms_servers[machine_identifier]["port"];
-                var plex_token = pms_servers[machine_identifier]["access_token"];
-
-                utils.local_storage_get("cache-stats-" + machine_identifier, function(data) {
-                    var timestamp = data["timestamp"];
-                    var stats = data["stats"];
-
-                    if (stats) {
-                        servers[machine_identifier] = {"name": pms_servers[machine_identifier]["name"], "stats": stats};
-                        done();
-                    }
-                    else {
-                        generateStats(address, port, plex_token, function(stats) {
-                            servers[machine_identifier] = {"name": name, "stats": stats, "timestamp": new Date().getTime()};
-                            utils.local_storage_set("cache-stats-" + machine_identifier, servers[machine_identifier]);
-                            done();
-                        });
-                    }
-                });
-            }(machine_identifier));
+        if (stats) {
+            callback(stats, timestamp);
+        }
+        else {
+            generateStats(address, port, plex_token, function(stats) {
+                var hash = {"name": name, "stats": stats, "timestamp": new Date().getTime()};
+                utils.local_storage_set("cache-stats-" + machine_identifier, hash);
+                callback(stats);
+            });
         }
     });
 }
@@ -249,19 +237,29 @@ function setServerSelections(active_server) {
     }
 }
 
-getStats(function() {
-    if (!active_server) {
-        // temp set active server
-        active_server = Object.keys(servers)[0];
-    }
-    var server_data = servers[active_server];
+function setLastUpdated(timestamp){
+    // show last updated time in nav bar
+}
 
+function switchToServer(server){
     // set active server name on nav bar
-    document.getElementById("active-server-name").innerHTML = server_data["name"];
+    document.getElementById("active-server-name").innerHTML = server["name"];
 
-    drawYearsChart(server_data["stats"]["year_count"]);
-    drawGenreChart(server_data["stats"]["genre_count"]);
-    drawContentRatingChart(server_data["stats"]["content_rating_count"]);
+    getStats(server, function(server_stats, last_updated) {
+        drawYearsChart(server_stats["year_count"]);
+        drawGenreChart(server_stats["genre_count"]);
+        drawContentRatingChart(server_stats["content_rating_count"]);
 
-    setServerSelections(active_server);
+        setServerSelections(active_server);
+        setLastUpdated(last_updated);
+    });
+}
+
+// start stuff
+getServerAddresses(function(pms_servers) {
+    servers = pms_servers;
+
+    active_server = Object.keys(servers)[0];
+    var server_data = servers[active_server];
+    switchToServer(server_data);
 });

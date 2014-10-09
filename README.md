@@ -22,6 +22,7 @@ Features
 
 Version History
 --------------
+- v0.8.5 - rolled back changes to plex token retrieval
 - v0.8.4 - even better plex token retrieval (no longer inserts token into document), rewritten code for missing seasons/episodes plugin, fixes issue with seasons and episodes that don't start from Season/Episode 1
 - v0.8.3 - random picker button now only shows up when it's ready (needed for large libraries), use photo transcoder to generate poster images, fixes and better handling of shared servers, improved code for local/plex.tv extension usage, more reliable plex token retrieval (thanks to sam0)
 - v0.8.2 - separated API calls into separate modules, added caching for all API requests, added split_added_deck to options page, fixed rotten tomatoes button on options page not hiding correctly

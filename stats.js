@@ -44,43 +44,46 @@ function processLibrarySections(sections_xml) {
         var scanner = directories[i].getAttribute("scanner");
         var key = directories[i].getAttribute("key");
 
-        dir_metadata[key] = {"type": type, "scanner": scanner};
+        // only return movie or tv show libraries
+        if ((type === "movie" && scanner === "Plex Movie Scanner") || (type === "show" && scanner === "Plex Series Scanner")) {
+            dir_metadata[key] = {"type": type};
+        }
     }
     return dir_metadata;
 }
 
-function getAllMovies(address, port, plex_token, section_key) {
+function getAllMovies(address, port, plex_token, section_key, callback) {
     var library_section_url = "http://" + address + ":" + port + "/library/sections/" + section_key + "/all?X-Plex-Token=" + plex_token;
-    var section_xml = utils.getSyncXML(library_section_url);
+    utils.getXML(library_section_url, function(section_xml) {
+        var movies_xml = section_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video");
+        var movies = [];
+        for (var i = 0; i < movies_xml.length; i++) {
+            var movie_data = {};
+            movie_data["content_rating"] = movies_xml[i].getAttribute("contentRating");
+            movie_data["rating"] = movies_xml[i].getAttribute("rating");
+            movie_data["year"] = movies_xml[i].getAttribute("year");
+            movie_data["added_at"] = movies_xml[i].getAttribute("addedAt");
 
-    var movies_xml = section_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video");
-    var movies = [];
-    for (var i = 0; i < movies_xml.length; i++) {
-        var movie_data = {};
-        movie_data["content_rating"] = movies_xml[i].getAttribute("contentRating");
-        movie_data["rating"] = movies_xml[i].getAttribute("rating");
-        movie_data["year"] = movies_xml[i].getAttribute("year");
-        movie_data["added_at"] = movies_xml[i].getAttribute("addedAt");
+            var metadata_xml = movies_xml[i].getElementsByTagName("Media")[0];
+            movie_data["video_resolution"] = metadata_xml.getAttribute("videoResolution");
+            movie_data["duration"] = metadata_xml.getAttribute("duration");
+            // won't handle multiple copies of a movie properly
 
-        var metadata_xml = movies_xml[i].getElementsByTagName("Media")[0];
-        movie_data["video_resolution"] = metadata_xml.getAttribute("videoResolution");
-        movie_data["duration"] = metadata_xml.getAttribute("duration");
-        // won't handle multiple copies of a movie properly
+            var part_xml = metadata_xml.getElementsByTagName("Part")[0];
+            movie_data["size"] = part_xml.getAttribute("size");
 
-        var part_xml = metadata_xml.getElementsByTagName("Part")[0];
-        movie_data["size"] = part_xml.getAttribute("size");
+            var genre_xml = movies_xml[i].getElementsByTagName("Genre");
+            movie_data["genres"] = [];
+            for (var j = 0; j < genre_xml.length; j++) {
+                var genre = genre_xml[j].getAttribute("tag");
+                movie_data["genres"].push(genre);
+            }
 
-        var genre_xml = movies_xml[i].getElementsByTagName("Genre");
-        movie_data["genres"] = [];
-        for (var j = 0; j < genre_xml.length; j++) {
-            var genre = genre_xml[j].getAttribute("tag");
-            movie_data["genres"].push(genre);
+            movies.push(movie_data);
         }
 
-        movies.push(movie_data);
-    }
-
-    return movies;
+        callback(movies);
+    });
 }
 
 function generateMovieStats(movies) {
@@ -167,30 +170,31 @@ function generateMovieStats(movies) {
 }
 
 function generateStats(address, port, plex_token, callback) {
-    getSections(address, port, plex_token, function(sections_xml) {
-        // var done = counter(Object.keys(pms_servers).length, function() {
-        //     // all done!
-        //     callback();
-        // });
+    var all_movies = [];
+    var all_tv_shows = [];
 
+    getSections(address, port, plex_token, function(sections_xml) {
         var processed_sections = processLibrarySections(sections_xml);
 
-        var all_movies = [];
-        var all_tv_shows = [];
+        var done = counter(Object.keys(processed_sections).length, function() {
+            // all done!
+            var movie_stats = generateMovieStats(all_movies);
+            // add tv show stats here
+            callback(movie_stats);
+        });
 
         for (var key in processed_sections) {
-            if (processed_sections[key]["type"] === "movie" && processed_sections[key]["scanner"] === "Plex Movie Scanner") {
-                var movies = getAllMovies(address, port, plex_token, key);
-                all_movies = all_movies.concat(movies);
+            if (processed_sections[key]["type"] === "movie") {
+                getAllMovies(address, port, plex_token, key, function(movies){
+                    all_movies = all_movies.concat(movies);
+                    done();
+                });
             }
-            else if (processed_sections[key]["type"] === "show" && processed_sections[key]["scanner"] === "Plex Series Scanner") {
+            else if (processed_sections[key]["type"] === "show") {
                 // get stats for tv shows
+                done();
             }
         }
-
-        var movie_stats = generateMovieStats(all_movies);
-        // add tv show stats here
-        callback(movie_stats);
     });
 }
 

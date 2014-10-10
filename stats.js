@@ -133,8 +133,6 @@ function generateMovieStats(movies, genre_count) {
         else {
             movie_rating_count[movie_rating] = 1;
         }
-        // remove movies with no rating
-        delete movie_rating_count[NaN];
 
         // resolutions count
         var resolution = movies[i]["video_resolution"];
@@ -160,6 +158,10 @@ function generateMovieStats(movies, genre_count) {
                 year_count[j] = 0;
             }
         }
+
+        // clean up, remove invalid data
+        delete movie_rating_count[NaN];
+        delete year_count[NaN];
     }
 
     return {

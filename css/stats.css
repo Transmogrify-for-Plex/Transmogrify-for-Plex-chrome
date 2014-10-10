@@ -27,7 +27,6 @@ nav:hover {
 }
 
 nav ul ul {
-    min-width: 100%;
     display: none;
 }
 
@@ -38,9 +37,10 @@ nav ul li:hover > ul {
 nav ul {
     margin-top: 0;
     list-style: none;
-    position: relative;
+    position: absolute;
     display: inline-table;
-    float: left;
+    left: 20px;
+    min-width: 30%;
 }
     nav ul:after {
         content: "";
@@ -57,7 +57,7 @@ nav ul {
 
         nav ul li a {
             display: block;
-            padding: 5px 40px;
+            padding: 5px 0px;
             margin: auto;
             color: #707070;
             text-decoration: none;
@@ -68,7 +68,6 @@ nav ul {
         border-radius: 0px;
         padding: 0;
         position: absolute;
-        top: 100%;
     }
         nav ul ul li {
             float: none;
@@ -82,7 +81,8 @@ nav ul {
                 padding: 10px 40px;
             }
                 nav ul ul li a:hover {
-                    background: #2B2B2B;
+                    background: #FFFFFF;
+                    color: #000000;
                 }
 
 #server-updated {

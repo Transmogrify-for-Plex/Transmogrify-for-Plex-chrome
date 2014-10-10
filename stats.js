@@ -292,12 +292,17 @@ function setServerSelections() {
 }
 
 function setLastUpdated(timestamp){
-    // show last updated time in nav bar
+    var date = new Date (timestamp);
+    var formatted_date = date.toLocaleTimeString() + " " + date.toDateString();
+
+    document.getElementById("server-updated-date").innerHTML = formatted_date;
+    document.getElementById("server-updated").style.display = "inline-block";
 }
 
 function switchServer(e) {
-    // show loading indicator and hide charts
+    // show loading indicator and hide charts, last updated
     document.getElementById("loading-indicator").style.display = "block";
+    document.getElementById("server-updated").style.display = "none";
     var charts = document.getElementsByClassName("row-container");
     for (var i = 0; i < charts.length; i++) {
         charts[i].style.display = "none";

@@ -3,7 +3,7 @@ var active_server;
 var last_updated_string;
 
 function formattedDateString(timestamp) {
-    var date = new Date (timestamp);
+    var date = new Date(timestamp);
     var formatted_date = date.toLocaleTimeString() + " " + date.toDateString();
     return formatted_date;
 }
@@ -76,18 +76,6 @@ function getAllMovies(address, port, plex_token, section_key, callback) {
 
             var metadata_xml = movies_xml[i].getElementsByTagName("Media")[0];
             movie_data["video_resolution"] = metadata_xml.getAttribute("videoResolution");
-            movie_data["duration"] = metadata_xml.getAttribute("duration");
-            // won't handle multiple copies of a movie properly
-
-            var part_xml = metadata_xml.getElementsByTagName("Part")[0];
-            movie_data["size"] = part_xml.getAttribute("size");
-
-            var genre_xml = movies_xml[i].getElementsByTagName("Genre");
-            movie_data["genres"] = [];
-            for (var j = 0; j < genre_xml.length; j++) {
-                var genre = genre_xml[j].getAttribute("tag");
-                movie_data["genres"].push(genre);
-            }
 
             movies.push(movie_data);
         }
@@ -125,6 +113,7 @@ function generateMovieStats(movies, genre_count) {
     var movie_rating_count = {};
     var resolution_count = {};
     var year_count = {};
+    var dates_added = [];
     for (var i = 0; i < movies.length; i++) {
         // content rating count
         var content_rating = movies[i]["content_rating"];
@@ -134,8 +123,6 @@ function generateMovieStats(movies, genre_count) {
         else {
             content_rating_count[content_rating] = 1;
         }
-        // remove movies with no content rating
-        delete content_rating_count[null];
 
         // movie ratings partioning
         // round down movie rating so that ratings 4.0-4.9 = 4 etc
@@ -164,7 +151,7 @@ function generateMovieStats(movies, genre_count) {
         else {
             year_count[year] = 1;
         }
-        //add missing years
+        // add missing years
         var sorted_years = Object.keys(year_count).sort();
         for (var j = sorted_years[0]; j < sorted_years[sorted_years.length - 1]; j++) {
             if (!year_count[j]) {
@@ -172,17 +159,48 @@ function generateMovieStats(movies, genre_count) {
             }
         }
 
-        // clean up, remove invalid data
-        delete movie_rating_count[NaN];
-        delete year_count[NaN];
+        // movies added over time
+        // set date time to beginning of day to make it easy to work with
+        var added_at = new Date(parseInt(movies[i]["added_at"]) * 1000).setHours(0, 0, 0, 0);
+        dates_added.push(added_at);
     }
+
+    var sorted_dates = dates_added.sort(function(a, b){return a - b;});
+    var today = new Date(Date.now());
+    var start_date = new Date(sorted_dates[0]);
+    var date_added_count = {};
+    var total_count = 0;
+    // iterate over dates from first movie added date added to today
+    for (var d = start_date; d <= today; d.setDate(d.getDate() + 1)) {
+        var current_timestamp = d.getTime();
+        var day_count = 0;
+        for (var i = 0; i < sorted_dates.length; i++) {
+            if (sorted_dates[i] === current_timestamp) {
+                day_count += 1;
+            }
+        }
+
+        // only add date to array if movies were added that day
+        if (day_count > 0){
+            total_count += day_count
+
+            var date_string = d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+            date_added_count[date_string] = total_count;
+        }
+    }
+
+    // clean up, remove invalid data
+    delete movie_rating_count[NaN];
+    delete year_count[NaN];
+    delete content_rating_count[null];
 
     return {
         "content_rating_count": content_rating_count,
         "movie_rating_count": movie_rating_count,
         "resolution_count": resolution_count,
         "year_count": year_count,
-        "genre_count": genre_count
+        "genre_count": genre_count,
+        "date_added_count": date_added_count
         };
 }
 
@@ -214,8 +232,8 @@ function generateStats(address, port, plex_token, callback) {
                     getAllMovies(address, port, plex_token, section_key, function(movies){
                         all_movies = all_movies.concat(movies);
 
-                        // because the plex web api for a library section only returns the first two genres
-                        // of each movie we need to get all the genre mappings and count the number of movies
+                        // because the plex web api calls for library sections only returns the first two genres
+                        // of each movie we need to get all the genre mappings first and count the number of movies
                         // returned by the api with that genre filtered out
                         getSectionGenres(address, port, plex_token, section_key, function(genres) {
                             counters["movie_genres"] += Object.keys(genres).length;
@@ -335,9 +353,10 @@ function switchToServer(server, refresh){
         showDisplay();
 
         // draw charts
-        drawYearsChart(server_stats["year_count"]);
-        drawGenreChart(server_stats["genre_count"]);
-        drawContentRatingChart(server_stats["content_rating_count"]);
+        drawMovieYearsChart(server_stats["year_count"]);
+        drawMovieDateAddedChart(server_stats["date_added_count"]);
+        drawMovieGenreChart(server_stats["genre_count"]);
+        drawMovieContentRatingChart(server_stats["content_rating_count"]);
 
         setLastUpdated(last_updated);
     });

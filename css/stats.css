@@ -172,17 +172,17 @@ nav ul {
     float: right;
 }
 
-#year-chart {
+.chart-center {
     width: 90%;
     margin: auto;
 }
 
 /* hacky fix for x axis label being cut off */
-#year-chart svg {
+#movie-year-chart svg, #movie-date-added-chart svg {
     height: 600px;
 }
 
-#genre-chart, #content-rating-chart {
+#movie-genre-chart, #movie-content-rating-chart {
     width: 50%;
     margin: auto;
 }

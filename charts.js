@@ -1,4 +1,4 @@
-function drawYearsChart(year_data) {
+function drawMovieYearsChart(year_data) {
     var x_labels = ["x"];
     var y_data = ["Count"];
     for (var year in year_data) {
@@ -7,7 +7,7 @@ function drawYearsChart(year_data) {
     }
 
     var chart = c3.generate({
-        bindto: "#year-chart",
+        bindto: "#movie-year-chart",
         data: {
             x: "x",
             type: "bar",
@@ -56,9 +56,60 @@ function drawYearsChart(year_data) {
     });
 }
 
-function drawGenreChart(genre_data) {
+function drawMovieDateAddedChart(date_data) {
+    var x_labels = ["x"];
+    var y_data = ["Total Count"];
+    for (var date in date_data) {
+        x_labels.push(date);
+        y_data.push(date_data[date]);
+    }
+
     var chart = c3.generate({
-        bindto: "#genre-chart",
+        bindto: "#movie-date-added-chart",
+        data: {
+            x: "x",
+            type: "area",
+            columns: [
+                x_labels,
+                y_data,
+            ],
+            color: function(color, d) {
+                return "#109618";
+            }
+        },
+        axis: {
+            x: {
+                type: "timeseries",
+                label: {
+                    text: "Date",
+                    position: "outer-center"
+                },
+                tick: {
+                    format: "%Y-%m-%d",
+                    fit: false
+                }
+            },
+            y: {
+                label: {
+                    text: "Total Number of Movies",
+                    position: "outer-middle"
+                }
+            }
+        },
+        grid: {
+            y: {
+                show: true
+            }
+        },
+        legend: {
+            show: false
+        }
+    });
+}
+
+function drawMovieGenreChart(genre_data) {
+    var chart = c3.generate({
+        bindto: "#movie-genre-chart",
         data: {
             json: genre_data,
             type: "donut"
@@ -85,9 +136,9 @@ function drawGenreChart(genre_data) {
     });
 }
 
-function drawContentRatingChart(content_rating_data) {
+function drawMovieContentRatingChart(content_rating_data) {
     var chart = c3.generate({
-        bindto: "#content-rating-chart",
+        bindto: "#movie-content-rating-chart",
         data: {
             json: content_rating_data,
             type: "donut"

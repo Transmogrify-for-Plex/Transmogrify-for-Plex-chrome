@@ -24,7 +24,7 @@
             <span id="server-updated"></span>
         </nav>
 
-        <div id="loading-indicator">Calculating server stats<img src="resources/loading_stats.gif"/></div>
+        <div id="loading-indicator">calculating server stats...<img src="resources/loading_stats.gif"/></div>
         <div id="error-indicator">Make sure you have opened Plex/Web</div>
 
         <div class="heading">Movies</div>
@@ -34,7 +34,16 @@
                 <div class="chart-title-left">movies by year</div>
             </div>
             <div class="chart-container">
-                <div class="chart chart-center" id="year-chart"></div>
+                <div class="chart chart-center" id="movie-year-chart"></div>
+            </div>
+        </div>
+
+        <div class="row-container">
+            <div class="chart-title-container">
+                <div class="chart-title-left">movies added over time</div>
+            </div>
+            <div class="chart-container">
+                <div class="chart chart-center" id="movie-date-added-chart"></div>
             </div>
         </div>
 
@@ -44,8 +53,8 @@
                 <div class="chart-title-right">content rating distribution</div>
             </div>
             <div class="chart-container">
-                <div class="chart chart-left" id="genre-chart"></div>
-                <div class="chart chart-right" id="content-rating-chart"></div>
+                <div class="chart chart-left" id="movie-genre-chart"></div>
+                <div class="chart chart-right" id="movie-content-rating-chart"></div>
             </div>
         </div>
 

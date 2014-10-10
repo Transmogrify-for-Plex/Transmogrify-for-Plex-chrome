@@ -166,10 +166,14 @@ nav ul {
 
 .chart-left {
     float: left;
+    width: 50%;
+    margin: auto;
 }
 
 .chart-right {
     float: right;
+    width: 50%;
+    margin: auto;
 }
 
 .chart-center {
@@ -180,11 +184,6 @@ nav ul {
 /* hacky fix for x axis label being cut off */
 #movie-year-chart svg, #movie-date-added-chart svg {
     height: 600px;
-}
-
-#movie-genre-chart, #movie-content-rating-chart {
-    width: 50%;
-    margin: auto;
 }
 
 .c3-axis-x-label, .c3-axis-y-label {

@@ -164,3 +164,61 @@ function drawMovieContentRatingChart(content_rating_data) {
         }
     });
 }
+
+function drawMovieResolutionChart(resolution_data) {
+    var chart = c3.generate({
+        bindto: "#movie-resolution-chart",
+        data: {
+            json: resolution_data,
+            type: "donut"
+        },
+        donut: {
+            label: {
+                format: function(value, ratio, id) {
+                    return id;
+                }
+            },
+            width: 140
+        },
+        legend: {
+            position: "right"
+        },
+        tooltip: {
+            format: {
+                value: function(value, ratio, id) {
+                    var format = d3.format(".1%");
+                    return value + " Movies (" + format(ratio) + ")";
+                }
+            }
+        }
+    });
+}
+
+function drawMovieRatingChart(rating_data) {
+    var chart = c3.generate({
+        bindto: "#movie-rating-chart",
+        data: {
+            json: rating_data,
+            type: "donut"
+        },
+        donut: {
+            label: {
+                format: function(value, ratio, id) {
+                    return id;
+                }
+            },
+            width: 140
+        },
+        legend: {
+            position: "right"
+        },
+        tooltip: {
+            format: {
+                value: function(value, ratio, id) {
+                    var format = d3.format(".1%");
+                    return value + " Movies (" + format(ratio) + ")";
+                }
+            }
+        }
+    });
+}

@@ -165,6 +165,12 @@ function generateMovieStats(movies, genre_count) {
         dates_added.push(added_at);
     }
 
+    // clean up, remove invalid data
+    delete movie_rating_count[NaN];
+    delete year_count[NaN];
+    delete content_rating_count[null];
+
+    // collate movies added over time data
     var sorted_dates = dates_added.sort(function(a, b){return a - b;});
     var today = new Date(Date.now());
     var start_date = new Date(sorted_dates[0]);
@@ -189,10 +195,21 @@ function generateMovieStats(movies, genre_count) {
         }
     }
 
-    // clean up, remove invalid data
-    delete movie_rating_count[NaN];
-    delete year_count[NaN];
-    delete content_rating_count[null];
+    // format movie ratings data
+    for (var rating in movie_rating_count) {
+        var formatted_rating = rating + ".0 - " + rating + ".9";
+        movie_rating_count[formatted_rating] = movie_rating_count[rating];
+        delete movie_rating_count[rating];
+    }
+
+    // format movie resolutions data
+    var resolution_mappings = {"1080" : "1080p", "720" : "720p", "480": "480p", "576": "576p", "sd": "SD"};
+    for (var resolution in resolution_count) {
+        if (resolution_mappings[resolution]) {
+            resolution_count[resolution_mappings[resolution]] = resolution_count[resolution];
+            delete resolution_count[resolution];
+        }
+    }
 
     return {
         "content_rating_count": content_rating_count,
@@ -351,16 +368,18 @@ function switchToServer(server, refresh){
     getStats(server, refresh, function(server_stats, last_updated) {
         // hide loading indicator and show charts
         showDisplay();
+        setLastUpdated(last_updated);
 
         // draw charts
         drawMovieYearsChart(server_stats["year_count"]);
-        drawMovieDateAddedChart(server_stats["date_added_count"]);
         drawMovieGenreChart(server_stats["genre_count"]);
+        drawMovieRatingChart(server_stats["movie_rating_count"]);
+        drawMovieDateAddedChart(server_stats["date_added_count"]);
         drawMovieContentRatingChart(server_stats["content_rating_count"]);
-
-        setLastUpdated(last_updated);
+        drawMovieResolutionChart(server_stats["resolution_count"]);
     });
 }
+
 
 // start stuff
 getServerAddresses(function(pms_servers) {
@@ -372,6 +391,7 @@ getServerAddresses(function(pms_servers) {
     }
     servers = pms_servers;
 
+    // just load first server from array on first page load
     active_server = Object.keys(servers)[0];
     var server_data = servers[active_server];
     switchToServer(server_data);

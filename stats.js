@@ -8,27 +8,6 @@ function formattedDateString(timestamp) {
     return formatted_date;
 }
 
-function formattedSizeString(size) {
-    var gigabytes = (size / 1073741824).toFixed(2);
-
-    return gigabytes + "GB";
-}
-
-function formattedDurationString(duration) {
-    var seconds = parseInt((duration / 1000) % 60)
-        , minutes = parseInt((duration / (1000 * 60)) % 60)
-        , hours = parseInt((duration / (1000 * 60 * 60)) % 24)
-        , days = parseInt((duration / (1000 * 60 * 60 * 24)) % 7)
-        , weeks = parseInt((duration / (1000 * 60 * 60 * 24 * 7)));
-
-    var weeks_string = (weeks === 1) ? " week, " : " weeks, ";
-    var days_string = (days === 1) ? " day, " : " days, ";
-    var hours_string = (hours === 1) ? " hour, " : " hours, ";
-    var minutes_string = (minutes === 1) ? " minute, and " : " minutes, and ";
-
-    return weeks + weeks_string + days + days_string + hours + hours_string + minutes + minutes_string + seconds + " seconds";
-}
-
 function showDisplay() {
     document.getElementById("loading-indicator").style.display = "none";
     var charts = document.getElementsByClassName("row-container");
@@ -38,10 +17,6 @@ function showDisplay() {
     var headers = document.getElementsByClassName("heading");
     for (var i = 0; i < headers.length; i++) {
         headers[i].style.display = "block";
-    }
-    var text_stats = document.getElementsByClassName("text-stats-container");
-    for (var i = 0; i < text_stats.length; i++) {
-        text_stats[i].style.display = "block";
     }
 }
 
@@ -55,10 +30,6 @@ function hideDisplay() {
     var headers = document.getElementsByClassName("heading");
     for (var i = 0; i < headers.length; i++) {
         headers[i].style.display = "none";
-    }
-    var text_stats = document.getElementsByClassName("text-stats-container");
-    for (var i = 0; i < text_stats.length; i++) {
-        text_stats[i].style.display = "none";
     }
 }
 
@@ -150,16 +121,11 @@ function getMoviesByGenre(address, port, plex_token, section_key, genre_key, cal
 }
 
 function generateMovieStats(movies, genre_count) {
-    var total_duration = 0;
-    var total_size = 0;
     var content_rating_count = {};
     var movie_rating_count = {};
     var resolution_count = {};
     var year_count = {};
     for (var i = 0; i < movies.length; i++) {
-        total_duration += parseInt(movies[i]["duration"]);
-        total_size += parseInt(movies[i]["size"]);
-
         // content rating count
         var content_rating = movies[i]["content_rating"];
         if (content_rating_count[content_rating]) {
@@ -212,8 +178,6 @@ function generateMovieStats(movies, genre_count) {
     }
 
     return {
-        "total_duration": total_duration,
-        "total_size": total_size,
         "content_rating_count": content_rating_count,
         "movie_rating_count": movie_rating_count,
         "resolution_count": resolution_count,
@@ -371,8 +335,6 @@ function switchToServer(server, refresh){
         showDisplay();
 
         // draw charts
-        document.getElementById("movies-total-size").innerHTML = formattedSizeString(server_stats["total_size"]);
-        document.getElementById("movies-total-length").innerHTML = formattedDurationString(server_stats["total_duration"]);
         drawYearsChart(server_stats["year_count"]);
         drawGenreChart(server_stats["genre_count"]);
         drawContentRatingChart(server_stats["content_rating_count"]);

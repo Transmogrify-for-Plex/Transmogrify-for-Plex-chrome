@@ -330,6 +330,12 @@ function switchToServer(server){
 
 // start stuff
 getServerAddresses(function(pms_servers) {
+    // check to make sure user has opened plex/web first so we can receive server addresses
+    if (!pms_servers) {
+        document.getElementById("loading-indicator").style.display = "none";
+        document.getElementById("error-indicator").style.display = "block";
+        return;
+    }
     servers = pms_servers;
 
     active_server = Object.keys(servers)[0];

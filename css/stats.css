@@ -83,7 +83,7 @@ nav ul {
                     background: #2B2B2B;
                 }
 
-#loading-indicator {
+#loading-indicator, #error-indicator {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -98,6 +98,10 @@ nav ul {
 #loading-indicator img {
     bottom: 0;
     margin: auto;
+}
+
+#error-indicator {
+    display: none;
 }
 
 .row-container {

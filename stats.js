@@ -1,4 +1,12 @@
 var servers;
+var active_server;
+var last_updated_string;
+
+function formattedDateString(timestamp) {
+    var date = new Date (timestamp);
+    var formatted_date = date.toLocaleTimeString() + " " + date.toDateString();
+    return formatted_date;
+}
 
 function msToString(duration) {
     var seconds = parseInt((duration / 1000) % 60)
@@ -234,7 +242,7 @@ function generateStats(address, port, plex_token, callback) {
     });
 }
 
-function getStats(server, callback) {
+function getStats(server, force, callback) {
     var machine_identifier = server["machine_identifier"];
     var name = server["name"];
     var address = server["address"];
@@ -245,17 +253,31 @@ function getStats(server, callback) {
         var timestamp = data["timestamp"];
         var stats = data["stats"];
 
-        if (stats) {
+        // if forced is true then we are recalculating stats
+        if (stats && !force) {
             callback(stats, timestamp);
         }
         else {
             generateStats(address, port, plex_token, function(stats) {
-                var hash = {"name": name, "stats": stats, "timestamp": new Date().getTime()};
+                var timestamp = new Date().getTime();
+                var hash = {"name": name, "stats": stats, "timestamp": timestamp};
                 utils.local_storage_set("cache-stats-" + machine_identifier, hash);
-                callback(stats);
+                callback(stats, timestamp);
             });
         }
     });
+}
+
+function recalculateServerStats() {
+    // show loading indicator and hide charts, last updated
+    document.getElementById("loading-indicator").style.display = "block";
+    document.getElementById("server-updated").style.display = "none";
+    var charts = document.getElementsByClassName("row-container");
+    for (var i = 0; i < charts.length; i++) {
+        charts[i].style.display = "none";
+    }
+
+    switchToServer(servers[active_server], true);
 }
 
 function setServerSelections() {
@@ -292,10 +314,9 @@ function setServerSelections() {
 }
 
 function setLastUpdated(timestamp){
-    var date = new Date (timestamp);
-    var formatted_date = date.toLocaleTimeString() + " " + date.toDateString();
+    last_updated_string = "Last Updated: " + formattedDateString(timestamp);
 
-    document.getElementById("server-updated-date").innerHTML = formatted_date;
+    document.getElementById("server-updated").innerHTML = last_updated_string;
     document.getElementById("server-updated").style.display = "inline-block";
 }
 
@@ -312,11 +333,11 @@ function switchServer(e) {
     switchToServer(servers[machine_identifier]);
 }
 
-function switchToServer(server){
+function switchToServer(server, refresh){
     active_server = server["machine_identifier"];
     setServerSelections();
 
-    getStats(server, function(server_stats, last_updated) {
+    getStats(server, refresh, function(server_stats, last_updated) {
         // hide loading indicator and show charts
         document.getElementById("loading-indicator").style.display = "none";
         var charts = document.getElementsByClassName("row-container");
@@ -346,4 +367,19 @@ getServerAddresses(function(pms_servers) {
     active_server = Object.keys(servers)[0];
     var server_data = servers[active_server];
     switchToServer(server_data);
+
+    // add event handlers for last updated nav bar element
+    var server_updated_element = document.getElementById("server-updated");
+    server_updated_element.addEventListener("mouseover", function(e) {
+        server_updated_element.innerHTML = "recalculate server stats";
+        }, false
+    );
+    server_updated_element.addEventListener("mouseout", function(e) {
+        server_updated_element.innerHTML = last_updated_string;
+        }, false
+    );
+    server_updated_element.addEventListener("click", function(e) {
+        recalculateServerStats();
+        }, false
+    );
 });

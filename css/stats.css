@@ -8,6 +8,7 @@ body {
 
 nav {
     position: fixed;
+    font-size: 0.9em;
     top: 0;
     z-index: 100;
     width: 100%;
@@ -88,9 +89,15 @@ nav ul {
     color: #707070;
     float: right;
     vertical-align: middle;
+    min-width: 300px;
     line-height: 50px;
     margin-right: 30px;
+    cursor: pointer;
     display: none;
+}
+
+#server-updated:hover {
+    color: #FFFFFF;
 }
 
 #loading-indicator, #error-indicator {

@@ -8,7 +8,13 @@ function formattedDateString(timestamp) {
     return formatted_date;
 }
 
-function msToString(duration) {
+function formattedSizeString(size) {
+    var gigabytes = (size / 1073741824).toFixed(2);
+
+    return gigabytes + "GB";
+}
+
+function formattedDurationString(duration) {
     var seconds = parseInt((duration / 1000) % 60)
         , minutes = parseInt((duration / (1000 * 60)) % 60)
         , hours = parseInt((duration / (1000 * 60 * 60)) % 24)
@@ -21,6 +27,39 @@ function msToString(duration) {
     var minutes_string = (minutes === 1) ? " minute, and " : " minutes, and ";
 
     return weeks + weeks_string + days + days_string + hours + hours_string + minutes + minutes_string + seconds + " seconds";
+}
+
+function showDisplay() {
+    document.getElementById("loading-indicator").style.display = "none";
+    var charts = document.getElementsByClassName("row-container");
+    for (var i = 0; i < charts.length; i++) {
+        charts[i].style.display = "block";
+    }
+    var headers = document.getElementsByClassName("heading");
+    for (var i = 0; i < headers.length; i++) {
+        headers[i].style.display = "block";
+    }
+    var text_stats = document.getElementsByClassName("text-stats-container");
+    for (var i = 0; i < text_stats.length; i++) {
+        text_stats[i].style.display = "block";
+    }
+}
+
+function hideDisplay() {
+    document.getElementById("loading-indicator").style.display = "block";
+    document.getElementById("server-updated").style.display = "none";
+    var charts = document.getElementsByClassName("row-container");
+    for (var i = 0; i < charts.length; i++) {
+        charts[i].style.display = "none";
+    }
+    var headers = document.getElementsByClassName("heading");
+    for (var i = 0; i < headers.length; i++) {
+        headers[i].style.display = "none";
+    }
+    var text_stats = document.getElementsByClassName("text-stats-container");
+    for (var i = 0; i < text_stats.length; i++) {
+        text_stats[i].style.display = "none";
+    }
 }
 
 function getServerAddresses(callback) {
@@ -270,12 +309,7 @@ function getStats(server, force, callback) {
 
 function recalculateServerStats() {
     // show loading indicator and hide charts, last updated
-    document.getElementById("loading-indicator").style.display = "block";
-    document.getElementById("server-updated").style.display = "none";
-    var charts = document.getElementsByClassName("row-container");
-    for (var i = 0; i < charts.length; i++) {
-        charts[i].style.display = "none";
-    }
+    hideDisplay();
 
     switchToServer(servers[active_server], true);
 }
@@ -322,12 +356,7 @@ function setLastUpdated(timestamp){
 
 function switchServer(e) {
     // show loading indicator and hide charts, last updated
-    document.getElementById("loading-indicator").style.display = "block";
-    document.getElementById("server-updated").style.display = "none";
-    var charts = document.getElementsByClassName("row-container");
-    for (var i = 0; i < charts.length; i++) {
-        charts[i].style.display = "none";
-    }
+    hideDisplay();
 
     var machine_identifier = e.target.getAttribute("data-machine_identifier");
     switchToServer(servers[machine_identifier]);
@@ -339,13 +368,11 @@ function switchToServer(server, refresh){
 
     getStats(server, refresh, function(server_stats, last_updated) {
         // hide loading indicator and show charts
-        document.getElementById("loading-indicator").style.display = "none";
-        var charts = document.getElementsByClassName("row-container");
-        for (var i = 0; i < charts.length; i++) {
-            charts[i].style.display = "block";
-        }
+        showDisplay();
 
         // draw charts
+        document.getElementById("movies-total-size").innerHTML = formattedSizeString(server_stats["total_size"]);
+        document.getElementById("movies-total-length").innerHTML = formattedDurationString(server_stats["total_duration"]);
         drawYearsChart(server_stats["year_count"]);
         drawGenreChart(server_stats["genre_count"]);
         drawContentRatingChart(server_stats["content_rating_count"]);

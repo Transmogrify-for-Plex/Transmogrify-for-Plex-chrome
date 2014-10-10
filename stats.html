@@ -27,6 +27,19 @@
         <div id="loading-indicator">Calculating server stats<img src="resources/loading_stats.gif"/></div>
         <div id="error-indicator">Make sure you have opened Plex/Web</div>
 
+        <div class="heading">Movies</div>
+
+        <div class="text-stats-container">
+            <div class="text-stat">
+                <span class="text-stat-title">Total size:</span>
+                <span class="text-stat-value" id="movies-total-size"></span>
+            </div>
+            <div class="text-stat">
+                <span class="text-stat-title">Total duration:</span>
+                <span class="text-stat-value" id="movies-total-length"></span>
+            </div>
+        </div>
+
         <div class="row-container">
             <div class="chart-title-container">
                 <div class="chart-title-left">Year</div>
@@ -46,5 +59,7 @@
                 <div class="chart chart-right" id="content-rating-chart"></div>
             </div>
         </div>
+
+        <div class="heading">TV Shows</div>
     </body>
 </html>

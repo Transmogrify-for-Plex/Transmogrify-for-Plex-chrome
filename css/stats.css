@@ -83,10 +83,28 @@ nav ul {
                     background: #2B2B2B;
                 }
 
+#loading-indicator {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -50px;
+    margin-left: -180px;
+    width: 360px;
+    height: 100px;
+    color: #FFFFFF;
+    text-align: center;
+}
+
+#loading-indicator img {
+    bottom: 0;
+    margin: auto;
+}
+
 .row-container {
     height: 600px;
     clear: both;
     padding-bottom: 80px;
+    display: none;
 }
 
 .chart-title-container {

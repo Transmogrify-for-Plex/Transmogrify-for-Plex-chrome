@@ -296,6 +296,13 @@ function setLastUpdated(timestamp){
 }
 
 function switchServer(e) {
+    // show loading indicator and hide charts
+    document.getElementById("loading-indicator").style.display = "block";
+    var charts = document.getElementsByClassName("row-container");
+    for (var i = 0; i < charts.length; i++) {
+        charts[i].style.display = "none";
+    }
+
     var machine_identifier = e.target.getAttribute("data-machine_identifier");
     switchToServer(servers[machine_identifier]);
 }
@@ -305,6 +312,14 @@ function switchToServer(server){
     setServerSelections();
 
     getStats(server, function(server_stats, last_updated) {
+        // hide loading indicator and show charts
+        document.getElementById("loading-indicator").style.display = "none";
+        var charts = document.getElementsByClassName("row-container");
+        for (var i = 0; i < charts.length; i++) {
+            charts[i].style.display = "block";
+        }
+
+        // draw charts
         drawYearsChart(server_stats["year_count"]);
         drawGenreChart(server_stats["genre_count"]);
         drawContentRatingChart(server_stats["content_rating_count"]);

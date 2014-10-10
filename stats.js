@@ -256,9 +256,18 @@ function getStats(server, callback) {
     });
 }
 
-function setServerSelections(active_server) {
+function setServerSelections() {
+    // set active server name on nav bar
+    document.getElementById("active-server-name").innerHTML = servers[active_server]["name"];
+
     var server_list_element = document.getElementById("server-choices");
 
+    // remove all previous server choices
+    while (server_list_element.firstChild){
+        server_list_element.removeChild(server_list_element.firstChild);
+    }
+
+    // add all server choices
     for (var server in servers) {
         if (active_server === server) {
             continue;
@@ -267,11 +276,16 @@ function setServerSelections(active_server) {
         var li = document.createElement("li");
         var server_element = document.createElement("a");
         server_element.setAttribute("href", "#");
+        server_element.setAttribute("class", "server-choice");
+        server_element.setAttribute("data-machine_identifier", servers[server]["machine_identifier"]);
         var text_node = document.createTextNode(servers[server]["name"]);
 
         server_element.appendChild(text_node);
         li.appendChild(server_element);
         server_list_element.appendChild(li);
+
+        // add event handler
+        server_element.addEventListener("click", switchServer, false);
     }
 }
 
@@ -279,16 +293,20 @@ function setLastUpdated(timestamp){
     // show last updated time in nav bar
 }
 
+function switchServer(e) {
+    var machine_identifier = e.target.getAttribute("data-machine_identifier");
+    switchToServer(servers[machine_identifier]);
+}
+
 function switchToServer(server){
-    // set active server name on nav bar
-    document.getElementById("active-server-name").innerHTML = server["name"];
+    active_server = server["machine_identifier"];
+    setServerSelections();
 
     getStats(server, function(server_stats, last_updated) {
         drawYearsChart(server_stats["year_count"]);
         drawGenreChart(server_stats["genre_count"]);
         drawContentRatingChart(server_stats["content_rating_count"]);
 
-        setServerSelections(active_server);
         setLastUpdated(last_updated);
     });
 }

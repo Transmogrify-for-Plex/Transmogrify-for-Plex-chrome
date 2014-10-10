@@ -25,6 +25,7 @@ nav:hover {
 }
 
 nav ul ul {
+    min-width: 100%;
     display: none;
 }
 

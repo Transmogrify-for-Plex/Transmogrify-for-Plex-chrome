@@ -1,4 +1,5 @@
 var servers;
+var sections;
 var active_server;
 var last_updated_string;
 
@@ -50,13 +51,14 @@ function processLibrarySections(sections_xml) {
     var directories = sections_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory");
     var dir_metadata = {};
     for (var i = 0; i < directories.length; i++) {
+        var title = directories[i].getAttribute("title");
         var type = directories[i].getAttribute("type");
         var scanner = directories[i].getAttribute("scanner");
         var key = directories[i].getAttribute("key");
 
         // only return movie or tv show libraries
         if ((type === "movie" && scanner === "Plex Movie Scanner") || (type === "show" && scanner === "Plex Series Scanner")) {
-            dir_metadata[key] = {"type": type};
+            dir_metadata[key] = {"type": type, "title": title};
         }
     }
     return dir_metadata;
@@ -231,6 +233,10 @@ function generateMovieStats(movies, genre_count) {
 function generateStats(address, port, plex_token, callback) {
     var all_movies = [];
     var all_tv_shows = [];
+    var movie_genres_count = {};
+
+    var section_movies = {};
+    var section_movie_genres_count = {};
 
     getSections(address, port, plex_token, function(sections_xml) {
         var processed_sections = processLibrarySections(sections_xml);
@@ -243,18 +249,27 @@ function generateStats(address, port, plex_token, callback) {
             // check if all async tasks are finished
             if (counters["movies"] === 0 && counters["movie_genres"] === 0) {
                 var movie_stats = generateMovieStats(all_movies, movie_genres_count);
-                callback(movie_stats);
+
+                var section_names = {};
+                var per_section_movie_stats = {};
+                for (var section_key in section_movies) {
+                    var section_movie_stats = generateMovieStats(section_movies[section_key], section_movie_genres_count[section_key]);
+                    per_section_movie_stats[section_key] = section_movie_stats;
+                    section_names[section_key] = processed_sections[section_key]["title"];
+                }
+                callback(movie_stats, per_section_movie_stats, section_names);
             }
         };
 
-        var movie_genres_count = {};
         for (var section_key in processed_sections) {
             // use closures because of scoping issues
             (function (section_key) {
                 if (processed_sections[section_key]["type"] === "movie") {
                     counters["movies"]++;
+                    section_movie_genres_count[section_key] = {};
                     getAllMovies(address, port, plex_token, section_key, function(movies){
                         all_movies = all_movies.concat(movies);
+                        section_movies[section_key] = movies;
 
                         // because the plex web api calls for library sections only returns the first two genres
                         // of each movie we need to get all the genre mappings first and count the number of movies
@@ -270,6 +285,12 @@ function generateStats(address, port, plex_token, callback) {
                                         }
                                         else {
                                             movie_genres_count[genre_title] = genre_movies.length;
+                                        }
+                                        if (section_movie_genres_count[section_key][genre_title]) {
+                                            section_movie_genres_count[section_key][genre_title] += genre_movies.length;
+                                        }
+                                        else {
+                                            section_movie_genres_count[section_key][genre_title] = genre_movies.length;
                                         }
                                         reduce_counter("movie_genres");
                                     });
@@ -303,10 +324,15 @@ function getStats(server, force, callback) {
             callback(stats, timestamp);
         }
         else {
-            generateStats(address, port, plex_token, function(stats) {
+            generateStats(address, port, plex_token, function(stats, section_stats) {
                 var timestamp = new Date().getTime();
                 var hash = {"name": name, "stats": stats, "timestamp": timestamp};
                 utils.local_storage_set("cache-stats-" + machine_identifier, hash);
+
+                // for (var section_key in section_stats) {
+                //     var section_hash = {"name": name, "stats": stats, "timestamp": timestamp};
+                //     utils.local_storage_set("cache-stats-" + machine_identifier + "-" + section_key, section_hash);
+                // }
                 callback(stats, timestamp);
             });
         }
@@ -397,6 +423,13 @@ getServerAddresses(function(pms_servers) {
         return;
     }
     servers = pms_servers;
+
+    for (var server in pms_servers) {
+        getSections(pms_servers[server]["address"], pms_servers[server]["port"], pms_servers[server]["access_token"], function(sections_xml) {
+            var processed_sections = processLibrarySections(sections_xml);
+            // sections[pms_servers][server]["machine_identifier"] = processed_sections;
+        })
+    }
 
     // just load first server from array on first page load
     active_server = Object.keys(servers)[0];

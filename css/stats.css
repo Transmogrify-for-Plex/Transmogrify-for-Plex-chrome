@@ -101,7 +101,7 @@ nav ul {
     color: #FFFFFF;
 }
 
-#loading-indicator, #error-indicator {
+#loading-indicator, .error-message {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -118,7 +118,7 @@ nav ul {
     margin: auto;
 }
 
-#error-indicator {
+.error-message {
     display: none;
 }
 

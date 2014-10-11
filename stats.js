@@ -9,6 +9,7 @@ function formattedDateString(timestamp) {
 }
 
 function showDisplay() {
+    document.getElementById("server-error-indicator").style.display = "none";
     document.getElementById("loading-indicator").style.display = "none";
     var charts = document.getElementsByClassName("row-container");
     for (var i = 0; i < charts.length; i++) {
@@ -21,6 +22,7 @@ function showDisplay() {
 }
 
 function hideDisplay() {
+    document.getElementById("server-error-indicator").style.display = "none";
     document.getElementById("loading-indicator").style.display = "block";
     document.getElementById("server-updated").style.display = "none";
     var charts = document.getElementsByClassName("row-container");
@@ -232,7 +234,14 @@ function generateStats(address, port, plex_token, callback) {
     var all_movies = [];
     var all_tv_shows = [];
 
+    var movie_genres_count = {};
+
     getSections(address, port, plex_token, function(sections_xml) {
+        // check if no response from server
+        if (!sections_xml){
+            callback(null);
+            return;
+        }
         var processed_sections = processLibrarySections(sections_xml);
 
         // set up counters to keep track of running tasks
@@ -247,7 +256,6 @@ function generateStats(address, port, plex_token, callback) {
             }
         };
 
-        var movie_genres_count = {};
         for (var section_key in processed_sections) {
             // use closures because of scoping issues
             (function (section_key) {
@@ -304,6 +312,11 @@ function getStats(server, force, callback) {
         }
         else {
             generateStats(address, port, plex_token, function(stats) {
+                if (stats === null) {
+                    // couldn't reach server to get data
+                    callback(null);
+                    return;
+                }
                 var timestamp = new Date().getTime();
                 var hash = {"name": name, "stats": stats, "timestamp": timestamp};
                 utils.local_storage_set("cache-stats-" + machine_identifier, hash);
@@ -373,6 +386,13 @@ function switchToServer(server, refresh){
     setServerSelections();
 
     getStats(server, refresh, function(server_stats, last_updated) {
+        if (server_stats === null) {
+            // couldn't reach server to get data
+            document.getElementById("loading-indicator").style.display = "none";
+            document.getElementById("server-error-indicator").style.display = "block";
+            return;
+        }
+
         // hide loading indicator and show charts
         showDisplay();
         setLastUpdated(last_updated);
@@ -393,7 +413,7 @@ getServerAddresses(function(pms_servers) {
     // check to make sure user has opened plex/web first so we can receive server addresses
     if (!pms_servers) {
         document.getElementById("loading-indicator").style.display = "none";
-        document.getElementById("error-indicator").style.display = "block";
+        document.getElementById("token-error-indicator").style.display = "block";
         return;
     }
     servers = pms_servers;

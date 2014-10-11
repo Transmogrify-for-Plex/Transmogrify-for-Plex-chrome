@@ -166,9 +166,11 @@ function generateMovieStats(movies, genre_count) {
     }
 
     // clean up, remove invalid data
-    delete movie_rating_count[NaN];
+    if (content_rating_count[null]) {
+        content_rating_count["Unknown"] = content_rating_count[null];
+        delete content_rating_count[null];
+    }
     delete year_count[NaN];
-    delete content_rating_count[null];
 
     // collate movies added over time data
     var sorted_dates = dates_added.sort(function(a, b){return a - b;});
@@ -197,8 +199,13 @@ function generateMovieStats(movies, genre_count) {
 
     // format movie ratings data
     for (var rating in movie_rating_count) {
-        var formatted_rating = rating + ".0 - " + rating + ".9";
-        movie_rating_count[formatted_rating] = movie_rating_count[rating];
+        if (isNaN(rating)) {
+            movie_rating_count["No Rating"] = movie_rating_count[NaN];
+        }
+        else {
+            var formatted_rating = rating + ".0 - " + rating + ".9";
+            movie_rating_count[formatted_rating] = movie_rating_count[rating];
+        }
         delete movie_rating_count[rating];
     }
 

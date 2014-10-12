@@ -837,36 +837,49 @@ function setLastUpdated(timestamp){
 }
 
 
-// start stuff
-getServerAddresses(function(pms_servers) {
-    // check to make sure user has opened plex/web first so we can receive server addresses
-    if (!pms_servers) {
-        document.getElementById("loading-indicator").style.display = "none";
-        document.getElementById("token-error-indicator").style.display = "block";
-        return;
-    }
-    servers = pms_servers;
+// Init
+utils.storage_get_all(function(settings) {
+    getServerAddresses(function(pms_servers) {
+        // check to make sure user has opened plex/web first so we can receive server addresses
+        if (!pms_servers) {
+            document.getElementById("loading-indicator").style.display = "none";
+            document.getElementById("token-error-indicator").style.display = "block";
+            return;
+        }
 
-    // just load first server from array on first page load
-    active_server = Object.keys(servers)[0];
-    switchToServer(servers[active_server]);
+        servers = pms_servers;
 
-    // Create server list on nav bar and then asynchronously add sections to them
-    setServerSelections();
-    addSectionSelections();
+        // override server addresses if defined in settings
+        if (settings["plex_server_address"] != "" && settings["plex_server_port"] != "") {
+            utils.debug("Plex servers manual override");
 
-    // add event handlers for last updated nav bar element
-    var server_updated_element = document.getElementById("server-updated");
-    server_updated_element.addEventListener("mouseover", function(e) {
-        server_updated_element.innerHTML = "recalculate server stats";
-        }, false
-    );
-    server_updated_element.addEventListener("mouseout", function(e) {
-        server_updated_element.innerHTML = last_updated_string;
-        }, false
-    );
-    server_updated_element.addEventListener("click", function(e) {
-        recalculateServerStats();
-        }, false
-    );
+            for (var server in servers) {
+                servers[server]["address"] = settings["plex_server_address"];
+                servers[server]["port"] = settings["plex_server_port"];
+            }
+        }
+
+        // just load first server from array on first page load
+        active_server = Object.keys(servers)[0];
+        switchToServer(servers[active_server]);
+
+        // Create server list on nav bar and then asynchronously add sections to them
+        setServerSelections();
+        addSectionSelections();
+
+        // add event handlers for last updated nav bar element
+        var server_updated_element = document.getElementById("server-updated");
+        server_updated_element.addEventListener("mouseover", function(e) {
+            server_updated_element.innerHTML = "recalculate server stats";
+            }, false
+        );
+        server_updated_element.addEventListener("mouseout", function(e) {
+            server_updated_element.innerHTML = last_updated_string;
+            }, false
+        );
+        server_updated_element.addEventListener("click", function(e) {
+            recalculateServerStats();
+            }, false
+        );
+    });
 });

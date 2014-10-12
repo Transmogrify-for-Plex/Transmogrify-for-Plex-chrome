@@ -176,7 +176,10 @@ function getServerAddresses(requests_url, plex_token, callback) {
 
         utils.debug("Server addresses fetched");
         utils.debug(server_addresses);
+
+        // pass server addresses to background for stats page
         utils.background_storage_set("server_addresses", server_addresses);
+
         callback(server_addresses);
     });
 }

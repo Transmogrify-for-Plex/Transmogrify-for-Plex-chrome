@@ -30,9 +30,6 @@ function drawMovieYearsChart(year_data) {
                 label: {
                     text: "Year",
                     position: "outer-center"
-                },
-                tick: {
-                    fit: false
                 }
             },
             y: {

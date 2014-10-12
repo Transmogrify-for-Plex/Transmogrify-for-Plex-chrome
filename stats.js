@@ -1,5 +1,7 @@
 var servers;
+var sections = {};
 var active_server;
+var active_section;
 var last_updated_string;
 
 function formattedDateString(timestamp) {
@@ -11,28 +13,36 @@ function formattedDateString(timestamp) {
 function showDisplay() {
     document.getElementById("server-error-indicator").style.display = "none";
     document.getElementById("loading-indicator").style.display = "none";
-    var charts = document.getElementsByClassName("row-container");
-    for (var i = 0; i < charts.length; i++) {
-        charts[i].style.display = "block";
+
+    if (active_section) {
+        if (active_section["type"] === "movie") {
+            document.getElementById("movies-container").style.display = "block";
+            document.getElementById("shows-container").style.display = "none";
+        }
+        else {
+            document.getElementById("shows-container").style.display = "block";
+            document.getElementById("movies-container").style.display = "none";
+        }
+
+        // hide headings, not needed when viewing libraries
+        document.getElementById("movies-heading").style.display = "none";
+        document.getElementById("shows-heading").style.display = "none";
     }
-    var headers = document.getElementsByClassName("heading");
-    for (var i = 0; i < headers.length; i++) {
-        headers[i].style.display = "block";
+    else {
+        document.getElementById("movies-heading").style.display = "block";
+        document.getElementById("shows-heading").style.display = "block";
+        document.getElementById("movies-container").style.display = "block";
+        document.getElementById("shows-container").style.display = "block";
     }
 }
 
 function hideDisplay() {
+    document.getElementById("movies-container").style.display = "none";
+    document.getElementById("shows-container").style.display = "none";
     document.getElementById("server-error-indicator").style.display = "none";
-    document.getElementById("loading-indicator").style.display = "block";
     document.getElementById("server-updated").style.display = "none";
-    var charts = document.getElementsByClassName("row-container");
-    for (var i = 0; i < charts.length; i++) {
-        charts[i].style.display = "none";
-    }
-    var headers = document.getElementsByClassName("heading");
-    for (var i = 0; i < headers.length; i++) {
-        headers[i].style.display = "none";
-    }
+
+    document.getElementById("loading-indicator").style.display = "block";
 }
 
 function getServerAddresses(callback) {
@@ -52,13 +62,14 @@ function processLibrarySections(sections_xml) {
     var directories = sections_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory");
     var dir_metadata = {};
     for (var i = 0; i < directories.length; i++) {
+        var title = directories[i].getAttribute("title");
         var type = directories[i].getAttribute("type");
         var scanner = directories[i].getAttribute("scanner");
         var key = directories[i].getAttribute("key");
 
         // only return movie or tv show libraries
         if ((type === "movie" && scanner === "Plex Movie Scanner") || (type === "show" && scanner === "Plex Series Scanner")) {
-            dir_metadata[key] = {"type": type};
+            dir_metadata[key] = {"type": type, "title": title};
         }
     }
     return dir_metadata;
@@ -233,8 +244,10 @@ function generateMovieStats(movies, genre_count) {
 function generateStats(address, port, plex_token, callback) {
     var all_movies = [];
     var all_tv_shows = [];
-
     var movie_genres_count = {};
+
+    var section_movies = {};
+    var section_movie_genres_count = {};
 
     getSections(address, port, plex_token, function(sections_xml) {
         // check if no response from server
@@ -252,7 +265,15 @@ function generateStats(address, port, plex_token, callback) {
             // check if all async tasks are finished
             if (counters["movies"] === 0 && counters["movie_genres"] === 0) {
                 var movie_stats = generateMovieStats(all_movies, movie_genres_count);
-                callback(movie_stats);
+
+                var section_names = {};
+                var per_section_movie_stats = {};
+                for (var section_key in section_movies) {
+                    var section_movie_stats = generateMovieStats(section_movies[section_key], section_movie_genres_count[section_key]);
+                    per_section_movie_stats[section_key] = section_movie_stats;
+                    section_names[section_key] = processed_sections[section_key]["title"];
+                }
+                callback(movie_stats, per_section_movie_stats, section_names);
             }
         };
 
@@ -261,8 +282,10 @@ function generateStats(address, port, plex_token, callback) {
             (function (section_key) {
                 if (processed_sections[section_key]["type"] === "movie") {
                     counters["movies"]++;
+                    section_movie_genres_count[section_key] = {};
                     getAllMovies(address, port, plex_token, section_key, function(movies){
                         all_movies = all_movies.concat(movies);
+                        section_movies[section_key] = movies;
 
                         // because the plex web api calls for library sections only returns the first two genres
                         // of each movie we need to get all the genre mappings first and count the number of movies
@@ -278,6 +301,12 @@ function generateStats(address, port, plex_token, callback) {
                                         }
                                         else {
                                             movie_genres_count[genre_title] = genre_movies.length;
+                                        }
+                                        if (section_movie_genres_count[section_key][genre_title]) {
+                                            section_movie_genres_count[section_key][genre_title] += genre_movies.length;
+                                        }
+                                        else {
+                                            section_movie_genres_count[section_key][genre_title] = genre_movies.length;
                                         }
                                         reduce_counter("movie_genres");
                                     });
@@ -295,23 +324,33 @@ function generateStats(address, port, plex_token, callback) {
     });
 }
 
-function getStats(server, force, callback) {
+function getStats(server, section, force, callback) {
     var machine_identifier = server["machine_identifier"];
     var name = server["name"];
     var address = server["address"];
     var port = server["port"];
     var plex_token = server["access_token"];
 
-    utils.local_storage_get("cache-stats-" + machine_identifier, function(data) {
-        var timestamp = data["timestamp"];
-        var stats = data["stats"];
+    var cache_key;
+    if (section) {
+        // get section stats
+        cache_key = "cache-stats-" + machine_identifier + "-" + section;
+    }
+    else {
+        // get server stats
+        cache_key = "cache-stats-" + machine_identifier;
+    }
 
-        // if forced is true then we are recalculating stats
-        if (stats && !force) {
+    utils.local_storage_get(cache_key, function(data) {
+        // if force is true then we are recalculating stats
+        if (data && !force) {
+            var timestamp = data["timestamp"];
+            var stats = data["stats"];
+
             callback(stats, timestamp);
         }
         else {
-            generateStats(address, port, plex_token, function(stats) {
+            generateStats(address, port, plex_token, function(stats, section_stats) {
                 if (stats === null) {
                     // couldn't reach server to get data
                     callback(null);
@@ -319,37 +358,55 @@ function getStats(server, force, callback) {
                 }
                 var timestamp = new Date().getTime();
                 var hash = {"name": name, "stats": stats, "timestamp": timestamp};
-                utils.local_storage_set("cache-stats-" + machine_identifier, hash);
-                callback(stats, timestamp);
+                utils.local_storage_set(cache_key, hash);
+
+                for (var section_key in section_stats) {
+                    var section_hash = {"stats": section_stats[section_key], "timestamp": timestamp};
+                    utils.local_storage_set("cache-stats-" + machine_identifier + "-" + section_key, section_hash);
+                }
+
+                if (section) {
+                    callback(section_stats[section], timestamp);
+                }
+                else {
+                    callback(stats, timestamp);
+                }
             });
         }
     });
 }
 
 function recalculateServerStats() {
-    // show loading indicator and hide charts, last updated
     hideDisplay();
+    switchToServer(servers[active_server], null, true);
+}
 
-    switchToServer(servers[active_server], true);
+function updateNav() {
+    // set active server name on nav bar
+    var server_name_element = document.getElementById("active-server-name");
+    // clear what's already there
+    while (server_name_element.firstChild){
+        server_name_element.removeChild(server_name_element.firstChild);
+    }
+
+    var server_name_text_node = document.createTextNode(servers[active_server]["name"]);
+    server_name_element.appendChild(server_name_text_node);
+
+    if (active_section) {
+        var section_name = active_section["title"];
+        var section_name_span = document.createElement("span");
+        section_name_span.setAttribute("class", "section-name");
+        var section_name_text_node = document.createTextNode("(" + section_name+ ")");
+        section_name_span.appendChild(section_name_text_node);
+        server_name_element.appendChild(section_name_span);
+    }
 }
 
 function setServerSelections() {
-    // set active server name on nav bar
-    document.getElementById("active-server-name").innerHTML = servers[active_server]["name"];
-
     var server_list_element = document.getElementById("server-choices");
-
-    // remove all previous server choices
-    while (server_list_element.firstChild){
-        server_list_element.removeChild(server_list_element.firstChild);
-    }
 
     // add all server choices
     for (var server in servers) {
-        if (active_server === server) {
-            continue;
-        }
-
         var li = document.createElement("li");
         var server_element = document.createElement("a");
         server_element.setAttribute("href", "#");
@@ -360,9 +417,6 @@ function setServerSelections() {
         server_element.appendChild(text_node);
         li.appendChild(server_element);
         server_list_element.appendChild(li);
-
-        // add event handler
-        server_element.addEventListener("click", switchServer, false);
     }
 }
 
@@ -373,19 +427,31 @@ function setLastUpdated(timestamp){
     document.getElementById("server-updated").style.display = "inline-block";
 }
 
-function switchServer(e) {
+function switchSection(e) {
     // show loading indicator and hide charts, last updated
     hideDisplay();
 
     var machine_identifier = e.target.getAttribute("data-machine_identifier");
-    switchToServer(servers[machine_identifier]);
+    var section_key = e.target.getAttribute("data-section_key");
+    switchToServer(servers[machine_identifier], section_key, false);
 }
 
-function switchToServer(server, refresh){
-    active_server = server["machine_identifier"];
-    setServerSelections();
+function switchToServer(server, section_key, refresh){
+    // hide all charts and show loading indicator
+    hideDisplay();
 
-    getStats(server, refresh, function(server_stats, last_updated) {
+    active_server = server["machine_identifier"];
+    if (section_key) {
+        active_section = sections[server["machine_identifier"]][section_key];
+    }
+    else {
+        active_section = null;
+    }
+
+    // update the nav with new active server
+    updateNav();
+
+    getStats(server, section_key, refresh, function(server_stats, last_updated) {
         if (server_stats === null) {
             // couldn't reach server to get data
             document.getElementById("loading-indicator").style.display = "none";
@@ -398,13 +464,97 @@ function switchToServer(server, refresh){
         setLastUpdated(last_updated);
 
         // draw charts
-        drawMovieYearsChart(server_stats["year_count"]);
-        drawMovieGenreChart(server_stats["genre_count"]);
-        drawMovieRatingChart(server_stats["movie_rating_count"]);
-        drawMovieDateAddedChart(server_stats["date_added_count"]);
-        drawMovieContentRatingChart(server_stats["content_rating_count"]);
-        drawMovieResolutionChart(server_stats["resolution_count"]);
+        if (active_section) {
+            if (active_section["type"] === "movie") {
+                drawMovieYearsChart(server_stats["year_count"]);
+                drawMovieGenreChart(server_stats["genre_count"]);
+                drawMovieRatingChart(server_stats["movie_rating_count"]);
+                drawMovieDateAddedChart(server_stats["date_added_count"]);
+                drawMovieContentRatingChart(server_stats["content_rating_count"]);
+                drawMovieResolutionChart(server_stats["resolution_count"]);
+            }
+            // section type is show
+            else {
+                // draw tv show charts
+            }
+        }
+        else {
+            // draw all charts
+            drawMovieYearsChart(server_stats["year_count"]);
+            drawMovieGenreChart(server_stats["genre_count"]);
+            drawMovieRatingChart(server_stats["movie_rating_count"]);
+            drawMovieDateAddedChart(server_stats["date_added_count"]);
+            drawMovieContentRatingChart(server_stats["content_rating_count"]);
+            drawMovieResolutionChart(server_stats["resolution_count"]);
+        }
     });
+}
+
+function addSectionSelections() {
+    for (var server in servers) {
+        (function (server) {
+            sections[server] = {};
+            getSections(servers[server]["address"], servers[server]["port"], servers[server]["access_token"], function(sections_xml) {
+                // check for failure to reach server
+                if (sections_xml === null) {
+                    // couldn't reach server to get data
+                    document.getElementById("loading-indicator").style.display = "none";
+                    document.getElementById("server-error-indicator").style.display = "block";
+                    return;
+                }
+
+                var server_picker;
+                var server_choices = document.getElementsByClassName("server-choice");
+                for (var i = 0; i < server_choices.length; i++) {
+                    if (server_choices[i].getAttribute("data-machine_identifier") === servers[server]["machine_identifier"]) {
+                        server_picker = server_choices[i].parentNode;
+                        break;
+                    }
+                }
+
+                var ul = document.createElement("ul");
+                server_picker.appendChild(ul);
+
+                // create All option, to select collated server stats
+                var li = document.createElement("li");
+                var all_section_element = document.createElement("a");
+                all_section_element.setAttribute("href", "#");
+                all_section_element.setAttribute("class", "section-choice");
+                all_section_element.setAttribute("data-machine_identifier", servers[server]["machine_identifier"]);
+                // no section_key data attribute so when clicked getStats() returns collated server stats
+                var text_node = document.createTextNode("All");
+
+                all_section_element.appendChild(text_node);
+                li.appendChild(all_section_element);
+                ul.appendChild(li);
+
+                // add event handler
+                all_section_element.addEventListener("click", switchSection, false);
+
+                var processed_sections = processLibrarySections(sections_xml);
+                for (var section_key in processed_sections) {
+                    var title = processed_sections[section_key]["title"];
+                    var type = processed_sections[section_key]["type"];
+                    sections[server][section_key] = {"title": title, "type": type};
+
+                    var li = document.createElement("li");
+                    var section_element = document.createElement("a");
+                    section_element.setAttribute("href", "#");
+                    section_element.setAttribute("class", "section-choice " + type);
+                    section_element.setAttribute("data-machine_identifier", servers[server]["machine_identifier"]);
+                    section_element.setAttribute("data-section_key", section_key);
+                    var text_node = document.createTextNode(title);
+
+                    section_element.appendChild(text_node);
+                    li.appendChild(section_element);
+                    ul.appendChild(li);
+
+                    // add event handler
+                    section_element.addEventListener("click", switchSection, false);
+                }
+            });
+        }(server));
+    }
 }
 
 
@@ -420,8 +570,11 @@ getServerAddresses(function(pms_servers) {
 
     // just load first server from array on first page load
     active_server = Object.keys(servers)[0];
-    var server_data = servers[active_server];
-    switchToServer(server_data);
+    switchToServer(servers[active_server]);
+
+    // Create server list on nav bar and then asynchronously add sections to them
+    setServerSelections();
+    addSectionSelections();
 
     // add event handlers for last updated nav bar element
     var server_updated_element = document.getElementById("server-updated");

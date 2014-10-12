@@ -27,48 +27,52 @@
         <div class="error-message" id="server-error-indicator">Error: couldn't reach server</div>
         <div class="error-message" id="token-error-indicator">Make sure you have opened Plex/Web</div>
 
-        <div class="heading">Movies</div>
+        <div id="movies-container">
+            <div class="heading" id="movies-heading">Movies</div>
 
-        <div class="row-container">
-            <div class="chart-title-container">
-                <div class="chart-title-left">movies by year</div>
+            <div class="row-container">
+                <div class="chart-title-container">
+                    <div class="chart-title-left">movies by year</div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart chart-center" id="movie-year-chart"></div>
+                </div>
             </div>
-            <div class="chart-container">
-                <div class="chart chart-center" id="movie-year-chart"></div>
+
+            <div class="row-container">
+                <div class="chart-title-container">
+                    <div class="chart-title-left">movie genres</div>
+                    <div class="chart-title-right">movie ratings</div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart chart-left" id="movie-genre-chart"></div>
+                    <div class="chart chart-right" id="movie-rating-chart"></div>
+                </div>
+            </div>
+
+            <div class="row-container">
+                <div class="chart-title-container">
+                    <div class="chart-title-left">movies added over time</div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart chart-center" id="movie-date-added-chart"></div>
+                </div>
+            </div>
+
+            <div class="row-container">
+                <div class="chart-title-container">
+                    <div class="chart-title-left">movie content ratings</div>
+                    <div class="chart-title-right">video resolutions</div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart chart-left" id="movie-content-rating-chart"></div>
+                    <div class="chart chart-right" id="movie-resolution-chart"></div>
+                </div>
             </div>
         </div>
 
-        <div class="row-container">
-            <div class="chart-title-container">
-                <div class="chart-title-left">movie genres</div>
-                <div class="chart-title-right">movie ratings</div>
-            </div>
-            <div class="chart-container">
-                <div class="chart chart-left" id="movie-genre-chart"></div>
-                <div class="chart chart-right" id="movie-rating-chart"></div>
-            </div>
+        <div id="shows-container">
+            <div class="heading" id="shows-heading">TV Shows</div>
         </div>
-
-        <div class="row-container">
-            <div class="chart-title-container">
-                <div class="chart-title-left">movies added over time</div>
-            </div>
-            <div class="chart-container">
-                <div class="chart chart-center" id="movie-date-added-chart"></div>
-            </div>
-        </div>
-
-        <div class="row-container">
-            <div class="chart-title-container">
-                <div class="chart-title-left">movie content ratings</div>
-                <div class="chart-title-right">video resolutions</div>
-            </div>
-            <div class="chart-container">
-                <div class="chart chart-left" id="movie-content-rating-chart"></div>
-                <div class="chart chart-right" id="movie-resolution-chart"></div>
-            </div>
-        </div>
-
-        <div class="heading">TV Shows</div>
     </body>
 </html>

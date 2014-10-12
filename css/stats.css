@@ -85,6 +85,12 @@ nav ul {
                     color: #000000;
                 }
 
+    nav ul ul ul {
+        position: absolute;
+        left: 100%;
+        top: 0;
+    }
+
 #server-updated {
     font-size: 0.6em;
     color: #707070;
@@ -135,7 +141,6 @@ nav ul {
     height: 600px;
     clear: both;
     padding-bottom: 80px;
-    display: none;
 }
 
 .chart-title-container {

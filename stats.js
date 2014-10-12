@@ -466,13 +466,13 @@ function generateStats(address, port, plex_token, callback) {
         }
         var processed_sections = processLibrarySections(sections_xml);
 
-        // set up counters to keep track of running tasks
-        var counters = {"movies": 0, "shows": 0, "movie_genres": 0, "show_genres": 0, "show_episodes": 0}
-        var reduce_counter = function(key) {
-            counters[key]--;
+        // set up counter to keep track of running tasks
+        var task_counter = 0;
+        var task_completed = function() {
+            task_counter--;
 
             // check if all async tasks are finished
-            if (counters["movies"] === 0 && counters["shows"] === 0 && counters["movie_genres"] === 0 && counters["show_genres"] === 0 && counters["show_episodes"] === 0) {
+            if (task_counter === 0) {
                 var movie_stats = generateMovieStats(all_movies, movie_genres_count);
                 var show_stats = generateShowStats(all_shows, all_episodes, show_genres_count);
 
@@ -496,7 +496,7 @@ function generateStats(address, port, plex_token, callback) {
             // use closures because of scoping issues
             (function (section_key) {
                 if (processed_sections[section_key]["type"] === "movie") {
-                    counters["movies"]++;
+                    task_counter++;
 
                     section_movie_genres_count[section_key] = {};
                     // get all movies for section
@@ -508,7 +508,7 @@ function generateStats(address, port, plex_token, callback) {
                         // of each movie we need to get all the genre mappings first and count the number of movies
                         // returned by the api with that genre filtered out
                         getSectionGenres(address, port, plex_token, section_key, function(genres) {
-                            counters["movie_genres"] += Object.keys(genres).length;
+                            task_counter += Object.keys(genres).length;
 
                             for (var genre_key in genres) {
                                 (function (genre_key) {
@@ -526,17 +526,16 @@ function generateStats(address, port, plex_token, callback) {
                                         else {
                                             section_movie_genres_count[section_key][genre_title] = genre_movies.length;
                                         }
-                                        reduce_counter("movie_genres");
+                                        task_completed();
                                     });
                                 }(genre_key));
                             }
-                            reduce_counter("movies");
+                            task_completed();
                         })
                     });
                 }
                 else if (processed_sections[section_key]["type"] === "show") {
-                    counters["shows"]++;
-                    counters["show_episodes"]++;
+                    task_counter++;
 
                     section_show_genres_count[section_key] = {};
                     section_episodes[section_key] = [];
@@ -549,7 +548,7 @@ function generateStats(address, port, plex_token, callback) {
                         // of each show we need to get all the genre mappings first and count the number of shows
                         // returned by the api with that genre filtered out
                         getSectionGenres(address, port, plex_token, section_key, function(genres) {
-                            counters["show_genres"] += Object.keys(genres).length;
+                            task_counter += Object.keys(genres).length;
 
                             for (var genre_key in genres) {
                                 (function (genre_key) {
@@ -567,19 +566,20 @@ function generateStats(address, port, plex_token, callback) {
                                         else {
                                             section_show_genres_count[section_key][genre_title] = genre_shows.length;
                                         }
-                                        reduce_counter("show_genres");
+                                        task_completed();
                                     });
                                 }(genre_key));
                             }
-                            reduce_counter("shows");
+                            task_completed();
                         })
                     });
 
                     // get all tv show episodes for section
+                    task_counter++;
                     getAllEpisodes(address, port, plex_token, section_key, function(episodes) {
                         all_episodes = all_episodes.concat(episodes);
                         section_episodes[section_key] = section_episodes[section_key].concat(episodes);
-                        reduce_counter("show_episodes");
+                        task_completed();
                     });
                 }
             }(section_key));

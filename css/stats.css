@@ -142,13 +142,16 @@ nav ul {
     display: none;
 }
 
+#movies-container, #shows-container {
+    display: none;
+}
+
 .heading {
     color: #FFFFFF;
     font-size: 1.7em;
     font-weight: bold;
     text-align: center;
     margin-bottom: 30px;
-    display: none;
 }
 
 .row-container {

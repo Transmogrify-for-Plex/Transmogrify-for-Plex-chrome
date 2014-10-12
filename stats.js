@@ -395,7 +395,7 @@ function updateNav() {
     if (active_section) {
         var section_name = active_section["title"];
         var section_name_span = document.createElement("span");
-        section_name_span.setAttribute("class", "section-name");
+        section_name_span.setAttribute("id", "active-section-name");
         var section_name_text_node = document.createTextNode("(" + section_name+ ")");
         section_name_span.appendChild(section_name_text_node);
         server_name_element.appendChild(section_name_span);
@@ -420,11 +420,76 @@ function setServerSelections() {
     }
 }
 
-function setLastUpdated(timestamp){
-    last_updated_string = "Last Updated: " + formattedDateString(timestamp);
+function addSectionSelections() {
+    for (var server in servers) {
+        (function (server) {
+            sections[server] = {};
+            getSections(servers[server]["address"], servers[server]["port"], servers[server]["access_token"], function(sections_xml) {
+                var server_picker;
+                var server_choices = document.getElementsByClassName("server-choice");
+                for (var i = 0; i < server_choices.length; i++) {
+                    if (server_choices[i].getAttribute("data-machine_identifier") === servers[server]["machine_identifier"]) {
+                        server_picker = server_choices[i].parentNode;
+                        break;
+                    }
+                }
 
-    document.getElementById("server-updated").innerHTML = last_updated_string;
-    document.getElementById("server-updated").style.display = "inline-block";
+                var ul = document.createElement("ul");
+                server_picker.appendChild(ul);
+
+                // create All option, to select collated server stats
+                var li = document.createElement("li");
+                var all_section_element = document.createElement("a");
+                all_section_element.setAttribute("href", "#");
+                all_section_element.setAttribute("class", "section-choice");
+                all_section_element.setAttribute("id", "server-all-choice");
+                all_section_element.setAttribute("data-machine_identifier", servers[server]["machine_identifier"]);
+                // no section_key data attribute so when clicked getStats() returns collated server stats
+                var text_node = document.createTextNode("All");
+
+                all_section_element.appendChild(text_node);
+                li.appendChild(all_section_element);
+                ul.appendChild(li);
+
+                // add event handler
+                all_section_element.addEventListener("click", switchSection, false);
+
+                if (sections_xml === null) {
+                    // couldn't reach server to get sections data
+                    return;
+                }
+
+                var processed_sections = processLibrarySections(sections_xml);
+                // sort section keys by section type
+                var sorted_keys = Object.keys(processed_sections).sort(function(a, b) {
+                    return processed_sections[a]["type"] > processed_sections[b]["type"];
+                });
+
+                for (var i = 0; i < sorted_keys.length; i++) {
+                    var section_key = sorted_keys[i];
+
+                    var title = processed_sections[section_key]["title"];
+                    var type = processed_sections[section_key]["type"];
+                    sections[server][section_key] = {"title": title, "type": type};
+
+                    var li = document.createElement("li");
+                    var section_element = document.createElement("a");
+                    section_element.setAttribute("href", "#");
+                    section_element.setAttribute("class", "section-choice");
+                    section_element.setAttribute("data-machine_identifier", servers[server]["machine_identifier"]);
+                    section_element.setAttribute("data-section_key", section_key);
+                    var text_node = document.createTextNode(title);
+
+                    section_element.appendChild(text_node);
+                    li.appendChild(section_element);
+                    ul.appendChild(li);
+
+                    // add event handler
+                    section_element.addEventListener("click", switchSection, false);
+                }
+            });
+        }(server));
+    }
 }
 
 function switchSection(e) {
@@ -490,71 +555,11 @@ function switchToServer(server, section_key, refresh){
     });
 }
 
-function addSectionSelections() {
-    for (var server in servers) {
-        (function (server) {
-            sections[server] = {};
-            getSections(servers[server]["address"], servers[server]["port"], servers[server]["access_token"], function(sections_xml) {
-                // check for failure to reach server
-                if (sections_xml === null) {
-                    // couldn't reach server to get data
-                    document.getElementById("loading-indicator").style.display = "none";
-                    document.getElementById("server-error-indicator").style.display = "block";
-                    return;
-                }
+function setLastUpdated(timestamp){
+    last_updated_string = "Last Updated: " + formattedDateString(timestamp);
 
-                var server_picker;
-                var server_choices = document.getElementsByClassName("server-choice");
-                for (var i = 0; i < server_choices.length; i++) {
-                    if (server_choices[i].getAttribute("data-machine_identifier") === servers[server]["machine_identifier"]) {
-                        server_picker = server_choices[i].parentNode;
-                        break;
-                    }
-                }
-
-                var ul = document.createElement("ul");
-                server_picker.appendChild(ul);
-
-                // create All option, to select collated server stats
-                var li = document.createElement("li");
-                var all_section_element = document.createElement("a");
-                all_section_element.setAttribute("href", "#");
-                all_section_element.setAttribute("class", "section-choice");
-                all_section_element.setAttribute("data-machine_identifier", servers[server]["machine_identifier"]);
-                // no section_key data attribute so when clicked getStats() returns collated server stats
-                var text_node = document.createTextNode("All");
-
-                all_section_element.appendChild(text_node);
-                li.appendChild(all_section_element);
-                ul.appendChild(li);
-
-                // add event handler
-                all_section_element.addEventListener("click", switchSection, false);
-
-                var processed_sections = processLibrarySections(sections_xml);
-                for (var section_key in processed_sections) {
-                    var title = processed_sections[section_key]["title"];
-                    var type = processed_sections[section_key]["type"];
-                    sections[server][section_key] = {"title": title, "type": type};
-
-                    var li = document.createElement("li");
-                    var section_element = document.createElement("a");
-                    section_element.setAttribute("href", "#");
-                    section_element.setAttribute("class", "section-choice " + type);
-                    section_element.setAttribute("data-machine_identifier", servers[server]["machine_identifier"]);
-                    section_element.setAttribute("data-section_key", section_key);
-                    var text_node = document.createTextNode(title);
-
-                    section_element.appendChild(text_node);
-                    li.appendChild(section_element);
-                    ul.appendChild(li);
-
-                    // add event handler
-                    section_element.addEventListener("click", switchSection, false);
-                }
-            });
-        }(server));
-    }
+    document.getElementById("server-updated").innerHTML = last_updated_string;
+    document.getElementById("server-updated").style.display = "inline-block";
 }
 
 

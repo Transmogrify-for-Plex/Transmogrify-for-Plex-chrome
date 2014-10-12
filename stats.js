@@ -4,6 +4,8 @@ var active_server;
 var active_section;
 var last_updated_string;
 
+var resolution_mappings = {"1080" : "1080p", "720" : "720p", "480": "480p", "576": "576p", "sd": "SD"};
+
 function formattedDateString(timestamp) {
     var date = new Date(timestamp);
     var formatted_date = date.toLocaleTimeString() + " " + date.toDateString();
@@ -118,10 +120,10 @@ function getAllShows(address, port, plex_token, section_key, callback) {
     });
 }
 
-function getAllEpisodes(address, port, plex_token, metadata_key, callback) {
-    var show_episodes_url = "http://" + address + ":" + port + "/library/metadata/" + metadata_key + "/allLeaves?X-Plex-Token=" + plex_token;
-    utils.getXML(show_episodes_url, function(show_xml) {
-        var episodes_xml = show_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video");
+function getAllEpisodes(address, port, plex_token, section, callback) {
+    var library_section_episodes_url = "http://" + address + ":" + port + "/library/sections/" + section + "/all?type=4&X-Plex-Token=" + plex_token;
+    utils.getXML(library_section_episodes_url, function(section_xml) {
+        var episodes_xml = section_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video");
         var episodes = [];
         for (var i = 0; i < episodes_xml.length; i++) {
             var episode_data = {};
@@ -272,7 +274,6 @@ function generateMovieStats(movies, genre_count) {
     }
 
     // format movie resolutions data
-    var resolution_mappings = {"1080" : "1080p", "720" : "720p", "480": "480p", "576": "576p", "sd": "SD"};
     for (var resolution in resolution_count) {
         if (resolution_mappings[resolution]) {
             resolution_count[resolution_mappings[resolution]] = resolution_count[resolution];
@@ -427,7 +428,6 @@ function generateShowStats(shows, episodes, genre_count) {
     }
 
     // format movie resolutions data
-    var resolution_mappings = {"1080" : "1080p", "720" : "720p", "480": "480p", "576": "576p", "sd": "SD"};
     for (var resolution in resolution_count) {
         if (resolution_mappings[resolution]) {
             resolution_count[resolution_mappings[resolution]] = resolution_count[resolution];
@@ -476,12 +476,10 @@ function generateStats(address, port, plex_token, callback) {
                 var movie_stats = generateMovieStats(all_movies, movie_genres_count);
                 var show_stats = generateShowStats(all_shows, all_episodes, show_genres_count);
 
-                // var section_names = {};
                 var per_section_movie_stats = {};
                 for (var section_key in section_movies) {
                     var section_movie_stats = generateMovieStats(section_movies[section_key], section_movie_genres_count[section_key]);
                     per_section_movie_stats[section_key] = section_movie_stats;
-                    // section_names[section_key] = processed_sections[section_key]["title"];
                 }
 
                 var per_section_show_stats = {};
@@ -489,7 +487,6 @@ function generateStats(address, port, plex_token, callback) {
                     var section_show_stats = generateShowStats(section_shows[section_key], section_episodes[section_key], section_show_genres_count[section_key]);
                     per_section_show_stats[section_key] = section_show_stats;
                 }
-                // callback(movie_stats, per_section_movie_stats, show_stats, per_section_show_stats, section_names);
 
                 callback(movie_stats, per_section_movie_stats, show_stats, per_section_show_stats);
             }
@@ -500,7 +497,9 @@ function generateStats(address, port, plex_token, callback) {
             (function (section_key) {
                 if (processed_sections[section_key]["type"] === "movie") {
                     counters["movies"]++;
+
                     section_movie_genres_count[section_key] = {};
+                    // get all movies for section
                     getAllMovies(address, port, plex_token, section_key, function(movies){
                         all_movies = all_movies.concat(movies);
                         section_movies[section_key] = movies;
@@ -510,6 +509,7 @@ function generateStats(address, port, plex_token, callback) {
                         // returned by the api with that genre filtered out
                         getSectionGenres(address, port, plex_token, section_key, function(genres) {
                             counters["movie_genres"] += Object.keys(genres).length;
+
                             for (var genre_key in genres) {
                                 (function (genre_key) {
                                     var genre_title = genres[genre_key];
@@ -535,31 +535,22 @@ function generateStats(address, port, plex_token, callback) {
                     });
                 }
                 else if (processed_sections[section_key]["type"] === "show") {
-                    // get stats for tv shows
                     counters["shows"]++;
+                    counters["show_episodes"]++;
+
                     section_show_genres_count[section_key] = {};
                     section_episodes[section_key] = [];
+                    // get all tv shows for section
                     getAllShows(address, port, plex_token, section_key, function(shows){
                         all_shows = all_shows.concat(shows);
                         section_shows[section_key] = shows;
-
-                        counters["show_episodes"]+= shows.length;
-                        for (var i = 0; i < shows.length; i++) {
-                            var show = shows[i];
-                            (function (show) {
-                                getAllEpisodes(address, port, plex_token, show["rating_key"], function(episodes) {
-                                    all_episodes = all_episodes.concat(episodes);
-                                    section_episodes[section_key] = section_episodes[section_key].concat(episodes);
-                                    reduce_counter("show_episodes");
-                                })
-                            }(show));
-                        }
 
                         // because the plex web api calls for library sections only returns the first two genres
                         // of each show we need to get all the genre mappings first and count the number of shows
                         // returned by the api with that genre filtered out
                         getSectionGenres(address, port, plex_token, section_key, function(genres) {
                             counters["show_genres"] += Object.keys(genres).length;
+
                             for (var genre_key in genres) {
                                 (function (genre_key) {
                                     var genre_title = genres[genre_key];
@@ -582,6 +573,13 @@ function generateStats(address, port, plex_token, callback) {
                             }
                             reduce_counter("shows");
                         })
+                    });
+
+                    // get all tv show episodes for section
+                    getAllEpisodes(address, port, plex_token, section_key, function(episodes) {
+                        all_episodes = all_episodes.concat(episodes);
+                        section_episodes[section_key] = section_episodes[section_key].concat(episodes);
+                        reduce_counter("show_episodes");
                     });
                 }
             }(section_key));
@@ -730,7 +728,7 @@ function addSectionSelections() {
                 // add event handler
                 all_section_element.addEventListener("click", switchSection, false);
 
-                if (sections_xml === null) {
+                if (!sections_xml) {
                     // couldn't reach server to get sections data
                     return;
                 }

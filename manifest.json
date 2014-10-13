@@ -23,6 +23,7 @@
         "plugins/random_picker.js",
         "plugins/rotten_tomatoes.js",
         "plugins/split_added_deck.js",
+        "plugins/stats.js",
         "plugins/trakt.js",
         "plugins/youtube_trailer.js",
         "main.js"
@@ -42,5 +43,5 @@
     "48": "resources/icon48.png",
     "128": "resources/icon128.png"
   },
-  "web_accessible_resources": ["resources/*", "options.html"]
+  "web_accessible_resources": ["resources/*", "options.html", "stats.html"]
 }

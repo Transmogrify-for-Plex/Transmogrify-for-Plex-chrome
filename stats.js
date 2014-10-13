@@ -773,6 +773,7 @@ function switchToServer(server, section_key, refresh) {
         // draw charts
         if (active_section) {
             if (active_section["type"] === "movie") {
+                // draw movie charts
                 drawMovieYearsChart(stats["year_count"]);
                 drawMovieGenreChart(stats["genre_count"]);
                 drawMovieRatingChart(stats["movie_rating_count"]);

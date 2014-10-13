@@ -33,6 +33,11 @@ utils = {
         return options_url;
     },
 
+    getStatsURL: function() {
+        var stats_url = chrome.extension.getURL("stats.html");
+        return stats_url;
+    },
+
     insertOverlay: function() {
         // don't run if overlay exists on page
         utils.debug("Checking if overlay already exists before creating");
@@ -267,6 +272,10 @@ utils = {
 
             if (!("actor_profiles" in results)) {
                 utils.storage_set("actor_profiles", "on");
+            }
+
+            if (!("stats_link" in results)) {
+                utils.storage_set("stats_link", "on");
             }
 
             if (!("last_version" in results)) {

@@ -13,6 +13,7 @@ function saveOptions() {
     var split_added_deck = document.querySelector("input[name='split_added_deck']:checked").value;
     var canistreamit = document.querySelector("input[name='canistreamit']:checked").value;
     var actor_profiles = document.querySelector("input[name='actor_profiles']:checked").value;
+    var stats_link = document.querySelector("input[name='stats_link']:checked").value;
     var plex_server_address = document.querySelector("input[name='plex_server_address']").value;
     var plex_server_port = document.querySelector("input[name='plex_server_port']").value;
 
@@ -30,6 +31,7 @@ function saveOptions() {
     utils.storage_set("split_added_deck", split_added_deck);
     utils.storage_set("canistreamit", canistreamit);
     utils.storage_set("actor_profiles", actor_profiles);
+    utils.storage_set("stats_link", stats_link);
     if (trakt_movies) {
         utils.storage_set("trakt_movies", "on");
     }
@@ -78,6 +80,9 @@ function restoreOptions() {
 
             var actor_profiles_radio_button = document.getElementById("actor_profiles_" + results["actor_profiles"]);
             actor_profiles_radio_button.checked = true;
+
+            var stats_link_radio_button = document.getElementById("stats_link_" + results["stats_link"]);
+            stats_link_radio_button.checked = true;
 
             var rotten_tomatoes_link_radio_button = document.getElementById("rotten_tomatoes_" + results["rotten_tomatoes_link"]);
             rotten_tomatoes_link_radio_button.checked = true;

@@ -240,6 +240,15 @@ function main(settings) {
     utils.debug("requests_url set as " + requests_url);
 
     getServerAddresses(requests_url, plex_token, function(server_addresses) {
+        // insert stats page link
+        if (settings["stats_link"] === "on") {
+            utils.debug("stats plugin is enabled");
+            stats.init();
+        }
+        else {
+            utils.debug("stats plugin is disabled");
+        }
+
         // check if on dashboard page
         if ((/index\.html\#?$/.test(page_url)) || (/http:\/\/plex\.tv\/web\/app\#?$/.test(page_url))) {
             utils.debug("main detected we are on dashboard page");
@@ -251,6 +260,7 @@ function main(settings) {
             else {
                 utils.debug("split_added_deck plugin is disabled");
             }
+
             // only purge caches when viewing main page
             purgeStaleCaches();
         }

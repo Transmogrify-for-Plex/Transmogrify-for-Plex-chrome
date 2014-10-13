@@ -18,7 +18,7 @@ body {
 
 .field-row {
     clear: both;
-    padding-top: 15px;
+    padding-top: 12px;
 }
 
 .extra-options {
@@ -64,7 +64,7 @@ input[type="number"] {
 }
 
 #debug {
-    margin-top: 120px;
+    padding-top: 20px;
 }
 
 .thanks {

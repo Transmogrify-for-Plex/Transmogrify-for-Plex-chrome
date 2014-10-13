@@ -109,7 +109,6 @@ function getAllShows(address, port, plex_token, section_key, callback) {
             show_data["content_rating"] = shows_xml[i].getAttribute("contentRating");
             show_data["rating"] = shows_xml[i].getAttribute("rating");
             show_data["year"] = shows_xml[i].getAttribute("year");
-            show_data["added_at"] = shows_xml[i].getAttribute("addedAt");
             show_data["duration"] = shows_xml[i].getAttribute("duration");
             show_data["rating_key"] = shows_xml[i].getAttribute("ratingKey");
 
@@ -296,7 +295,6 @@ function generateShowStats(shows, episodes, genre_count) {
     var show_rating_count = {};
     var resolution_count = {};
     var year_count = {};
-    var shows_dates_added = [];
     var episodes_dates_added = [];
 
     for (var i = 0; i < shows.length; i++) {
@@ -334,17 +332,12 @@ function generateShowStats(shows, episodes, genre_count) {
                 year_count[j] = 0;
             }
         }
-
-        // shows added over time
-        // set date time to beginning of day to make it easy to work with
-        var added_at = new Date(parseInt(shows[i]["added_at"]) * 1000).setHours(0, 0, 0, 0);
-        shows_dates_added.push(added_at);
     }
 
     // iterate over all episodes
     for (var j = 0; j < episodes.length; j++) {
         // resolutions count
-        var resolution = episodes[i]["video_resolution"];
+        var resolution = episodes[j]["video_resolution"];
         if (resolution_count[resolution]) {
             resolution_count[resolution]++;
         }
@@ -364,31 +357,6 @@ function generateShowStats(shows, episodes, genre_count) {
         delete content_rating_count[null];
     }
     delete year_count[NaN];
-
-    // collate shows added over time data
-    var sorted_dates = shows_dates_added.sort(function(a, b){return a - b;});
-    var today = new Date(Date.now());
-    var start_date = new Date(sorted_dates[0]);
-    var shows_date_added_count = {};
-    var total_count = 0;
-    // iterate over dates from first movie added date added to today
-    for (var d = start_date; d <= today; d.setDate(d.getDate() + 1)) {
-        var current_timestamp = d.getTime();
-        var day_count = 0;
-        for (var i = 0; i < sorted_dates.length; i++) {
-            if (sorted_dates[i] === current_timestamp) {
-                day_count += 1;
-            }
-        }
-
-        // only add date to array if shows were added that day
-        if (day_count > 0){
-            total_count += day_count
-
-            var date_string = d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
-            shows_date_added_count[date_string] = total_count;
-        }
-    }
 
     // collate episodes added over time data
     var sorted_dates = episodes_dates_added.sort(function(a, b){return a - b;});
@@ -438,9 +406,9 @@ function generateShowStats(shows, episodes, genre_count) {
     return {
         "content_rating_count": content_rating_count,
         "show_rating_count": show_rating_count,
+        "resolution_count": resolution_count,
         "year_count": year_count,
         "genre_count": genre_count,
-        "shows_date_added_count": shows_date_added_count,
         "episodes_date_added_count": episodes_date_added_count
         };
 }
@@ -812,9 +780,14 @@ function switchToServer(server, section_key, refresh){
                 drawMovieContentRatingChart(stats["content_rating_count"]);
                 drawMovieResolutionChart(stats["resolution_count"]);
             }
-            // section type is show
             else {
                 // draw tv show charts
+                drawShowYearsChart(stats["year_count"]);
+                drawShowGenreChart(stats["genre_count"]);
+                drawShowRatingChart(stats["show_rating_count"]);
+                drawShowDateAddedChart(stats["episodes_date_added_count"]);
+                drawShowContentRatingChart(stats["content_rating_count"]);
+                drawShowResolutionChart(stats["resolution_count"]);
             }
         }
         else {
@@ -825,6 +798,13 @@ function switchToServer(server, section_key, refresh){
             drawMovieDateAddedChart(stats["movie_stats"]["date_added_count"]);
             drawMovieContentRatingChart(stats["movie_stats"]["content_rating_count"]);
             drawMovieResolutionChart(stats["movie_stats"]["resolution_count"]);
+
+            drawShowYearsChart(stats["show_stats"]["year_count"]);
+            drawShowGenreChart(stats["show_stats"]["genre_count"]);
+            drawShowRatingChart(stats["show_stats"]["show_rating_count"]);
+            drawShowDateAddedChart(stats["show_stats"]["episodes_date_added_count"]);
+            drawShowContentRatingChart(stats["show_stats"]["content_rating_count"]);
+            drawShowResolutionChart(stats["show_stats"]["resolution_count"]);
         }
     });
 }

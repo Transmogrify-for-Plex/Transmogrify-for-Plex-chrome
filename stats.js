@@ -138,7 +138,7 @@ function getAllEpisodes(address, port, plex_token, section, callback) {
     });
 }
 
-function getSectionGenres(address, port, plex_token, section_key, callback){
+function getSectionGenres(address, port, plex_token, section_key, callback) {
     var library_section_genres_url = "http://" + address + ":" + port + "/library/sections/" + section_key + "/genre?X-Plex-Token=" + plex_token;
     utils.getXML(library_section_genres_url, function(genres_xml) {
         var genre_nodes = genres_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory");
@@ -154,7 +154,7 @@ function getSectionGenres(address, port, plex_token, section_key, callback){
     });
 }
 
-function getMoviesByGenre(address, port, plex_token, section_key, genre_key, callback){
+function getMoviesByGenre(address, port, plex_token, section_key, genre_key, callback) {
     var filtered_movies_url = "http://" + address + ":" + port + "/library/sections/" + section_key + "/all?genre=" + genre_key + "&X-Plex-Token=" + plex_token;
     utils.getXML(filtered_movies_url, function(movies_xml) {
         var movies = movies_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video");
@@ -162,7 +162,7 @@ function getMoviesByGenre(address, port, plex_token, section_key, genre_key, cal
     });
 }
 
-function getShowsByGenre(address, port, plex_token, section_key, genre_key, callback){
+function getShowsByGenre(address, port, plex_token, section_key, genre_key, callback) {
     var filtered_movies_url = "http://" + address + ":" + port + "/library/sections/" + section_key + "/all?genre=" + genre_key + "&X-Plex-Token=" + plex_token;
     utils.getXML(filtered_movies_url, function(shows_xml) {
         var shows = shows_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory");
@@ -236,7 +236,7 @@ function generateMovieStats(movies, genre_count) {
     delete year_count[NaN];
 
     // collate movies added over time data
-    var sorted_dates = dates_added.sort(function(a, b){return a - b;});
+    var sorted_dates = dates_added.sort(function(a, b) {return a - b;});
     var today = new Date(Date.now());
     var start_date = new Date(sorted_dates[0]);
     var date_added_count = {};
@@ -252,8 +252,8 @@ function generateMovieStats(movies, genre_count) {
         }
 
         // only add date to array if movies were added that day
-        if (day_count > 0){
-            total_count += day_count
+        if (day_count > 0) {
+            total_count += day_count;
 
             var date_string = d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
             date_added_count[date_string] = total_count;
@@ -359,7 +359,7 @@ function generateShowStats(shows, episodes, genre_count) {
     delete year_count[NaN];
 
     // collate episodes added over time data
-    var sorted_dates = episodes_dates_added.sort(function(a, b){return a - b;});
+    var sorted_dates = episodes_dates_added.sort(function(a, b) {return a - b;});
     var today = new Date(Date.now());
     var start_date = new Date(sorted_dates[0]);
     var episodes_date_added_count = {};
@@ -375,7 +375,7 @@ function generateShowStats(shows, episodes, genre_count) {
         }
 
         // only add date to array if shows were added that day
-        if (day_count > 0){
+        if (day_count > 0) {
             total_count += day_count
 
             var date_string = d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
@@ -428,7 +428,7 @@ function generateStats(address, port, plex_token, callback) {
 
     getSections(address, port, plex_token, function(sections_xml) {
         // check if no response from server
-        if (!sections_xml){
+        if (!sections_xml) {
             callback(null);
             return;
         }
@@ -468,7 +468,7 @@ function generateStats(address, port, plex_token, callback) {
 
                     section_movie_genres_count[section_key] = {};
                     // get all movies for section
-                    getAllMovies(address, port, plex_token, section_key, function(movies){
+                    getAllMovies(address, port, plex_token, section_key, function(movies) {
                         all_movies = all_movies.concat(movies);
                         section_movies[section_key] = movies;
 
@@ -508,7 +508,7 @@ function generateStats(address, port, plex_token, callback) {
                     section_show_genres_count[section_key] = {};
                     section_episodes[section_key] = [];
                     // get all tv shows for section
-                    getAllShows(address, port, plex_token, section_key, function(shows){
+                    getAllShows(address, port, plex_token, section_key, function(shows) {
                         all_shows = all_shows.concat(shows);
                         section_shows[section_key] = shows;
 
@@ -627,7 +627,7 @@ function updateNav() {
     // set active server name on nav bar
     var server_name_element = document.getElementById("active-server-name");
     // clear what's already there
-    while (server_name_element.firstChild){
+    while (server_name_element.firstChild) {
         server_name_element.removeChild(server_name_element.firstChild);
     }
 
@@ -743,7 +743,7 @@ function switchSection(e) {
     switchToServer(servers[machine_identifier], section_key, false);
 }
 
-function switchToServer(server, section_key, refresh){
+function switchToServer(server, section_key, refresh) {
     // hide all charts and show loading indicator
     hideDisplay();
 
@@ -809,7 +809,7 @@ function switchToServer(server, section_key, refresh){
     });
 }
 
-function setLastUpdated(timestamp){
+function setLastUpdated(timestamp) {
     last_updated_string = "Last Updated: " + formattedDateString(timestamp);
 
     document.getElementById("server-updated").innerHTML = last_updated_string;
@@ -830,7 +830,7 @@ utils.storage_get_all(function(settings) {
         servers = pms_servers;
 
         // override server addresses if defined in settings
-        if (settings["plex_server_address"] != "" && settings["plex_server_port"] != "") {
+        if (settings["plex_server_address"] !== "" && settings["plex_server_port"] !== "") {
             utils.debug("Plex servers manual override");
 
             for (var server in servers) {

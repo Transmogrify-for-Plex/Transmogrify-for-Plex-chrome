@@ -146,10 +146,16 @@ function getPlexToken() {
         var plex_token = document.body.getAttribute("data-plextoken");
 
         if (plex_token === null) {
+            // remove existing script if run before
+            if (document.getElementById("plex-token-script")) {
+                document.removeChild(document.getElementById("plex-token-script"));
+            }
+
             utils.debug("Inserting plex_token into document body");
             var script = document.createElement("script");
+            script.setAttribute("id", "plex-token-script")
             script.appendChild(document.createTextNode("("+ insertPlexToken +")();"));
-            (document.body || document.head || document.documentElement).appendChild(script);
+            document.body.appendChild(script);
 
             plex_token = document.body.getAttribute("data-plextoken");
         }

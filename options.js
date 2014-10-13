@@ -153,6 +153,11 @@ function refreshRandomPickerExtraOptions() {
 var input_elements = document.getElementsByTagName('input');
 for (var i = 0; i < input_elements.length; i++) {
     input_elements[i].addEventListener("click", saveOptions);
+
+    var input_type = input_elements[i].getAttribute("type");
+    if (input_type === "url" || input_type === "number") {
+        input_elements[i].addEventListener("keyup", saveOptions);
+    }
 }
 
 restoreOptions();

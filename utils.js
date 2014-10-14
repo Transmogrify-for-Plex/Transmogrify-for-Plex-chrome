@@ -3,6 +3,15 @@ var show_debug = null;
 utils = {
     debug: function(output) {
         if (show_debug == null) {
+
+            // show debug outputs until we get setting from storage
+            if (typeof output === "string") {
+                console.log("Transmogrify for Plex log: " + output);
+            }
+            else {
+                console.log(output);
+            }
+
             // set show_debug for first run on this page
             utils.storage_get("debug", function (debug_){
                 if (debug_ === "on") {

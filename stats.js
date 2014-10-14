@@ -12,12 +12,13 @@ function formattedDateString(timestamp) {
     return formatted_date;
 }
 
-function showDisplay() {
+function showDisplay(type) {
     document.getElementById("server-error-indicator").style.display = "none";
     document.getElementById("loading-indicator").style.display = "none";
 
-    if (active_section) {
-        if (active_section["type"] === "movie") {
+    // show movies section if active_section type is movie or forced by passing type to showDisplay
+    if (active_section || type) {
+        if ((active_section && active_section["type"] === "movie") || type === "movies") {
             document.getElementById("movies-container").style.display = "block";
             document.getElementById("shows-container").style.display = "none";
         }
@@ -70,7 +71,7 @@ function processLibrarySections(sections_xml) {
         var key = directories[i].getAttribute("key");
 
         // only return movie or tv show libraries
-        if ((type === "movie" && scanner === "Plex Movie Scanner") || (type === "show" && scanner === "Plex Series Scanner")) {
+        if (type === "movie" || type === "show") {
             dir_metadata[key] = {"type": type, "title": title};
         }
     }
@@ -414,6 +415,8 @@ function generateShowStats(shows, episodes, genre_count) {
 }
 
 function generateStats(address, port, plex_token, callback) {
+    utils.debug("Generating stats for " + address + ":" + port);
+
     var all_movies = [];
     var all_shows = [];
     var all_episodes = [];
@@ -437,10 +440,13 @@ function generateStats(address, port, plex_token, callback) {
         // set up counter to keep track of running tasks
         var task_counter = 0;
         var task_completed = function() {
+            utils.debug("Data task finished");
             task_counter--;
 
             // check if all async tasks are finished
             if (task_counter === 0) {
+                utils.debug("All data tasks finished");
+
                 var movie_stats = generateMovieStats(all_movies, movie_genres_count);
                 var show_stats = generateShowStats(all_shows, all_episodes, show_genres_count);
 
@@ -575,6 +581,7 @@ function getStats(server, section, force, callback) {
     utils.local_storage_get(cache_key, function(data) {
         // if force is true then we are recalculating stats
         if (data && !force) {
+            utils.debug("Cache hit for " + cache_key);
             var timestamp = data["timestamp"];
             if (section) {
                 var stats = data["stats"];
@@ -587,9 +594,11 @@ function getStats(server, section, force, callback) {
             }
         }
         else {
+            utils.debug("Cache miss for " + cache_key);
             generateStats(address, port, plex_token, function(movie_stats, movie_section_stats, show_stats, show_section_stats) {
                 if (movie_stats === null) {
                     // couldn't reach server to get data
+                    utils.debug("Couldn't reach server " + address + ":" + port + " to get stat data");
                     callback(null);
                     return;
                 }
@@ -607,12 +616,7 @@ function getStats(server, section, force, callback) {
                     utils.local_storage_set("cache-stats-" + machine_identifier + "-" + section_key, section_hash);
                 }
 
-                if (section) {
-                    callback(section_stats[section], timestamp);
-                }
-                else {
-                    callback({"movie_stats": movie_stats, "show_stats": show_stats}, timestamp);
-                }
+                callback({"movie_stats": movie_stats, "show_stats": show_stats}, timestamp);
             });
         }
     });
@@ -698,6 +702,8 @@ function addSectionSelections() {
 
                 if (!sections_xml) {
                     // couldn't reach server to get sections data
+                    utils.debug("Couldn't reach server " + servers[server]["name"] + " at " + servers[server]["address"] + ":" + servers[server]["port"]);
+                    utils.debug("Skipping sections for this server");
                     return;
                 }
 
@@ -709,6 +715,8 @@ function addSectionSelections() {
 
                 for (var i = 0; i < sorted_keys.length; i++) {
                     var section_key = sorted_keys[i];
+
+                    utils.debug("Inserting section " + processed_sections[section_key]["title"] + " for " + servers[server]["name"]);
 
                     var title = processed_sections[section_key]["title"];
                     var type = processed_sections[section_key]["type"];
@@ -766,12 +774,25 @@ function switchToServer(server, section_key, refresh) {
             return;
         }
 
-        // hide loading indicator and show charts
-        showDisplay();
+        var statsPresentForType = function(type) {
+            var stats_type = stats[type + "_stats"]
+            for (var key in stats_type) {
+                if (Object.keys(stats_type[key]).length > 1) {
+                    return true;
+                }
+            }
+            return false;
+        };
+
+        var movies_present = statsPresentForType("movie");
+        var shows_present = statsPresentForType("show");
+
         setLastUpdated(last_updated);
 
         // draw charts
         if (active_section) {
+            showDisplay();
+
             if (active_section["type"] === "movie") {
                 // draw movie charts
                 drawMovieYearsChart(stats["year_count"]);
@@ -792,6 +813,17 @@ function switchToServer(server, section_key, refresh) {
             }
         }
         else {
+            // only display both movie and show charts if there's both movie and show libraries on the server
+            if (movies_present && shows_present) {
+                showDisplay();
+            }
+            else if (movies_present) {
+                showDisplay("movies");
+            }
+            else {
+                showDisplay("shows");
+            }
+
             // draw all charts
             drawMovieYearsChart(stats["movie_stats"]["year_count"]);
             drawMovieGenreChart(stats["movie_stats"]["genre_count"]);
@@ -818,7 +850,7 @@ function setLastUpdated(timestamp) {
 }
 
 
-// Init
+// init
 utils.storage_get_all(function(settings) {
     getServerAddresses(function(pms_servers) {
         // check to make sure user has opened plex/web first so we can receive server addresses
@@ -828,11 +860,17 @@ utils.storage_get_all(function(settings) {
             return;
         }
 
+        utils.debug("Server addresses fetched");
+        for (var server in pms_servers) {
+            utils.debug(pms_servers[server]);
+        }
+
         servers = pms_servers;
 
         // override server addresses if defined in settings
         if (settings["plex_server_address"] !== "" && settings["plex_server_port"] !== "") {
             utils.debug("Plex servers manual override");
+            utils.debug("Setting server addresses as " + settings["plex_server_address"] + " and server ports as " + settings["plex_server_port"]);
 
             for (var server in servers) {
                 servers[server]["address"] = settings["plex_server_address"];
@@ -842,6 +880,7 @@ utils.storage_get_all(function(settings) {
 
         // just load first server from array on first page load
         active_server = Object.keys(servers)[0];
+        utils.debug("set active server as " + active_server);
         switchToServer(servers[active_server]);
 
         // Create server list on nav bar and then asynchronously add sections to them

@@ -1,7 +1,7 @@
 body {
     font-family: "segoe ui";
     font-size: 30px;
-    background: url(/resources/stats_bg.png);
+    background: url(/resources/background.png);
     padding-top: 50px;
     margin: 0;
 }

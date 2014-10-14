@@ -234,6 +234,10 @@ function generateMovieStats(movies, genre_count) {
         content_rating_count["Unknown"] = content_rating_count[null];
         delete content_rating_count[null];
     }
+    if (resolution_count[null]) {
+        resolution_count["Unknown"] = resolution_count[null];
+        delete resolution_count[null];
+    }
     delete year_count[NaN];
 
     // collate movies added over time data
@@ -356,6 +360,10 @@ function generateShowStats(shows, episodes, genre_count) {
     if (content_rating_count[null]) {
         content_rating_count["Unknown"] = content_rating_count[null];
         delete content_rating_count[null];
+    }
+    if (resolution_count[null]) {
+        resolution_count["Unknown"] = resolution_count[null];
+        delete resolution_count[null];
     }
     delete year_count[NaN];
 

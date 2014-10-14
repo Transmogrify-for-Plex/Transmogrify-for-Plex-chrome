@@ -55,6 +55,11 @@ function drawMovieYearsChart(year_data) {
 }
 
 function drawMovieGenreChart(genre_data) {
+    var show_legend = true;
+    if (Object.keys(genre_data).length > 52) {
+        show_legend = false;
+    }
+
     var chart = c3.generate({
         bindto: "#movie-genre-chart",
         data: {
@@ -70,6 +75,7 @@ function drawMovieGenreChart(genre_data) {
             width: 140
         },
         legend: {
+            show: show_legend,
             position: "right"
         },
         tooltip: {
@@ -246,7 +252,7 @@ function drawShowYearsChart(year_data) {
         },
         bar: {
             width: {
-                ratio: 0.7
+                ratio: 0.6
             }
         },
         axis: {
@@ -282,6 +288,11 @@ function drawShowYearsChart(year_data) {
 }
 
 function drawShowGenreChart(genre_data) {
+    var show_legend = true;
+    if (Object.keys(genre_data).length > 52) {
+        show_legend = false;
+    }
+
     var chart = c3.generate({
         bindto: "#show-genre-chart",
         data: {
@@ -297,6 +308,7 @@ function drawShowGenreChart(genre_data) {
             width: 140
         },
         legend: {
+            show: show_legend,
             position: "right"
         },
         tooltip: {

@@ -51,17 +51,12 @@ function showPopup(messsage) {
     var is_firefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
     if (is_firefox) {
         try {
-            document.getElementById("options-page-link").addEventListener("click", openOptionsPage, false);
+            document.getElementById("options-page-link").addEventListener("click", utils.openOptionsPage, false);
         }
         catch(e) {
         }
     }
     overlay.addEventListener("click", closePopup, false);
-}
-
-function openOptionsPage() {
-    // this function exists purely for firefox, because it has a stricter security policy for opening tabs
-    utils.openOptionsPage();
 }
 
 function purgeStaleCaches() {

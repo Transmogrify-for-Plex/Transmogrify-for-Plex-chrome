@@ -11,12 +11,12 @@ stats = {
 
         var stats_link = document.createElement("a");
         stats_link.setAttribute("id", "stats-page-link");
-        stats_link.setAttribute("title", "Transmogrify for Plex Stats");
+        stats_link.setAttribute("title", "Transmogrify for Plex stats");
         stats_link.setAttribute("href", utils.getStatsURL());
         stats_link.setAttribute("target", "_blank");
 
         var stats_glyph = document.createElement("i");
-        stats_glyph.setAttribute("class", "glyphicon stats");
+        stats_glyph.setAttribute("class", "glyphicon charts");
 
         stats_link.appendChild(stats_glyph);
         list_element.appendChild(stats_link);

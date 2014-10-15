@@ -88,7 +88,7 @@ nav ul {
     nav ul ul ul {
         position: absolute;
         left: 100%;
-        top: -1;
+        top: -1px;
         min-width: 250px;
     }
 

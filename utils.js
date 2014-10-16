@@ -1,4 +1,3 @@
-var show_debug = null;
 var global_settings;
 
 utils = {

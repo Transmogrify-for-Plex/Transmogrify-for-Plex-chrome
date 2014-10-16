@@ -1,18 +1,19 @@
 var show_update_text = false;
 var update_text = "Actor profiles are now available when you hover over actor's names on movie pages! Also you now have the option to only return unwatched movies using the random picker. Check out the <a id='options-page-link' href='%OPTIONSURL%' target='_blank'>extension settings</a> page, which now automatically saves changes."
 
+var settings;
+
 function checkIfUpdated() {
-    utils.storage_get("last_version", function (last_version) {
-        var version = utils.getExtensionVersion();
-        // do not display if popup has been shown before
-        if ((last_version && last_version === version) || !(show_update_text)) {
-            return;
-        }
-        else {
-            showUpdatePopup();
-            utils.storage_set("last_version", version);
-        }
-    });
+    var last_version = settings["last_version"];
+    var version = utils.getExtensionVersion();
+    // do not display if popup has been shown before
+    if ((last_version && last_version === version) || !(show_update_text)) {
+        return;
+    }
+    else {
+        showUpdatePopup();
+        utils.storage_set("last_version", version);
+    }
 }
 
 function showUpdatePopup() {
@@ -97,7 +98,7 @@ function runOnReady() {
             if (document.getElementsByTagName("h2").length > 0) {
                 utils.debug("Instance of h2 tag detected. Page is ready");
                 window.clearInterval(interval);
-                init();
+                main();
             }
         }
         // page is ready when certain elements exist.
@@ -107,7 +108,7 @@ function runOnReady() {
             if (document.getElementsByClassName("media-poster").length > 0) {
                 utils.debug("Instance of .media-poster detected. Page is ready");
                 window.clearInterval(interval);
-                init();
+                main();
             }
         }
         // check if on movie/tv show details page
@@ -115,7 +116,7 @@ function runOnReady() {
             if (document.getElementsByClassName("item-title").length > 0 || document.getElementsByClassName("show-title").length > 0) {
                 utils.debug("Instance of .item-title or .show-title detected. Page is ready");
                 window.clearInterval(interval);
-                init();
+                main();
             }
         }
         else {
@@ -207,13 +208,7 @@ function processLibrarySections(sections_xml) {
     return dir_metadata;
 }
 
-function init() {
-    utils.storage_get_all(function (settings){
-        main(settings);
-    });
-}
-
-function main(settings) {
+function main() {
     utils.debug("Running main()");
 
     // show popup if updated
@@ -449,11 +444,13 @@ function main(settings) {
 }
 
 // set the default options for extension
-utils.setDefaultOptions();
+utils.setDefaultOptions(function(stored_settings) {
+    settings = stored_settings;
 
-// Plex/Web uses a lot of JS to manipulate the DOM so the only way to tell when
-// plex's JS has finished is to check for the existance of certain elements.
-runOnReady();
+    // Plex/Web uses a lot of JS to manipulate the DOM so the only way to tell when
+    // plex's JS has finished is to check for the existance of certain elements.
+    runOnReady();
+});
 
 // because Plex/Web uses JS to change pages Chrome extensions don't run on every
 // page load as expected. To fix this we run the script every time the window

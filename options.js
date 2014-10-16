@@ -51,7 +51,7 @@ function saveOptions() {
 }
 
 function restoreOptions() {
-    utils.setDefaultOptions(function() {
+    utils.setDefaultOptions(function(settings) {
         utils.storage_get_all(function(results) {
             var movie_trailers_radio_button = document.getElementById("trailers_" + results["movie_trailers"]);
             movie_trailers_radio_button.checked = true;

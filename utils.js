@@ -1,28 +1,9 @@
 var show_debug = null;
+var global_settings;
 
 utils = {
     debug: function(output) {
-        if (show_debug == null) {
-
-            // show debug outputs until we get setting from storage
-            if (typeof output === "string") {
-                console.log("Transmogrify for Plex log: " + output);
-            }
-            else {
-                console.log(output);
-            }
-
-            // set show_debug for first run on this page
-            utils.storage_get("debug", function (debug_){
-                if (debug_ === "on") {
-                    show_debug = true;
-                }
-                else {
-                    show_debug = false;
-                }
-            });
-        }
-        if (show_debug) {
+        if (global_settings["debug"] === "on") {
             if (typeof output === "string") {
                 console.log("Transmogrify for Plex log: " + output);
             }
@@ -221,82 +202,84 @@ utils = {
     },
 
     setDefaultOptions: function(callback) {
-        utils.storage_get_all(function(results) {
-            if (!("movie_trailers" in results)) {
+        utils.storage_get_all(function(settings) {
+            global_settings = settings;
+
+            if (!("movie_trailers" in settings)) {
                 utils.storage_set("movie_trailers", "on");
             }
 
-            if (!("letterboxd_link" in results)) {
+            if (!("letterboxd_link" in settings)) {
                 utils.storage_set("letterboxd_link", "on");
             }
 
-            if (!("random_picker" in results)) {
+            if (!("random_picker" in settings)) {
                 utils.storage_set("random_picker", "on");
             }
 
-            if (!("random_picker_only_unwatched" in results)) {
+            if (!("random_picker_only_unwatched" in settings)) {
                 utils.storage_set("random_picker_only_unwatched", "off");
             }
 
-            if (!("missing_episodes" in results)) {
+            if (!("missing_episodes" in settings)) {
                 utils.storage_set("missing_episodes", "on");
             }
 
-            if (!("rotten_tomatoes_link" in results)) {
+            if (!("rotten_tomatoes_link" in settings)) {
                 utils.storage_set("rotten_tomatoes_link", "off");
             }
 
-            if (!("rotten_tomatoes_audience" in results)) {
+            if (!("rotten_tomatoes_audience" in settings)) {
                 utils.storage_set("rotten_tomatoes_audience", "on");
             }
 
-            if (!("rotten_tomatoes_citizen" in results)) {
+            if (!("rotten_tomatoes_citizen" in settings)) {
                 utils.storage_set("rotten_tomatoes_citizen", "non_us");
             }
 
-            if (!("trakt_movies" in results)) {
+            if (!("trakt_movies" in settings)) {
                 utils.storage_set("trakt_movies", "on");
             }
 
-            if (!("trakt_shows" in results)) {
+            if (!("trakt_shows" in settings)) {
                 utils.storage_set("trakt_shows", "on");
             }
 
-            if (!("plex_server_address" in results) || !("plex_server_port" in results)) {
+            if (!("plex_server_address" in settings) || !("plex_server_port" in settings)) {
                 utils.storage_set("plex_server_address", "");
                 utils.storage_set("plex_server_port", "");
             }
 
-            if (!("split_added_deck" in results)) {
+            if (!("split_added_deck" in settings)) {
                 utils.storage_set("split_added_deck", "on");
             }
 
-            if (!("canistreamit" in results)) {
+            if (!("canistreamit" in settings)) {
                 utils.storage_set("canistreamit", "off");
             }
 
-            if (!("imdb_link" in results)) {
+            if (!("imdb_link" in settings)) {
                 utils.storage_set("imdb_link", "on");
             }
 
-            if (!("actor_profiles" in results)) {
+            if (!("actor_profiles" in settings)) {
                 utils.storage_set("actor_profiles", "on");
             }
 
-            if (!("stats_link" in results)) {
+            if (!("stats_link" in settings)) {
                 utils.storage_set("stats_link", "on");
             }
 
-            if (!("last_version" in results)) {
+            if (!("last_version" in settings)) {
                 utils.storage_set("last_version", "");
             }
 
-            if (!("debug" in results)) {
+            if (!("debug" in settings)) {
                 utils.storage_set("debug", "off");
             }
 
             if (callback) {
-                callback();
+                callback(settings);
             }
         });
     }

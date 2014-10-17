@@ -18,10 +18,11 @@ Features
 - Adds a Can I Stream It? widget for movies
 - Adds a movie/tv show filter for the main dashboard
 - Adds an actor profile for cast members on movie pages
-- More coming soon...
+- Adds a server statistics page
 
 Version History
 --------------
+- **v1.0.0** - added server stats plugin, fix server override address not being saved properly in extension options, fix plex token retrieval script being inserted multiple times into pages, tweaked options page styling, optimized extension settings retrieval code
 - **v0.8.5** - rolled back changes to plex token retrieval
 - **v0.8.4** - even better plex token retrieval (no longer inserts token into document), rewritten code for missing seasons/episodes plugin, fixes issue with seasons and episodes that don't start from Season/Episode 1
 - **v0.8.3** - random picker button now only shows up when it's ready (needed for large libraries), use photo transcoder to generate poster images, fixes and better handling of shared servers, improved code for local/plex.tv extension usage, more reliable plex token retrieval (thanks to sam0)

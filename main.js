@@ -1,5 +1,5 @@
-var show_update_text = false;
-var update_text = "Actor profiles are now available when you hover over actor's names on movie pages! Also you now have the option to only return unwatched movies using the random picker. Check out the <a id='options-page-link' href='%OPTIONSURL%' target='_blank'>extension settings</a> page, which now automatically saves changes."
+var show_update_text = true;
+var update_text = "Version 1.0.0 is here! New to the extension is the <a id='stats-page-link' href='%STATSPAGEURL%' target='_blank'>server statistics page</a>. You can reach this page any time via the graph link in the top right nav. There are also quite a fair bit of bug fixes and code improvements. Enjoy!"
 
 var settings;
 

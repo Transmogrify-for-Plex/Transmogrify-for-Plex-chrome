@@ -1,14 +1,36 @@
 var global_settings;
+var log_buffer = [];
 
 utils = {
     debug: function(output) {
-        if (global_settings["debug"] === "on") {
-            if (typeof output === "string") {
-                console.log("Transmogrify for Plex log: " + output);
+        if (global_settings) {
+           if (global_settings["debug"] === "on") {
+                if (typeof output === "string") {
+                    console.log("Transmogrify for Plex log: " + output);
+                }
+                else {
+                    console.log(output);
+                }
             }
-            else {
-                console.log(output);
-            }
+        }
+        else {
+            log_buffer.push(output);
+
+            utils.storage_get_all(function(settings) {
+                global_settings = settings;
+
+                // print buffered logs
+                while (log_buffer.length > 0) {
+                    var output = log_buffer.pop();
+
+                    if (typeof output === "string") {
+                        console.log("Transmogrify for Plex log: " + output);
+                    }
+                    else {
+                        console.log(output);
+                    }
+                }
+            });
         }
     },
 

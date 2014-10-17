@@ -18,7 +18,8 @@ function checkIfUpdated() {
 
 function showUpdatePopup() {
     var options_url = utils.getOptionsURL();
-    var formatted_update_text = update_text.replace("%OPTIONSURL%", options_url);
+    var stats_url = utils.getStatsURL();
+    var formatted_update_text = update_text.replace("%OPTIONSURL%", options_url).replace("%STATSPAGEURL%", stats_url);
     showPopup("New update! - " + formatted_update_text);
 }
 
@@ -53,6 +54,11 @@ function showPopup(messsage) {
     if (is_firefox) {
         try {
             document.getElementById("options-page-link").addEventListener("click", utils.openOptionsPage, false);
+        }
+        catch(e) {
+        }
+        try {
+            document.getElementById("stats-page-link").addEventListener("click", utils.openStatsPage, false);
         }
         catch(e) {
         }

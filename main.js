@@ -7,11 +7,8 @@ var global_server_addresses;
 function checkIfUpdated() {
     var last_version = settings["last_version"];
     var version = utils.getExtensionVersion();
-    // do not display if popup has been shown before
-    if ((last_version && last_version === version) || !(show_update_text)) {
-        return;
-    }
-    else {
+
+    if ((last_version && last_version != version) && show_update_text) {
         showUpdatePopup();
         utils.storage_set("last_version", version);
     }

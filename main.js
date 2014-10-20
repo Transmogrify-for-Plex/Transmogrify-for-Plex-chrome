@@ -2,6 +2,7 @@ var show_update_text = true;
 var update_text = "Version 1.0.0 is here! New to the extension is the <a id='stats-page-link' href='%STATSPAGEURL%' target='_blank'>server statistics page</a>. You can reach this page any time via the graph link in the top right nav. There are also quite a fair bit of bug fixes and code improvements. Enjoy!"
 
 var settings;
+var global_plex_token;
 var global_server_addresses;
 
 function checkIfUpdated() {
@@ -138,8 +139,13 @@ function insertPlexToken() {
 }
 
 function getPlexToken() {
-    if (localStorage["myPlexAccessToken"]) {
+    if (global_plex_token) {
+        utils.debug("plex_token is cached - " + global_plex_token);
+        return global_plex_token;
+    }
+    else if (localStorage["myPlexAccessToken"]) {
         utils.debug("plex_token fetched from localStorage - " + localStorage["myPlexAccessToken"]);
+        global_plex_token = localStorage["myPlexAccessToken"];
         return localStorage["myPlexAccessToken"];
     }
     else {
@@ -161,6 +167,7 @@ function getPlexToken() {
         }
 
         utils.debug("plex_token fetched from document body - " + plex_token);
+        global_plex_token = plex_token;
         return plex_token;
     }
 }

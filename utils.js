@@ -162,7 +162,7 @@ utils = {
         return text;
     },
 
-    getXML: function(url, callback, timeout) {
+    getXML: function(url, callback) {
         utils.debug("Fetching XML from " + url);
         var xhr = new XMLHttpRequest();
         xhr.open("GET", url, true);
@@ -181,12 +181,32 @@ utils = {
         xhr.onerror = function() {
             callback(xhr.statusText);
         };
-        if (timeout) {
-            xhr.timeout = 2000;
-            xhr.ontimeout = function() {
-                callback(xhr.statusText);
-            };
-        }
+        xhr.send();
+    },
+
+    getXMLWithTimeout: function(url, timeout, callback) {
+        utils.debug("Fetching XML from " + url);
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", url, true);
+        xhr.onload = function(e) {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    utils.debug("Recieved XML response");
+                    utils.debug(xhr.responseXML);
+                    callback(xhr.responseXML);
+                }
+                else {
+                    callback(xhr.statusText);
+                }
+            }
+        };
+        xhr.onerror = function() {
+            callback(xhr.statusText);
+        };
+        xhr.timeout = timeout;
+        xhr.ontimeout = function() {
+            callback(xhr.statusText);
+        };
         xhr.send();
     },
 

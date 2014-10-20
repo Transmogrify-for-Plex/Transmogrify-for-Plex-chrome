@@ -212,7 +212,7 @@ function getServerAddresses(requests_url, plex_token, callback) {
 
                 // ping each local_address to see if we can reach server through that (preferred) address
                 (function (machine_identifier, local_address, address, port) {
-                    utils.getXML("http://" + local_address + ":32400?X-Plex-Token=" + access_token, function(server_xml) {
+                    utils.getXMLWithTimeout("http://" + local_address + ":32400?X-Plex-Token=" + access_token, 2000, function(server_xml) {
                         // use local address if we can reach it
                         if (server_xml && server_xml.getElementsByTagName("MediaContainer")[0].getAttribute("machineIdentifier") === machine_identifier) {
                             utils.debug("Using local address for " + machine_identifier);
@@ -227,7 +227,7 @@ function getServerAddresses(requests_url, plex_token, callback) {
                         }
 
                         task_completed();
-                    }, true);
+                    });
                 }(machine_identifier, local_address, address, port));
             }
         });

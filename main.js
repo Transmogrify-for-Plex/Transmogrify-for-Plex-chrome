@@ -151,7 +151,7 @@ function getPlexToken() {
         if (plex_token === null) {
             // remove existing script if run before
             if (document.getElementById("plex-token-script")) {
-                document.removeChild(document.getElementById("plex-token-script"));
+                document.body.removeChild(document.getElementById("plex-token-script"));
             }
 
             utils.debug("Inserting plex_token into document body");

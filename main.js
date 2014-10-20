@@ -171,6 +171,8 @@ function getPlexToken() {
 function getServerAddresses(requests_url, plex_token, callback) {
     if (global_server_addresses) {
         utils.debug("Server addresses are already cached");
+        utils.debug(global_server_addresses);
+
         callback(global_server_addresses);
     }
     else {
@@ -227,7 +229,7 @@ function getServerAddresses(requests_url, plex_token, callback) {
                         }
 
                         task_completed();
-                    });
+                    }, true);
                 }(machine_identifier, local_address, address));
             }
         });

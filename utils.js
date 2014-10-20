@@ -162,7 +162,7 @@ utils = {
         return text;
     },
 
-    getXML: function(url, callback) {
+    getXML: function(url, callback, timeout) {
         utils.debug("Fetching XML from " + url);
         var xhr = new XMLHttpRequest();
         xhr.open("GET", url, true);
@@ -181,6 +181,12 @@ utils = {
         xhr.onerror = function() {
             callback(xhr.statusText);
         };
+        if (timeout) {
+            xhr.timeout = 2000;
+            xhr.ontimeout = function() {
+                callback(xhr.statusText);
+            };
+        }
         xhr.send();
     },
 

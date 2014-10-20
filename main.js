@@ -2,6 +2,7 @@ var show_update_text = true;
 var update_text = "Version 1.0.0 is here! New to the extension is the <a id='stats-page-link' href='%STATSPAGEURL%' target='_blank'>server statistics page</a>. You can reach this page any time via the graph link in the top right nav. There are also quite a fair bit of bug fixes and code improvements. Enjoy!"
 
 var settings;
+var global_server_addresses;
 
 function checkIfUpdated() {
     var last_version = settings["last_version"];
@@ -168,28 +169,69 @@ function getPlexToken() {
 }
 
 function getServerAddresses(requests_url, plex_token, callback) {
-    utils.debug("Fetching server addresses");
-    utils.getXML(requests_url + "/servers?includeLite=1&X-Plex-Token=" + plex_token, function(servers_xml) {
-        var servers = servers_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Server");
-        var server_addresses = {};
-        for (var i = 0; i < servers.length; i++) {
-            var name = servers[i].getAttribute("name");
-            var address = servers[i].getAttribute("address");
-            var port = servers[i].getAttribute("port");
-            var machine_identifier = servers[i].getAttribute("machineIdentifier");
-            var access_token = servers[i].getAttribute("accessToken");
+    if (global_server_addresses) {
+        utils.debug("Server addresses are already cached");
+        callback(global_server_addresses);
+    }
+    else {
+        utils.debug("Fetching server addresses");
+        utils.getXML(requests_url + "/servers?includeLite=1&X-Plex-Token=" + plex_token, function(servers_xml) {
+            var servers = servers_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Server");
 
-            server_addresses[machine_identifier] = {"name": name, "address": address, "port": port, "machine_identifier": machine_identifier, "access_token": access_token};
-        }
+            var task_counter = servers.length;
+            var task_completed = function() {
+                utils.debug("Server ping task finished");
+                task_counter--;
 
-        utils.debug("Server addresses fetched");
-        utils.debug(server_addresses);
+                // check if all async tasks are finished
+                if (task_counter === 0) {
+                    utils.debug("All server ping tasks finished");
 
-        // pass server addresses to background for stats page
-        utils.background_storage_set("server_addresses", server_addresses);
+                    utils.debug("Server addresses fetched");
+                    utils.debug(server_addresses);
 
-        callback(server_addresses);
-    });
+                    // pass server addresses to background for stats page
+                    utils.background_storage_set("server_addresses", server_addresses);
+
+                    // set global_server_addresses so results are cached
+                    global_server_addresses = server_addresses;
+
+                    callback(server_addresses);
+                }
+            };
+
+            var server_addresses = {};
+            for (var i = 0; i < servers.length; i++) {
+                var name = servers[i].getAttribute("name");
+                var address = servers[i].getAttribute("address");
+                var port = servers[i].getAttribute("port");
+                var local_address = servers[i].getAttribute("localAddresses");
+                var machine_identifier = servers[i].getAttribute("machineIdentifier");
+                var access_token = servers[i].getAttribute("accessToken");
+
+                server_addresses[machine_identifier] = {"name": name, "port": port, "machine_identifier": machine_identifier, "access_token": access_token};
+
+                // ping each local_address to see if we can reach server through that (preferred) address
+                (function (machine_identifier, local_address, address) {
+                    utils.getXML("http://" + local_address + ":" + port + "?X-Plex-Token=" + access_token, function(server_xml) {
+
+                        // use local address if we can reach it
+                        if (server_xml && server_xml.getElementsByTagName("MediaContainer")[0].getAttribute("machineIdentifier") === machine_identifier) {
+                            utils.debug("Using local address for " + machine_identifier);
+                            server_addresses[machine_identifier]["address"] = local_address;
+                        }
+                        // otherwise server is not on local network, use external address instead
+                        else {
+                            utils.debug("Using external address for " + machine_identifier);
+                            server_addresses[machine_identifier]["address"] = address;
+                        }
+
+                        task_completed();
+                    });
+                }(machine_identifier, local_address, address));
+            }
+        });
+    }
 }
 
 function processLibrarySections(sections_xml) {

@@ -180,7 +180,7 @@ utils = {
         };
         xhr.onerror = function() {
             callback(xhr.statusText);
-        }
+        };
         xhr.send();
     },
 
@@ -218,7 +218,7 @@ utils = {
         };
         xhr.onerror = function() {
             callback({"error": xhr.statusText});
-        }
+        };
         xhr.send();
     },
 

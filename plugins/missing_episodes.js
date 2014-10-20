@@ -353,6 +353,7 @@ missing_episodes = {
         action_bar.insertBefore(list_tag, action_bar.getElementsByClassName("secondary-actions-dropdown")[0]);
 
         a_tag.setAttribute("data-state", "show");
+        a_tag.setAttribute("data-original-title", "Hide missing episodes/seasons");
         a_tag.addEventListener("click", missing_episodes.switchState, false);
     },
 
@@ -384,10 +385,12 @@ missing_episodes = {
         if (state === "show") {
             glyph.setAttribute("class", "glyphicon eye-close");
             missing_switch.setAttribute("data-state", "hide");
+            missing_switch.setAttribute("data-original-title", "Show missing episodes/seasons");
         }
         else {
             glyph.setAttribute("class", "glyphicon eye-open");
             missing_switch.setAttribute("data-state", "show");
+            missing_switch.setAttribute("data-original-title", "Hide missing episodes/seasons");
         }
     }
 }

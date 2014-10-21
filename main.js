@@ -239,25 +239,34 @@ function getServerAddresses(requests_url, plex_token, callback) {
 
                 server_addresses[machine_identifier] = {"name": name, "machine_identifier": machine_identifier, "access_token": access_token};
 
-                // ping each local_address to see if we can reach server through that (preferred) address
-                (function (machine_identifier, local_address, address, port) {
-                    utils.getXMLWithTimeout("http://" + local_address + ":32400?X-Plex-Token=" + access_token, 3000, function(server_xml) {
-                        // use local address if we can reach it
-                        if (server_xml && server_xml.getElementsByTagName("MediaContainer")[0].getAttribute("machineIdentifier") === machine_identifier) {
-                            utils.debug("Using local address for " + machine_identifier);
-                            server_addresses[machine_identifier]["address"] = local_address;
-                            server_addresses[machine_identifier]["port"] = "32400";
-                        }
-                        // otherwise server is not on local network, use external address instead
-                        else {
-                            utils.debug("Using external address for " + machine_identifier);
-                            server_addresses[machine_identifier]["address"] = address;
-                            server_addresses[machine_identifier]["port"] = port;
-                        }
+                // if we only have address attribute then use that, otherwise try pinging server through local address
+                if (local_address) {
+                    (function (machine_identifier, local_address, address, port) {
+                        utils.getXMLWithTimeout("http://" + local_address + ":32400?X-Plex-Token=" + access_token, 3000, function(server_xml) {
+                            // use local address if we can reach it
+                            if (server_xml && server_xml.getElementsByTagName("MediaContainer")[0].getAttribute("machineIdentifier") === machine_identifier) {
+                                utils.debug("Using local address for " + machine_identifier);
+                                server_addresses[machine_identifier]["address"] = local_address;
+                                server_addresses[machine_identifier]["port"] = "32400";
+                            }
+                            // otherwise server is not on local network, use external address instead
+                            else {
+                                utils.debug("Using external address for " + machine_identifier);
+                                server_addresses[machine_identifier]["address"] = address;
+                                server_addresses[machine_identifier]["port"] = port;
+                            }
 
-                        task_completed();
-                    });
-                }(machine_identifier, local_address, address, port));
+                            task_completed();
+                        });
+                    }(machine_identifier, local_address, address, port));
+                }
+                else {
+                    utils.debug("Using local address for " + machine_identifier);
+                    server_addresses[machine_identifier]["address"] = address;
+                    server_addresses[machine_identifier]["port"] = port;
+
+                    task_completed();
+                }
             }
         });
     }

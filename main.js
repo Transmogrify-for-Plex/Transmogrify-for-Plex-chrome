@@ -172,6 +172,24 @@ function getPlexToken() {
     }
 }
 
+function insertLoadingIcon() {
+    var nav_bar_right = document.body.getElementsByClassName("nav-bar-right")[0];
+
+    var list_element = document.createElement("li");
+    list_element.setAttribute("id", "loading-extension");
+
+    var img = document.createElement("img");
+    img.setAttribute("src", utils.getResourcePath("loading_extension.gif"));
+
+    list_element.appendChild(img);
+    nav_bar_right.insertBefore(list_element, nav_bar_right.firstChild);
+}
+
+function removeLoadingIcon() {
+    var loading_icon = document.getElementById("loading-extension");
+    loading_icon.parentNode.removeChild(loading_icon);
+}
+
 function getServerAddresses(requests_url, plex_token, callback) {
     if (global_server_addresses) {
         utils.debug("Server addresses are already cached");
@@ -181,6 +199,9 @@ function getServerAddresses(requests_url, plex_token, callback) {
     }
     else {
         utils.debug("Fetching server addresses");
+
+        insertLoadingIcon();
+
         utils.getXML(requests_url + "/servers?includeLite=1&X-Plex-Token=" + plex_token, function(servers_xml) {
             var servers = servers_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Server");
 
@@ -202,6 +223,7 @@ function getServerAddresses(requests_url, plex_token, callback) {
                     // set global_server_addresses so results are cached
                     global_server_addresses = server_addresses;
 
+                    removeLoadingIcon();
                     callback(server_addresses);
                 }
             };

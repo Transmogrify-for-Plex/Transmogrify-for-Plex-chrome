@@ -270,3 +270,9 @@
     text-align: center;
     font-weight: bold;
 }
+
+#loading-extension {
+    line-height: 60px;
+    vertical-align: middle;
+    padding-right: 10px;
+}

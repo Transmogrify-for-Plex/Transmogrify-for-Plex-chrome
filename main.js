@@ -9,7 +9,7 @@ function checkIfUpdated() {
     var last_version = settings["last_version"];
     var version = utils.getExtensionVersion();
 
-    if ((last_version && last_version != version) && show_update_text) {
+    if (last_version != version && show_update_text) {
         showUpdatePopup();
         utils.storage_set("last_version", version);
     }

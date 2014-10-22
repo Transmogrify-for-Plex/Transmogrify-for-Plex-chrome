@@ -22,6 +22,7 @@ Features
 
 Version History
 --------------
+- **v1.1.0** - extension now tries to reach servers on local ip addresses and falls back to external address if unreachable, add loading icon, fixed bug with removing plex token script, added hover title for missing episodes/seasons switch, fixed update popup bug, added caching for plex token
 - **v1.0.0** - added server stats plugin, fix server override address not being saved properly in extension options, fix plex token retrieval script being inserted multiple times into pages, tweaked options page styling, optimized extension settings retrieval code
 - **v0.8.5** - rolled back changes to plex token retrieval
 - **v0.8.4** - even better plex token retrieval (no longer inserts token into document), rewritten code for missing seasons/episodes plugin, fixes issue with seasons and episodes that don't start from Season/Episode 1

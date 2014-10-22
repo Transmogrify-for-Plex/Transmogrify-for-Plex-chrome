@@ -1,5 +1,7 @@
 var show_update_text = true;
-var update_text = "Version 1.0.0 is here! New to the extension is the <a id='stats-page-link' href='%STATSPAGEURL%' target='_blank'>server statistics page</a>. You can reach this page any time via the graph link in the top right nav. There are also quite a fair bit of bug fixes and code improvements. Enjoy!"
+var update_text = "Version 1.1.0 is here! New to the extension is the <a id='stats-page-link' href='%STATSPAGEURL%' target='_blank'>server statistics page</a>. \
+You can reach this page any time via the graph link in the top right nav. <br/><br/>There are also quite a fair bit of bug fixes and code improvements. If you were \
+using the <a id='options-page-link' href='%OPTIONSURL%' target='_blank'>server address override feature</a> please try the extension now without it. Enjoy!"
 
 var settings;
 var global_plex_token;

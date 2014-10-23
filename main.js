@@ -13,6 +13,7 @@ function checkIfUpdated() {
 
     if (last_version != version && show_update_text) {
         showUpdatePopup();
+        settings["last_version"] = version;
         utils.storage_set("last_version", version);
     }
 }

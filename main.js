@@ -247,7 +247,7 @@ function getServerAddresses(requests_url, plex_token, callback) {
                     (function (machine_identifier, local_address, address, port) {
                         utils.getXMLWithTimeout("http://" + local_address + ":32400?X-Plex-Token=" + access_token, 3000, function(server_xml) {
                             // use local address if we can reach it
-                            if (server_xml && server_xml.getElementsByTagName("MediaContainer")[0].getAttribute("machineIdentifier") === machine_identifier) {
+                            if (server_xml && server_xml != "Unauthorized" && server_xml.getElementsByTagName("MediaContainer")[0].getAttribute("machineIdentifier") === machine_identifier) {
                                 utils.debug("Using local address for " + machine_identifier);
                                 server_addresses[machine_identifier]["address"] = local_address;
                                 server_addresses[machine_identifier]["port"] = "32400";

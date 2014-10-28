@@ -25,6 +25,7 @@
         "plugins/split_added_deck.js",
         "plugins/stats.js",
         "plugins/trakt.js",
+        "plugins/tvdb.js",
         "plugins/youtube_trailer.js",
         "main.js"
       ]

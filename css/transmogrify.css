@@ -10,7 +10,7 @@
     z-index: 5000;
 }
 
-#letterboxd-link, #trakt-container, #rotten-tomatoes-container, #imdb-container {
+#letterboxd-link, #trakt-container, #tvdb-container, #rotten-tomatoes-container, #imdb-container {
     display: block;
     margin-top: 20px;
     margin-left: 5px;

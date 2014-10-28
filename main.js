@@ -425,6 +425,15 @@ function main() {
                             utils.debug("trakt plugin is disabled");
                         }
 
+                        // create tvdb link
+                        if (settings["tvdb_link"] === "on") {
+                            utils.debug("tvdb plugin is enabled");
+                            tvdb.init(metadata_xml);
+                        }
+                        else {
+                            utils.debug("tvdb plugin is disabled");
+                        }
+
                         // insert missing seasons
                         if (settings["missing_episodes"] === "on") {
                             utils.debug("missing_episodes plugin is enabled");

@@ -2,6 +2,7 @@ function saveOptions() {
     var movie_trailers = document.querySelector("input[name='movie_trailers']:checked").value;
     var letterboxd_link = document.querySelector("input[name='letterboxd_link']:checked").value;
     var imdb_link = document.querySelector("input[name='imdb_link']:checked").value;
+    var tvdb_link = document.querySelector("input[name='tvdb_link']:checked").value;
     var rotten_tomatoes_link = document.querySelector("input[name='rotten_tomatoes_link']:checked").value;
     var rotten_tomatoes_audience = document.querySelector("input[name='rotten_tomatoes_audience']:checked").value;
     var rotten_tomatoes_citizen = document.querySelector("input[name='rotten_tomatoes_citizen']:checked").value;
@@ -22,6 +23,7 @@ function saveOptions() {
     utils.storage_set("movie_trailers", movie_trailers);
     utils.storage_set("letterboxd_link", letterboxd_link);
     utils.storage_set("imdb_link", imdb_link);
+    utils.storage_set("tvdb_link", tvdb_link);
     utils.storage_set("random_picker", random_picker);
     utils.storage_set("random_picker_only_unwatched", random_picker_only_unwatched);
     utils.storage_set("rotten_tomatoes_link", rotten_tomatoes_link);
@@ -61,6 +63,9 @@ function restoreOptions() {
 
             var imdb_link_radio_button = document.getElementById("imdb_" + results["imdb_link"]);
             imdb_link_radio_button.checked = true;
+
+            var tvdb_link_radio_button = document.getElementById("tvdb_" + results["tvdb_link"]);
+            tvdb_link_radio_button.checked = true;
 
             var random_picker_radio_button = document.getElementById("random_" + results["random_picker"]);
             random_picker_radio_button.checked = true;

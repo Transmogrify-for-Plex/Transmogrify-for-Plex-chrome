@@ -309,6 +309,10 @@ utils = {
                 utils.storage_set("imdb_link", "on");
             }
 
+            if (!("tvdb_link" in settings)) {
+                utils.storage_set("tvdb_link", "off");
+            }
+
             if (!("actor_profiles" in settings)) {
                 utils.storage_set("actor_profiles", "on");
             }

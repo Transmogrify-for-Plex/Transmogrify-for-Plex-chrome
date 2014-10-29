@@ -170,4 +170,15 @@ for (var i = 0; i < input_elements.length; i++) {
     }
 }
 
+// add click listener to clear cache
+document.getElementById("clear-cache").addEventListener("click", function(e) {
+    this.innerHTML = "Cleared";
+    utils.purgeStaleCaches(true);
+
+    var button = this;
+    setTimeout(function() {
+        button.innerHTML = "Clear cache";
+    }, 1500);
+});
+
 restoreOptions();

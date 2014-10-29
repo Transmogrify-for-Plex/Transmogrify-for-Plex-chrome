@@ -179,7 +179,7 @@
         </div>
 
         <div class="field-row">
-            <div class="label">Plex server override:<br/><span class="subscript">(only necessary if you want to manually specify a server address e.g. you use a vpn or tunnel)</span></div>
+            <div class="label">Plex server address override:<br/><span class="subscript">(only necessary if you want to manually specify a server address e.g. you use a vpn or tunnel)</span></div>
 
             <div class="field">
                 <input type="url" placeholder="address" id="plex_server_address" name="plex_server_address">
@@ -201,13 +201,21 @@
             </div>
         </div>
 
-    <ul class="thanks">
-        <li>This product uses the <a href="http://trakt.tv" target="blank">trakt.tv</a> API</li>
-        <li>This product uses the <a href="http://www.themoviedb.org" target="blank">TMDb</a> API but is not endorsed or certified by TMDb</li>
-        <li>This product uses the <a href="http://www.rottentomatoes.com" target="blank">Rotten Tomatoes&reg;</a> API</li>
-    </ul>
+        <div class="field-row">
+        <div class="label">Clear cached extension data:</div>
 
-    <script src="utils.js"></script>
-    <script src="options.js"></script>
+            <div class="field">
+                <button id="clear-cache">Clear cache</button>
+            </div>
+        </div>
+
+        <ul class="thanks">
+            <li>This product uses the <a href="http://trakt.tv" target="blank">trakt.tv</a> API</li>
+            <li>This product uses the <a href="http://www.themoviedb.org" target="blank">TMDb</a> API but is not endorsed or certified by TMDb</li>
+            <li>This product uses the <a href="http://www.rottentomatoes.com" target="blank">Rotten Tomatoes&reg;</a> API</li>
+        </ul>
+
+        <script src="utils.js"></script>
+        <script src="options.js"></script>
     </body>
 </html>

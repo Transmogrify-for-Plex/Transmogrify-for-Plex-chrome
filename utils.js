@@ -142,6 +142,32 @@ utils = {
         });
     },
 
+    purgeStaleCaches: function(force) {
+        utils.local_storage_get("cache_keys", function(cache_keys) {
+            // check if there is any cached data yet
+            if (!cache_keys) {
+                utils.debug("No cached data, skipping cache purge");
+                return;
+            }
+
+            var time_now = new Date().getTime();
+
+            // iterate over cache keys and check if stale
+            for (var key in cache_keys) {
+                var timestamp = cache_keys[key]["timestamp"];
+
+                // 3 day cache
+                if (time_now - timestamp > 259200000 || force) {
+                    utils.debug("Found stale data, removing " + key);
+                    utils.local_storage_remove(key);
+
+                    delete cache_keys[key];
+                    utils.local_storage_set("cache_keys", cache_keys);
+                }
+            }
+        });
+    },
+
     getResourcePath: function(resource) {
         return chrome.extension.getURL("resources/" + resource);
     },

@@ -276,6 +276,12 @@ function generateMovieStats(movies, genre_count) {
         }
         delete movie_rating_count[rating];
     }
+    // group 9.0-10.0 ratings together
+    if (movie_rating_count["9.0 - 9.9"] || movie_rating_count["10.0 - 10.9"]) {
+        movie_rating_count["9.0 - 10.0"] = (movie_rating_count["9.0 - 9.9"] || 0) + (movie_rating_count["10.0 - 10.9"] || 0);
+        delete movie_rating_count["9.0 - 9.9"];
+        delete movie_rating_count["10.0 - 10.9"];
+    }
 
     // format movie resolutions data
     for (var resolution in resolution_count) {
@@ -402,6 +408,12 @@ function generateShowStats(shows, episodes, genre_count) {
             show_rating_count[formatted_rating] = show_rating_count[rating];
         }
         delete show_rating_count[rating];
+    }
+    // group 9.0-10.0 ratings together
+    if (show_rating_count["9.0 - 9.9"] || show_rating_count["10.0 - 10.9"]) {
+        show_rating_count["9.0 - 10.0"] = (show_rating_count["9.0 - 9.9"] || 0) + (show_rating_count["10.0 - 10.9"] || 0);
+        delete show_rating_count["9.0 - 9.9"];
+        delete show_rating_count["10.0 - 10.9"];
     }
 
     // format movie resolutions data

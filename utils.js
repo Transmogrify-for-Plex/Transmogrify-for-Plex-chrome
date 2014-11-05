@@ -1,36 +1,20 @@
 var global_settings;
-var log_buffer = [];
 
 utils = {
     debug: function(output) {
-        if (global_settings) {
-           if (global_settings["debug"] === "on") {
-                if (typeof output === "string") {
-                    console.log("Transmogrify for Plex log: " + output);
-                }
-                else {
-                    console.log(output);
-                }
-            }
+        if (global_settings["debug_unfiltered"] === "off" && typeof output === "string") {
+            output = output.replace(global_plex_token, "XXXXXXXXXXXXXXXXXXXX");
+            output = output.replace(/X-Plex-Token=[\w\d]{20}/, "X-Plex-Token=XXXXXXXXXXXXXXXXXXXX");
+            output = output.replace(/\d+\.\d+\.\d+\.\d+/, "XXX.XXX.X.XX");
         }
-        else {
-            log_buffer.push(output);
 
-            utils.storage_get_all(function(settings) {
-                global_settings = settings;
-
-                // print buffered logs
-                while (log_buffer.length > 0) {
-                    var output = log_buffer.pop();
-
-                    if (typeof output === "string") {
-                        console.log("Transmogrify for Plex log: " + output);
-                    }
-                    else {
-                        console.log(output);
-                    }
-                }
-            });
+        if (global_settings["debug"] === "on") {
+            if (typeof output === "string") {
+                console.log("Transmogrify for Plex log: " + output);
+            }
+            else {
+                console.log(output);
+            }
         }
     },
 
@@ -353,6 +337,10 @@ utils = {
 
             if (!("debug" in settings)) {
                 utils.storage_set("debug", "off");
+            }
+
+            if (!("debug_unfiltered" in settings)) {
+                utils.storage_set("debug_unfiltered", "off");
             }
 
             if (callback) {

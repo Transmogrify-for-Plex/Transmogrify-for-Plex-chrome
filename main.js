@@ -118,11 +118,13 @@ function insertPlexToken() {
 function getPlexToken() {
     if (global_plex_token) {
         utils.debug("plex_token is cached - " + global_plex_token);
+
         return global_plex_token;
     }
     else if (localStorage["myPlexAccessToken"]) {
-        utils.debug("plex_token fetched from localStorage - " + localStorage["myPlexAccessToken"]);
         global_plex_token = localStorage["myPlexAccessToken"];
+        utils.debug("plex_token fetched from localStorage - " + localStorage["myPlexAccessToken"]);
+
         return localStorage["myPlexAccessToken"];
     }
     else {
@@ -143,8 +145,9 @@ function getPlexToken() {
             plex_token = document.body.getAttribute("data-plextoken");
         }
 
-        utils.debug("plex_token fetched from document body - " + plex_token);
         global_plex_token = plex_token;
+        utils.debug("plex_token fetched from document body - " + plex_token);
+
         return plex_token;
     }
 }

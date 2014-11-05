@@ -19,6 +19,7 @@ function saveOptions() {
     var plex_server_port = document.querySelector("input[name='plex_server_port']").value;
 
     var debug = document.querySelector("input[name='debug']:checked").value;
+    var debug_unfiltered = document.querySelector("input[name='debug_unfiltered']:checked").value;
 
     utils.storage_set("movie_trailers", movie_trailers);
     utils.storage_set("letterboxd_link", letterboxd_link);
@@ -50,6 +51,7 @@ function saveOptions() {
     utils.storage_set("plex_server_port", plex_server_port);
 
     utils.storage_set("debug", debug);
+    utils.storage_set("debug_unfiltered", debug_unfiltered);
 }
 
 function restoreOptions() {
@@ -122,12 +124,18 @@ function restoreOptions() {
 
             var debug_radio_button = document.getElementById("debug_" + results["debug"]);
             debug_radio_button.checked = true;
+
+            var debug_unfiltered_radio_button = document.getElementById("debug_unfiltered_" + results["debug_unfiltered"]);
+            debug_unfiltered_radio_button.checked = true;
+            refreshDebugExtraOptions();
         });
 
         document.getElementById("rotten_tomatoes_on").addEventListener("click", refreshRottenTomatoesExtraOptions, false);
         document.getElementById("rotten_tomatoes_off").addEventListener("click", refreshRottenTomatoesExtraOptions, false);
         document.getElementById("random_on").addEventListener("click", refreshRandomPickerExtraOptions, false);
         document.getElementById("random_off").addEventListener("click", refreshRandomPickerExtraOptions, false);
+        document.getElementById("debug_on").addEventListener("click", refreshDebugExtraOptions, false);
+        document.getElementById("debug_off").addEventListener("click", refreshDebugExtraOptions, false);
     });
 }
 
@@ -155,6 +163,20 @@ function refreshRandomPickerExtraOptions() {
     else {
         for (var i = 0; i < random_picker_extra_options.length; i++) {
             random_picker_extra_options[i].style.display = "none";
+        }
+    }
+}
+
+function refreshDebugExtraOptions() {
+    var debug_extra_options = document.querySelectorAll(".debug-extra");
+    if (document.getElementById("debug_on").checked) {
+        for (var i = 0; i < debug_extra_options.length; i++) {
+            debug_extra_options[i].style.display = "block";
+        }
+    }
+    else {
+        for (var i = 0; i < debug_extra_options.length; i++) {
+            debug_extra_options[i].style.display = "none";
         }
     }
 }

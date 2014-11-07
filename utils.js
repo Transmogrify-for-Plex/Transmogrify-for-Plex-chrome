@@ -3,7 +3,9 @@ var global_settings;
 utils = {
     debug: function(output) {
         if (global_settings["debug_unfiltered"] === "off" && typeof output === "string") {
-            output = output.replace(global_plex_token, "XXXXXXXXXXXXXXXXXXXX");
+            if (typeof global_plex_token != "undefined") {
+                output = output.replace(global_plex_token, "XXXXXXXXXXXXXXXXXXXX");
+            }
             output = output.replace(/X-Plex-Token=[\w\d]{20}/, "X-Plex-Token=XXXXXXXXXXXXXXXXXXXX");
             output = output.replace(/\d+\.\d+\.\d+\.\d+/, "XXX.XXX.X.XX");
         }
@@ -76,6 +78,7 @@ utils = {
 
     storage_get_all: function(callback) {
         chrome.storage.sync.get(function(results) {
+            global_settings = results;
             callback(results);
         });
     },
@@ -260,8 +263,6 @@ utils = {
 
     setDefaultOptions: function(callback) {
         utils.storage_get_all(function(settings) {
-            global_settings = settings;
-
             if (!("movie_trailers" in settings)) {
                 utils.storage_set("movie_trailers", "on");
             }

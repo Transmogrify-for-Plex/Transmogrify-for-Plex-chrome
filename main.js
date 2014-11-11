@@ -297,37 +297,14 @@ function main() {
     }
     utils.debug("requests_url set as " + requests_url);
 
+    var observer = new MutationObserver(function(mutations, this_observer) {
+        this_observer.disconnect();
 
-    var click_handler = function(e) {
-        this.removeEventListener("click", click_handler, false);
         global_server_addresses = null;
         global_plex_token = null;
         runOnReady();
-    }
-
-    var dropdown = document.getElementsByClassName("dropdown-home-user-list-container")[0];
-    if (dropdown.getElementsByClassName("dropdown-menu-item").length === 0) {
-        var observer = new MutationObserver(function(mutations) {
-            var users = dropdown.getElementsByClassName("dropdown-menu-item");
-            for (var i = 0; i < users.length; i++) {
-                users[i].addEventListener("click", click_handler, false);
-            }
-        });
-
-        observer.observe(dropdown, {subtree: true, childList: true});
-    }
-    else {
-        var interval = window.setInterval(function() {
-            var dropdown = document.getElementsByClassName("dropdown-home-user-list-container")[0];
-            var users = dropdown.getElementsByClassName("dropdown-menu-item");
-            if (users && users[0].hasChildNodes) {
-                for (var i = 0; i < users.length; i++) {
-                    users[i].addEventListener("click", click_handler, false);
-                }
-                window.clearInterval(interval);
-            }
-        }, 2000);
-    }
+    });
+    observer.observe(document.getElementsByClassName("dropdown-poster-container")[0], {subtree: true, childList: true});
 
     getServerAddresses(requests_url, plex_token, function(server_addresses) {
         // insert stats page link

@@ -2,20 +2,41 @@ var global_settings;
 
 utils = {
     debug: function(output) {
-        if (global_settings["debug_unfiltered"] === "off" && typeof output === "string") {
-            if (typeof global_plex_token != "undefined") {
-                output = output.replace(global_plex_token, "XXXXXXXXXXXXXXXXXXXX");
-            }
-            output = output.replace(/X-Plex-Token=[\w\d]{20}/, "X-Plex-Token=XXXXXXXXXXXXXXXXXXXX");
-            output = output.replace(/\d+\.\d+\.\d+\.\d+/, "XXX.XXX.X.XX");
-        }
-
         if (global_settings["debug"] === "on") {
             if (typeof output === "string") {
+                if (global_settings["debug_unfiltered"] === "off") {
+                    if (typeof global_plex_token != "undefined") {
+                        output = output.replace(global_plex_token, "XXXXXXXXXXXXXXXXXXXX");
+                    }
+                    output = output.replace(/X-Plex-Token=[\w\d]{20}/, "X-Plex-Token=XXXXXXXXXXXXXXXXXXXX");
+                    output = output.replace(/\d+\.\d+\.\d+\.\d+/, "XXX.XXX.X.XX");
+                }
+
                 console.log("Transmogrify for Plex log: " + output);
             }
             else {
-                console.log(output);
+                // don't filter xml, use nodeType attribute to detect
+                if (global_settings["debug_unfiltered"] === "off" && !("nodeType" in output)) {
+                    // clone object so we can filter out values
+                    var output_ = {};
+                    for (var key in output) {
+                        if (output.hasOwnProperty(key)) {
+                            output_[key] = output[key];
+                        }
+                    }
+
+                    if ("access_token" in output_) {
+                        output_["access_token"] = "XXXXXXXXXXXXXXXXXXXX";
+                    }
+                    if ("address" in output_) {
+                        output_["address"] = "XXX.XXX.X.XX";
+                    }
+
+                    console.log(output_);
+                }
+                else {
+                    console.log(output);
+                }
             }
         }
     },

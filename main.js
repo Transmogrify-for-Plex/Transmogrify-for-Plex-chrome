@@ -185,7 +185,7 @@ function getServerAddresses(requests_url, plex_token, callback) {
         utils.getXML(requests_url + "/servers?includeLite=1&X-Plex-Token=" + plex_token, function(servers_xml) {
             var servers = servers_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Server");
 
-            var task_counter = servers.length;
+            var task_counter = 0;
             var task_completed = function() {
                 utils.debug("Server ping task finished");
                 task_counter--;
@@ -195,7 +195,9 @@ function getServerAddresses(requests_url, plex_token, callback) {
                     utils.debug("All server ping tasks finished");
 
                     utils.debug("Server addresses fetched");
-                    utils.debug(server_addresses);
+                    for (var machine_identifier in server_addresses) {
+                        utils.debug(server_addresses[machine_identifier]);
+                    }
 
                     // pass server addresses to background for stats page
                     utils.background_storage_set("server_addresses", server_addresses);
@@ -213,39 +215,38 @@ function getServerAddresses(requests_url, plex_token, callback) {
                 var name = servers[i].getAttribute("name");
                 var address = servers[i].getAttribute("address");
                 var port = servers[i].getAttribute("port");
-                var local_address = servers[i].getAttribute("localAddresses");
+                var local_addresses = servers[i].getAttribute("localAddresses").split(",");
                 var machine_identifier = servers[i].getAttribute("machineIdentifier");
                 var access_token = servers[i].getAttribute("accessToken");
 
-                server_addresses[machine_identifier] = {"name": name, "machine_identifier": machine_identifier, "access_token": access_token};
+                task_counter += local_addresses.length;
 
-                // if we only have address attribute then use that, otherwise try pinging server through local address
-                if (local_address) {
-                    (function (machine_identifier, local_address, address, port) {
+                // temporarily use external ip address that we fall back to if all pings to local addresses fail
+                server_addresses[machine_identifier] = {"name": name,
+                                                        "machine_identifier": machine_identifier,
+                                                        "access_token": access_token,
+                                                        "address": address,
+                                                        "port": port
+                                                    };
+
+                for (var j = 0; j < local_addresses.length; j++) {
+                    var local_address = local_addresses[j];
+
+                    (function (machine_identifier, local_address) {
                         utils.getXMLWithTimeout("http://" + local_address + ":32400?X-Plex-Token=" + access_token, 2000, function(server_xml) {
                             // use local address if we can reach it
                             if (server_xml && server_xml != "Unauthorized" && server_xml.getElementsByTagName("MediaContainer")[0].getAttribute("machineIdentifier") === machine_identifier) {
-                                utils.debug("Using local address for " + machine_identifier);
+                                utils.debug("Using local address for " + machine_identifier + " - " + local_address);
                                 server_addresses[machine_identifier]["address"] = local_address;
                                 server_addresses[machine_identifier]["port"] = "32400";
                             }
-                            // otherwise server is not on local network, use external address instead
                             else {
-                                utils.debug("Using external address for " + machine_identifier);
-                                server_addresses[machine_identifier]["address"] = address;
-                                server_addresses[machine_identifier]["port"] = port;
+                                utils.debug("Failed to ping local address for " + machine_identifier + " - " + local_address);
                             }
 
                             task_completed();
                         });
-                    }(machine_identifier, local_address, address, port));
-                }
-                else {
-                    utils.debug("Using local address for " + machine_identifier);
-                    server_addresses[machine_identifier]["address"] = address;
-                    server_addresses[machine_identifier]["port"] = port;
-
-                    task_completed();
+                    }(machine_identifier, local_address));
                 }
             }
         });

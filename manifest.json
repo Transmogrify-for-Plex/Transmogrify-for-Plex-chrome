@@ -24,6 +24,7 @@
         "plugins/rotten_tomatoes.js",
         "plugins/split_added_deck.js",
         "plugins/stats.js",
+        "plugins/themoviedb.js",
         "plugins/trakt.js",
         "plugins/tvdb.js",
         "plugins/youtube_trailer.js",

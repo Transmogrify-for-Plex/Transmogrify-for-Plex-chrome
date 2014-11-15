@@ -341,6 +341,10 @@ utils = {
                 utils.storage_set("imdb_link", "on");
             }
 
+            if (!("themoviedb_link" in settings)) {
+                utils.storage_set("themoviedb_link", "on");
+            }
+
             if (!("tvdb_link" in settings)) {
                 utils.storage_set("tvdb_link", "off");
             }

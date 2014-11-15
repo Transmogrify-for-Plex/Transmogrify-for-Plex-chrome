@@ -457,6 +457,15 @@ function main() {
                         utils.debug("letterboxd_link plugin is disabled");
                     }
 
+                    // insert themoviedb link
+                    if (settings["themoviedb_link"] === "on") {
+                        utils.debug("themoviedb plugin is enabled");
+                        themoviedb.init(metadata_xml);
+                    }
+                    else {
+                        utils.debug("themoviedb plugin is disabled");
+                    }
+
                     // insert imdb link
                     if (settings["imdb_link"] === "on") {
                         utils.debug("imdb plugin is enabled");

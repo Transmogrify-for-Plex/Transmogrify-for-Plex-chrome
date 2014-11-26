@@ -167,7 +167,9 @@ function insertLoadingIcon() {
 
 function removeLoadingIcon() {
     var loading_icon = document.getElementById("loading-extension");
-    loading_icon.parentNode.removeChild(loading_icon);
+    if (loading_icon) {
+        loading_icon.parentNode.removeChild(loading_icon);
+    }
 }
 
 function getServerAddresses(requests_url, plex_token, callback) {
@@ -283,6 +285,18 @@ function main() {
 
     var page_url = document.URL;
     var plex_token = getPlexToken();
+
+    // add observer for fast user switching functionality, to reload token and server addresses
+    var observer = new MutationObserver(function(mutations) {
+        observer.disconnect();
+
+        utils.debug("User switched");
+        global_server_addresses = null;
+        global_plex_token = null;
+        runOnReady();
+    });
+
+    observer.observe(document.getElementsByClassName("dropdown-poster-container")[0], {subtree: true, childList: true});
 
     // use plex.tv for API requests if we have plex token, otherwise use server URL
     // as user is on local server and not signed in

@@ -201,6 +201,14 @@ function getServerAddresses(requests_url, plex_token, callback) {
                         utils.debug(server_addresses[machine_identifier]);
                     }
 
+                    // remove offline servers, which return a blank address from plex.tv
+                    for (var machine_identifier in server_addresses) {
+                        if (server_addresses[machine_identifier]["address"] === "") {
+                            utils.debug("Removing offline server - " + machine_identifier);
+                            delete server_addresses[machine_identifier];
+                        }
+                    }
+
                     // pass server addresses to background for stats page
                     utils.background_storage_set("server_addresses", server_addresses);
 

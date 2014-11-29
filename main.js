@@ -1,7 +1,6 @@
 var show_update_text = true;
-var update_text = "Version 1.1.0 is here! New to the extension is the <a id='stats-page-link' href='%STATSPAGEURL%' target='_blank'>server statistics page</a>. \
-You can reach this page any time via the graph link in the top right nav. <br/><br/>There are also quite a fair bit of bug fixes and code improvements. If you were \
-using the <a id='options-page-link' href='%OPTIONSURL%' target='_blank'>server address override feature</a> please try the extension now without it. Enjoy!"
+var update_text = "Version 1.3.1 is here! New to the extension is the tvdb plugin, the moviedb plugin, support for fast user switching, a clear cache button on the settings page and a whole host of other fixes and improvements. \
+You can enable the new plugins via the <a id='options-page-link' href='%OPTIONSURL%' target='_blank'>extension options page</a> as usual. Enjoy!"
 
 var settings;
 var global_plex_token;

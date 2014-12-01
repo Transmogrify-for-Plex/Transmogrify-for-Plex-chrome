@@ -224,9 +224,10 @@ function getServerAddresses(requests_url, plex_token, callback) {
                 var name = servers[i].getAttribute("name");
                 var address = servers[i].getAttribute("address");
                 var port = servers[i].getAttribute("port");
-                var local_addresses = servers[i].getAttribute("localAddresses").split(",");
                 var machine_identifier = servers[i].getAttribute("machineIdentifier");
                 var access_token = servers[i].getAttribute("accessToken");
+                // if localAddresses attribute is not returned in response then just use address value instead
+                var local_addresses = (servers[i].getAttribute("localAddresses")) ? servers[i].getAttribute("localAddresses").split(",") : [address];
 
                 task_counter += local_addresses.length;
 

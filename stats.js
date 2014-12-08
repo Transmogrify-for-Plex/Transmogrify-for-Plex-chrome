@@ -264,13 +264,6 @@ function generateMovieStats(movies, genre_count) {
         else {
             year_count[year] = 1;
         }
-        // add missing years
-        var sorted_years = Object.keys(year_count).sort();
-        for (var j = sorted_years[0]; j < sorted_years[sorted_years.length - 1]; j++) {
-            if (!year_count[j]) {
-                year_count[j] = 0;
-            }
-        }
 
         // movies added over time
         // set date time to beginning of day to make it easy to work with
@@ -288,6 +281,14 @@ function generateMovieStats(movies, genre_count) {
         delete resolution_count[null];
     }
     delete year_count[NaN];
+
+    // add missing years
+    var sorted_years = Object.keys(year_count).sort();
+    for (var j = sorted_years[0]; j < sorted_years[sorted_years.length - 1]; j++) {
+        if (!year_count[j]) {
+            year_count[j] = 0;
+        }
+    }
 
     // collate movies added over time data
     var sorted_dates = dates_added.sort(function(a, b) {return a - b;});
@@ -385,13 +386,6 @@ function generateShowStats(shows, episodes, genre_count) {
         else {
             year_count[year] = 1;
         }
-        // add missing years
-        var sorted_years = Object.keys(year_count).sort();
-        for (var j = sorted_years[0]; j < sorted_years[sorted_years.length - 1]; j++) {
-            if (!year_count[j]) {
-                year_count[j] = 0;
-            }
-        }
     }
 
     // iterate over all episodes
@@ -421,6 +415,14 @@ function generateShowStats(shows, episodes, genre_count) {
         delete resolution_count[null];
     }
     delete year_count[NaN];
+
+    // add missing years
+    var sorted_years = Object.keys(year_count).sort();
+    for (var j = sorted_years[0]; j < sorted_years[sorted_years.length - 1]; j++) {
+        if (!year_count[j]) {
+            year_count[j] = 0;
+        }
+    }
 
     // collate episodes added over time data
     var sorted_dates = episodes_dates_added.sort(function(a, b) {return a - b;});
@@ -483,7 +485,126 @@ function generateShowStats(shows, episodes, genre_count) {
         };
 }
 
-function generateMusicStats(songs, albums, albums_genre_count) {
+function generateMusicStats(songs, albums, genre_count) {
+    var bitrate_count = {};
+    var duration_count = {};
+    var year_count = {};
+    var songs_dates_added = [];
+    var albums_dates_added = [];
+
+    for (var i = 0; i < songs.length; i++) {
+        // bitrates count
+        var bitrate = songs[i]["bitrate"];
+        if (bitrate_count[bitrate]) {
+            bitrate_count[bitrate]++;
+        }
+        else {
+            bitrate_count[bitrate] = 1;
+        }
+
+        // durations count
+        // round down duration to lowest 30 seconds to make it easy to work with
+        var duration = parseInt(parseInt(songs[i]["duration"]) / 1000);
+        var nearest_duration_milestone = 30 * Math.round(duration / 30);
+        if (duration_count[nearest_duration_milestone]) {
+            duration_count[nearest_duration_milestone]++;
+        }
+        else {
+            duration_count[nearest_duration_milestone] = 1;
+        }
+
+
+        // songs added over time
+        // set date time to beginning of day to make it easy to work with
+        var song_added_at = new Date(parseInt(songs[i]["added_at"]) * 1000).setHours(0, 0, 0, 0);
+        songs_dates_added.push(song_added_at);
+    }
+
+    for (var i = 0; i < albums.length; i++) {
+        // years count
+        var year = parseInt(albums[i]["year"]);
+        if (year_count[year]) {
+            year_count[year]++;
+        }
+        else {
+            year_count[year] = 1;
+        }
+
+        // albums added over time
+        // set date time to beginning of day to make it easy to work with
+        var album_added_at = new Date(parseInt(albums[i]["added_at"]) * 1000).setHours(0, 0, 0, 0);
+        albums_dates_added.push(album_added_at);
+    }
+
+    // clean up, remove invalid data
+    delete year_count[NaN];
+
+    // add missing years
+    var sorted_years = Object.keys(year_count).sort();
+    for (var j = sorted_years[0]; j < sorted_years[sorted_years.length - 1]; j++) {
+        if (!year_count[j]) {
+            year_count[j] = 0;
+        }
+    }
+
+    // collate songs added over time data
+    var sorted_song_dates = songs_dates_added.sort(function(a, b) {return a - b;});
+    var today = new Date(Date.now());
+    var start_date = new Date(sorted_song_dates[0]);
+    var songs_date_added_count = {};
+    var total_count = 0;
+    // iterate over dates from first song added date added to today
+    for (var d = start_date; d <= today; d.setDate(d.getDate() + 1)) {
+        var current_timestamp = d.getTime();
+        var day_count = 0;
+        for (var i = 0; i < sorted_song_dates.length; i++) {
+            if (sorted_song_dates[i] === current_timestamp) {
+                day_count += 1;
+            }
+        }
+
+        // only add date to array if songs were added that day
+        if (day_count > 0) {
+            total_count += day_count;
+
+            var date_string = d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+            songs_date_added_count[date_string] = total_count;
+        }
+    }
+
+    // collate albums added over time data
+    var sorted_album_dates = albums_dates_added.sort(function(a, b) {return a - b;});
+    var today = new Date(Date.now());
+    var start_date = new Date(sorted_album_dates[0]);
+    var albums_date_added_count = {};
+    var total_count = 0;
+    // iterate over dates from first album added date added to today
+    for (var d = start_date; d <= today; d.setDate(d.getDate() + 1)) {
+        var current_timestamp = d.getTime();
+        var day_count = 0;
+        for (var i = 0; i < sorted_album_dates.length; i++) {
+            if (sorted_album_dates[i] === current_timestamp) {
+                day_count += 1;
+            }
+        }
+
+        // only add date to array if albums were added that day
+        if (day_count > 0) {
+            total_count += day_count;
+
+            var date_string = d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+            albums_date_added_count[date_string] = total_count;
+        }
+    }
+
+    return {
+        "bitrate_count": bitrate_count,
+        "duration_count": duration_count,
+        "year_count": year_count,
+        "genre_count": genre_count,
+        "songs_date_added_count": songs_date_added_count,
+        "albums_date_added_count": albums_date_added_count
+        };
 }
 
 function generateStats(address, port, plex_token, callback) {

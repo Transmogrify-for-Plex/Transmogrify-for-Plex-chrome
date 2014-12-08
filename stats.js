@@ -4,7 +4,12 @@ var active_server;
 var active_section;
 var last_updated_string;
 
-var resolution_mappings = {"1080" : "1080p", "720" : "720p", "480": "480p", "576": "576p", "sd": "SD"};
+var resolution_mappings = {"1080" : "1080p",
+                           "720" : "720p",
+                           "480" : "480p",
+                           "576" : "576p",
+                           "sd" : "SD"
+                           };
 
 function formattedDateString(timestamp) {
     var date = new Date(timestamp);
@@ -71,7 +76,7 @@ function processLibrarySections(sections_xml) {
         var key = directories[i].getAttribute("key");
 
         // only return movie or tv show libraries
-        if (type === "movie" || type === "show") {
+        if (type === "movie" || type === "show" || type === "artist") {
             dir_metadata[key] = {"type": type, "title": title};
         }
     }
@@ -111,7 +116,6 @@ function getAllShows(address, port, plex_token, section_key, callback) {
             show_data["rating"] = shows_xml[i].getAttribute("rating");
             show_data["year"] = shows_xml[i].getAttribute("year");
             show_data["duration"] = shows_xml[i].getAttribute("duration");
-            show_data["rating_key"] = shows_xml[i].getAttribute("ratingKey");
 
             shows.push(show_data);
         }
@@ -136,6 +140,43 @@ function getAllEpisodes(address, port, plex_token, section, callback) {
         }
 
         callback(episodes);
+    });
+}
+
+function getAllSongs(address, port, plex_token, section, callback) {
+    var library_section_songs_url = "http://" + address + ":" + port + "/library/sections/" + section + "/all?type=10&X-Plex-Token=" + plex_token;
+    utils.getXML(library_section_songs_url, function(section_xml) {
+        var songs_xml = section_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Track");
+        var songs = [];
+        for (var i = 0; i < songs_xml.length; i++) {
+            var song_data = {};
+            song_data["duration"] = songs_xml[i].getAttribute("duration");
+            song_data["added_at"] = songs_xml[i].getAttribute("addedAt");
+
+            var metadata_xml = songs_xml[i].getElementsByTagName("Media")[0];
+            song_data["bitrate"] = metadata_xml.getAttribute("bitrate");
+
+            songs.push(song_data);
+        }
+
+        callback(songs);
+    });
+}
+
+function getAllAlbums(address, port, plex_token, section, callback) {
+    var library_section_albums_url = "http://" + address + ":" + port + "/library/sections/" + section + "/all?type=9&X-Plex-Token=" + plex_token;
+    utils.getXML(library_section_albums_url, function(section_xml) {
+        var albums_xml = section_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory");
+        var albums = [];
+        for (var i = 0; i < albums_xml.length; i++) {
+            var album_data = {};
+            album_data["year"] = albums_xml[i].getAttribute("year");
+            album_data["added_at"] = albums_xml[i].getAttribute("addedAt");
+
+            albums.push(album_data);
+        }
+
+        callback(albums);
     });
 }
 
@@ -164,10 +205,18 @@ function getMoviesByGenre(address, port, plex_token, section_key, genre_key, cal
 }
 
 function getShowsByGenre(address, port, plex_token, section_key, genre_key, callback) {
-    var filtered_movies_url = "http://" + address + ":" + port + "/library/sections/" + section_key + "/all?genre=" + genre_key + "&X-Plex-Token=" + plex_token;
-    utils.getXML(filtered_movies_url, function(shows_xml) {
+    var filtered_shows_url = "http://" + address + ":" + port + "/library/sections/" + section_key + "/all?genre=" + genre_key + "&X-Plex-Token=" + plex_token;
+    utils.getXML(filtered_shows_url, function(shows_xml) {
         var shows = shows_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory");
         callback(shows);
+    });
+}
+
+function getAlbumsByGenre(address, port, plex_token, section_key, genre_key, callback) {
+    var filtered_albums_url = "http://" + address + ":" + port + "/library/sections/" + section_key + "/all?genre=" + genre_key + "&X-Plex-Token=" + plex_token;
+    utils.getXML(filtered_albums_url, function(albums_xml) {
+        var albums = albums_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory");
+        callback(albums);
     });
 }
 
@@ -434,20 +483,29 @@ function generateShowStats(shows, episodes, genre_count) {
         };
 }
 
+function generateMusicStats(songs, albums, albums_genre_count) {
+}
+
 function generateStats(address, port, plex_token, callback) {
     utils.debug("Generating stats for " + address + ":" + port);
 
     var all_movies = [];
     var all_shows = [];
     var all_episodes = [];
+    var all_songs = [];
+    var all_albums = [];
     var movie_genres_count = {};
     var show_genres_count = {};
+    var album_genres_count = {};
 
     var section_movies = {};
     var section_shows = {};
     var section_episodes = {};
+    var section_songs = {};
+    var section_albums = {};
     var section_movie_genres_count = {};
     var section_show_genres_count = {};
+    var section_album_genres_count = {};
 
     getSections(address, port, plex_token, function(sections_xml) {
         // check if no response from server
@@ -469,6 +527,7 @@ function generateStats(address, port, plex_token, callback) {
 
                 var movie_stats = generateMovieStats(all_movies, movie_genres_count);
                 var show_stats = generateShowStats(all_shows, all_episodes, show_genres_count);
+                var music_stats = generateMusicStats(all_songs, all_albums, album_genres_count);
 
                 var per_section_movie_stats = {};
                 for (var section_key in section_movies) {
@@ -525,9 +584,10 @@ function generateStats(address, port, plex_token, callback) {
                                 }(genre_key));
                             }
                             task_completed();
-                        })
+                        });
                     });
                 }
+
                 else if (processed_sections[section_key]["type"] === "show") {
                     task_counter++;
 
@@ -565,7 +625,7 @@ function generateStats(address, port, plex_token, callback) {
                                 }(genre_key));
                             }
                             task_completed();
-                        })
+                        });
                     });
 
                     // get all tv show episodes for section
@@ -573,6 +633,54 @@ function generateStats(address, port, plex_token, callback) {
                     getAllEpisodes(address, port, plex_token, section_key, function(episodes) {
                         all_episodes = all_episodes.concat(episodes);
                         section_episodes[section_key] = section_episodes[section_key].concat(episodes);
+                        task_completed();
+                    });
+                }
+
+                else if (processed_sections[section_key]["type"] === "artist") {
+                    task_counter++;
+
+                    section_album_genres_count[section_key] = {};
+                    // get all songs for section
+                    getAllSongs(address, port, plex_token, section_key, function(songs) {
+                        all_songs = all_songs.concat(songs);
+                        section_songs[section_key] = songs;
+
+                        // because the plex web api calls for library sections only returns the first two genres
+                        // of each album we need to get all the genre mappings first and count the number of albums
+                        // returned by the api with that genre filtered out
+                        getSectionGenres(address, port, plex_token, section_key, function(genres) {
+                            task_counter += Object.keys(genres).length;
+
+                            for (var genre_key in genres) {
+                                (function (genre_key) {
+                                    var genre_title = genres[genre_key];
+                                    getAlbumsByGenre(address, port, plex_token, section_key, genre_key, function(genre_albums) {
+                                        if (album_genres_count[genre_title]) {
+                                            album_genres_count[genre_title] += genre_albums.length;
+                                        }
+                                        else {
+                                            album_genres_count[genre_title] = genre_albums.length;
+                                        }
+                                        if (section_album_genres_count[section_key][genre_title]) {
+                                            section_album_genres_count[section_key][genre_title] += genre_albums.length;
+                                        }
+                                        else {
+                                            section_album_genres_count[section_key][genre_title] = genre_albums.length;
+                                        }
+                                        task_completed();
+                                    });
+                                }(genre_key));
+                            }
+                            task_completed();
+                        });
+                    });
+
+                    task_counter++;
+                    getAllAlbums(address, port, plex_token, section_key, function(albums) {
+                        all_albums = all_albums.concat(albums);
+                        section_albums[section_key] = albums;
+
                         task_completed();
                     });
                 }

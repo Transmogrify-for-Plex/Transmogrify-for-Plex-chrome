@@ -22,7 +22,13 @@ function showHeadings() {
     var shows_visible = document.getElementById("shows-container").style.display === "block";
     var music_visible = document.getElementById("music-container").style.display === "block";
 
-    if (movies_visible && shows_visible) {
+    // there is probably a better way to do this
+    if (movies_visible && shows_visible && music_visible) {
+        document.getElementById("movies-heading").style.display = "block";
+        document.getElementById("shows-heading").style.display = "block";
+        document.getElementById("music-heading").style.display = "block";
+    }
+    else if (movies_visible && shows_visible) {
         document.getElementById("movies-heading").style.display = "block";
         document.getElementById("shows-heading").style.display = "block";
     }
@@ -875,8 +881,7 @@ function getStats(server, section, force, callback) {
                     return;
                 }
                 var timestamp = new Date().getTime();
-                var hash = {"name": name, "movie_stats": movie_stats, "show_stats": show_stats, "timestamp": timestamp};
-                // var hash = {"name": name, "movie_stats": movie_stats, "show_stats": show_stats, "music_stats": music_stats, "timestamp": timestamp};
+                var hash = {"name": name, "movie_stats": movie_stats, "show_stats": show_stats, "music_stats": music_stats, "timestamp": timestamp};
                 utils.local_storage_set(cache_key, hash);
 
                 for (var section_key in movie_section_stats) {
@@ -889,10 +894,10 @@ function getStats(server, section, force, callback) {
                     utils.local_storage_set("cache-stats-" + machine_identifier + "-" + section_key, section_hash);
                 }
 
-                // for (var section_key in music_section_stats) {
-                //     var section_hash = {"stats": music_section_stats[section_key], "timestamp": timestamp};
-                //     utils.local_storage_set("cache-stats-" + machine_identifier + "-" + section_key, section_hash);
-                // }
+                for (var section_key in music_section_stats) {
+                    var section_hash = {"stats": music_section_stats[section_key], "timestamp": timestamp};
+                    utils.local_storage_set("cache-stats-" + machine_identifier + "-" + section_key, section_hash);
+                }
 
                 callback({"movie_stats": movie_stats, "show_stats": show_stats, "music_stats": music_stats}, timestamp);
             });
@@ -1092,7 +1097,7 @@ function switchToServer(server, section_key, refresh) {
             }
             else {
                 // draw music charts
-                //
+                drawAlbumYearsChart(stats["year_count"]);
             }
         }
         else {
@@ -1121,6 +1126,8 @@ function switchToServer(server, section_key, refresh) {
             drawShowDateAddedChart(stats["show_stats"]["episodes_date_added_count"]);
             drawShowContentRatingChart(stats["show_stats"]["content_rating_count"]);
             drawShowResolutionChart(stats["show_stats"]["resolution_count"]);
+
+            drawAlbumYearsChart(stats["music_stats"]["year_count"]);
         }
     });
 }

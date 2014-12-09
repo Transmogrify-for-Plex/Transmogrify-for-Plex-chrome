@@ -17,6 +17,25 @@ function formattedDateString(timestamp) {
     return formatted_date;
 }
 
+function showHeadings() {
+    var movies_visible = document.getElementById("movies-container").style.display === "block";
+    var shows_visible = document.getElementById("shows-container").style.display === "block";
+    var music_visible = document.getElementById("music-container").style.display === "block";
+
+    if (movies_visible && shows_visible) {
+        document.getElementById("movies-heading").style.display = "block";
+        document.getElementById("shows-heading").style.display = "block";
+    }
+    else if (movies_visible && music_visible) {
+        document.getElementById("movies-heading").style.display = "block";
+        document.getElementById("music-heading").style.display = "block";
+    }
+    else if (music_visible && shows_visible) {
+        document.getElementById("music-heading").style.display = "block";
+        document.getElementById("shows-heading").style.display = "block";
+    }
+}
+
 function showDisplay(type) {
     document.getElementById("server-error-indicator").style.display = "none";
     document.getElementById("loading-indicator").style.display = "none";
@@ -25,28 +44,25 @@ function showDisplay(type) {
     if (active_section || type) {
         if ((active_section && active_section["type"] === "movie") || type === "movies") {
             document.getElementById("movies-container").style.display = "block";
-            document.getElementById("shows-container").style.display = "none";
+        }
+        else if ((active_section && active_section["type"] === "show") || type === "shows") {
+            document.getElementById("shows-container").style.display = "block";
         }
         else {
-            document.getElementById("shows-container").style.display = "block";
-            document.getElementById("movies-container").style.display = "none";
+            document.getElementById("music-container").style.display = "block";
         }
+    }
 
-        // hide headings, not needed when viewing libraries
-        document.getElementById("movies-heading").style.display = "none";
-        document.getElementById("shows-heading").style.display = "none";
-    }
-    else {
-        document.getElementById("movies-heading").style.display = "block";
-        document.getElementById("shows-heading").style.display = "block";
-        document.getElementById("movies-container").style.display = "block";
-        document.getElementById("shows-container").style.display = "block";
-    }
+    showHeadings();
 }
 
 function hideDisplay() {
     document.getElementById("movies-container").style.display = "none";
     document.getElementById("shows-container").style.display = "none";
+    document.getElementById("music-container").style.display = "none";
+    document.getElementById("movies-heading").style.display = "none";
+    document.getElementById("shows-heading").style.display = "none";
+    document.getElementById("music-heading").style.display = "none";
     document.getElementById("server-error-indicator").style.display = "none";
     document.getElementById("server-updated").style.display = "none";
 
@@ -662,7 +678,13 @@ function generateStats(address, port, plex_token, callback) {
                     per_section_show_stats[section_key] = section_show_stats;
                 }
 
-                callback(movie_stats, per_section_movie_stats, show_stats, per_section_show_stats);
+                var per_section_music_stats = {};
+                for (var section_key in section_albums) {
+                    var section_music_stats = generateMusicStats(section_songs[section_key], section_albums[section_key], section_album_genres_count[section_key]);
+                    per_section_music_stats[section_key] = section_music_stats;
+                }
+
+                callback(movie_stats, per_section_movie_stats, show_stats, per_section_show_stats, music_stats, per_section_music_stats);
             }
         };
 
@@ -839,12 +861,13 @@ function getStats(server, section, force, callback) {
             else {
                 var movie_stats = data["movie_stats"];
                 var show_stats = data["show_stats"];
-                callback({"movie_stats": movie_stats, "show_stats": show_stats}, timestamp);
+                var music_stats = data["music_stats"];
+                callback({"movie_stats": movie_stats, "show_stats": show_stats, "music_stats": music_stats}, timestamp);
             }
         }
         else {
             utils.debug("Cache miss for " + cache_key);
-            generateStats(address, port, plex_token, function(movie_stats, movie_section_stats, show_stats, show_section_stats) {
+            generateStats(address, port, plex_token, function(movie_stats, movie_section_stats, show_stats, show_section_stats, music_stats, music_section_stats) {
                 if (movie_stats === null) {
                     // couldn't reach server to get data
                     utils.debug("Couldn't reach server " + address + ":" + port + " to get stat data");
@@ -853,6 +876,7 @@ function getStats(server, section, force, callback) {
                 }
                 var timestamp = new Date().getTime();
                 var hash = {"name": name, "movie_stats": movie_stats, "show_stats": show_stats, "timestamp": timestamp};
+                // var hash = {"name": name, "movie_stats": movie_stats, "show_stats": show_stats, "music_stats": music_stats, "timestamp": timestamp};
                 utils.local_storage_set(cache_key, hash);
 
                 for (var section_key in movie_section_stats) {
@@ -865,7 +889,12 @@ function getStats(server, section, force, callback) {
                     utils.local_storage_set("cache-stats-" + machine_identifier + "-" + section_key, section_hash);
                 }
 
-                callback({"movie_stats": movie_stats, "show_stats": show_stats}, timestamp);
+                // for (var section_key in music_section_stats) {
+                //     var section_hash = {"stats": music_section_stats[section_key], "timestamp": timestamp};
+                //     utils.local_storage_set("cache-stats-" + machine_identifier + "-" + section_key, section_hash);
+                // }
+
+                callback({"movie_stats": movie_stats, "show_stats": show_stats, "music_stats": music_stats}, timestamp);
             });
         }
     });
@@ -1035,6 +1064,7 @@ function switchToServer(server, section_key, refresh) {
 
         var movies_present = statsPresentForType("movie");
         var shows_present = statsPresentForType("show");
+        var music_present = statsPresentForType("music");
 
         setLastUpdated(last_updated);
 
@@ -1051,7 +1081,7 @@ function switchToServer(server, section_key, refresh) {
                 drawMovieContentRatingChart(stats["content_rating_count"]);
                 drawMovieResolutionChart(stats["resolution_count"]);
             }
-            else {
+            else if (active_section["type"] === "show") {
                 // draw tv show charts
                 drawShowYearsChart(stats["year_count"]);
                 drawShowGenreChart(stats["genre_count"]);
@@ -1060,17 +1090,21 @@ function switchToServer(server, section_key, refresh) {
                 drawShowContentRatingChart(stats["content_rating_count"]);
                 drawShowResolutionChart(stats["resolution_count"]);
             }
+            else {
+                // draw music charts
+                //
+            }
         }
         else {
-            // only display both movie and show charts if there's both movie and show libraries on the server
-            if (movies_present && shows_present) {
-                showDisplay();
-            }
-            else if (movies_present) {
+            // only display charts if library type exists for server
+            if (movies_present) {
                 showDisplay("movies");
             }
-            else {
+            if (shows_present) {
                 showDisplay("shows");
+            }
+            if (music_present) {
+                showDisplay("music");
             }
 
             // draw all charts

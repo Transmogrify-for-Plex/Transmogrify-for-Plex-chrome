@@ -479,7 +479,7 @@ function drawAlbumYearsChart(year_data) {
                 y_data,
             ],
             color: function(color, d) {
-                return "#FF9900";
+                return "#109618";
             }
         },
         bar: {
@@ -493,6 +493,9 @@ function drawAlbumYearsChart(year_data) {
                 label: {
                     text: "Year",
                     position: "outer-center"
+                },
+                tick: {
+                    fit: true
                 }
             },
             y: {
@@ -506,6 +509,99 @@ function drawAlbumYearsChart(year_data) {
             x: {
                 show: false
             },
+            y: {
+                show: true
+            }
+        },
+        legend: {
+            show: false
+        }
+    });
+}
+
+function drawAlbumGenreChart(genre_data) {
+    var chart = c3.generate({
+        bindto: "#album-genre-chart",
+        data: {
+            json: genre_data,
+            type: "donut"
+        },
+        donut: {
+            label: {
+                format: function(value, ratio, id) {
+                    return id;
+                }
+            },
+            width: 140
+        },
+        legend: {
+            show: true,
+            position: "right"
+        },
+        tooltip: {
+            format: {
+                value: function(value, ratio, id) {
+                    var format = d3.format(".1%");
+                    return value + " Albums (" + format(ratio) + ")";
+                }
+            }
+        }
+    });
+}
+
+function drawMusicDateAddedChart(date_data) {
+    var song_data = date_data["songs"];
+    var album_data = date_data["albums"];
+
+    var x_labels = ["x"];
+    var y_song_data = ["Total songs"];
+    var y_album_data = ["Total albums"];
+
+    for (var date in album_data) {
+        x_labels.push(date);
+        y_song_data.push(song_data[date]);
+        y_album_data.push(album_data[date]);
+    }
+
+    var chart = c3.generate({
+        bindto: "#music-date-added-chart",
+        data: {
+            x: "x",
+            type: "area",
+            columns: [
+                x_labels,
+                y_song_data,
+                y_album_data
+            ],
+            color: function(color, d) {
+                if (d === "Total songs" || d["id"] === "Total songs") {
+                    return "#1F77B4";
+                }
+                else {
+                    return "#FFEE00";
+                }
+            }
+        },
+        axis: {
+            x: {
+                type: "timeseries",
+                label: {
+                    text: "Date",
+                    position: "outer-center"
+                },
+                tick: {
+                    format: "%Y-%m-%d",
+                    fit: false
+                }
+            },
+            y: {
+                label: {
+                    text: "Total Number",
+                    position: "outer-middle"
+                }
+            }
+        },
+        grid: {
             y: {
                 show: true
             }

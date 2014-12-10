@@ -204,7 +204,7 @@ nav ul {
 }
 
 /* hacky fix for x axis label being cut off */
-#movie-year-chart svg, #movie-date-added-chart svg, #show-year-chart svg, #show-date-added-chart svg {
+#movie-year-chart svg, #movie-date-added-chart svg, #show-year-chart svg, #show-date-added-chart svg, #music-year-chart svg, #music-date-added-chart svg {
     height: 600px;
 }
 

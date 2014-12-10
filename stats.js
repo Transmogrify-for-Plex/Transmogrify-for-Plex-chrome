@@ -172,7 +172,6 @@ function getAllSongs(address, port, plex_token, section, callback) {
         var songs = [];
         for (var i = 0; i < songs_xml.length; i++) {
             var song_data = {};
-            song_data["duration"] = songs_xml[i].getAttribute("duration");
             song_data["added_at"] = songs_xml[i].getAttribute("addedAt");
 
             var metadata_xml = songs_xml[i].getElementsByTagName("Media")[0];
@@ -509,7 +508,6 @@ function generateShowStats(shows, episodes, genre_count) {
 
 function generateMusicStats(songs, albums, genre_count) {
     var bitrate_count = {};
-    var duration_count = {};
     var year_count = {};
     var songs_dates_added = [];
     var albums_dates_added = [];
@@ -523,18 +521,6 @@ function generateMusicStats(songs, albums, genre_count) {
         else {
             bitrate_count[bitrate] = 1;
         }
-
-        // durations count
-        // round down duration to lowest 30 seconds to make it easy to work with
-        var duration = parseInt(parseInt(songs[i]["duration"]) / 1000);
-        var nearest_duration_milestone = 30 * Math.round(duration / 30);
-        if (duration_count[nearest_duration_milestone]) {
-            duration_count[nearest_duration_milestone]++;
-        }
-        else {
-            duration_count[nearest_duration_milestone] = 1;
-        }
-
 
         // songs added over time
         // set date time to beginning of day to make it easy to work with
@@ -621,11 +607,9 @@ function generateMusicStats(songs, albums, genre_count) {
 
     return {
         "bitrate_count": bitrate_count,
-        "duration_count": duration_count,
         "year_count": year_count,
         "genre_count": genre_count,
-        "songs_date_added_count": songs_date_added_count,
-        "albums_date_added_count": albums_date_added_count
+        "date_added_count": {"songs": songs_date_added_count, "albums": albums_date_added_count}
         };
 }
 
@@ -1098,6 +1082,8 @@ function switchToServer(server, section_key, refresh) {
             else {
                 // draw music charts
                 drawAlbumYearsChart(stats["year_count"]);
+                drawAlbumGenreChart(stats["genre_count"]);
+                drawMusicDateAddedChart(stats["date_added_count"]);
             }
         }
         else {
@@ -1128,6 +1114,8 @@ function switchToServer(server, section_key, refresh) {
             drawShowResolutionChart(stats["show_stats"]["resolution_count"]);
 
             drawAlbumYearsChart(stats["music_stats"]["year_count"]);
+            drawAlbumGenreChart(stats["music_stats"]["genre_count"]);
+            drawMusicDateAddedChart(stats["music_stats"]["date_added_count"]);
         }
     });
 }

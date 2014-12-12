@@ -4,7 +4,8 @@ var active_server;
 var active_section;
 var last_updated_string;
 
-var resolution_mappings = {"1080" : "1080p",
+var resolution_mappings = {"4k" : "4K",
+                           "1080" : "1080p",
                            "720" : "720p",
                            "480" : "480p",
                            "576" : "576p",
@@ -54,7 +55,7 @@ function showDisplay(type) {
         else if ((active_section && active_section["type"] === "show") || type === "shows") {
             document.getElementById("shows-container").style.display = "block";
         }
-        else {
+        else if ((active_section && active_section["type"] === "artist") || type === "artist") {
             document.getElementById("music-container").style.display = "block";
         }
     }

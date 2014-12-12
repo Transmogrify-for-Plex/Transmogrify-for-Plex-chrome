@@ -1084,6 +1084,7 @@ function switchToServer(server, section_key, refresh) {
                 drawAlbumYearsChart(stats["year_count"]);
                 drawAlbumGenreChart(stats["genre_count"]);
                 drawMusicDateAddedChart(stats["date_added_count"]);
+                drawMusicBitrateChart(stats["bitrate_count"]);
             }
         }
         else {
@@ -1116,6 +1117,7 @@ function switchToServer(server, section_key, refresh) {
             drawAlbumYearsChart(stats["music_stats"]["year_count"]);
             drawAlbumGenreChart(stats["music_stats"]["genre_count"]);
             drawMusicDateAddedChart(stats["music_stats"]["date_added_count"]);
+            drawMusicBitrateChart(stats["music_stats"]["bitrate_count"]);
         }
     });
 }

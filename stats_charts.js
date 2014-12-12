@@ -596,7 +596,58 @@ function drawMusicDateAddedChart(date_data) {
             },
             y: {
                 label: {
-                    text: "Total Number",
+                    text: "Number of Songs/Albums",
+                    position: "outer-middle"
+                }
+            }
+        },
+        grid: {
+            y: {
+                show: true
+            }
+        },
+        legend: {
+            show: false
+        }
+    });
+}
+
+function drawMusicBitrateChart(bitrate_data) {
+    var x_labels = ["x"];
+    var y_data = ["Count"];
+
+    for (var bitrate in bitrate_data) {
+        x_labels.push(bitrate);
+        y_data.push(bitrate_data[bitrate]);
+    }
+
+    var chart = c3.generate({
+        bindto: "#music-bitrate-chart",
+        data: {
+            x: "x",
+            type: "spline",
+            columns: [
+                x_labels,
+                y_data
+            ],
+            color: function(color, d) {
+                return "#E377C2";
+            }
+        },
+        axis: {
+            x: {
+                type: "number",
+                label: {
+                    text: "Bitrate (kbps)",
+                    position: "outer-center"
+                },
+                tick: {
+                    fit: false
+                }
+            },
+            y: {
+                label: {
+                    text: "Number of Songs",
                     position: "outer-middle"
                 }
             }

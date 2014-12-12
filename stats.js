@@ -546,6 +546,7 @@ function generateMusicStats(songs, albums, genre_count) {
     }
 
     // clean up, remove invalid data
+    delete bitrate_count[null];
     delete year_count[NaN];
 
     // add missing years

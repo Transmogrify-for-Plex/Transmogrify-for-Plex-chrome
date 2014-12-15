@@ -142,7 +142,7 @@ nav ul {
     display: none;
 }
 
-#movies-container, #shows-container {
+#movies-container, #shows-container, #music-container {
     display: none;
 }
 
@@ -183,7 +183,7 @@ nav ul {
 }
 
 .chart {
-    height: 100%;
+    height: 550px;
 }
 
 .chart-left {

@@ -55,7 +55,7 @@ function showDisplay(type) {
         else if ((active_section && active_section["type"] === "show") || type === "shows") {
             document.getElementById("shows-container").style.display = "block";
         }
-        else if ((active_section && active_section["type"] === "artist") || type === "artist") {
+        else if ((active_section && active_section["type"] === "artist") || type === "music") {
             document.getElementById("music-container").style.display = "block";
         }
     }
@@ -1046,7 +1046,9 @@ function switchToServer(server, section_key, refresh) {
         var statsPresentForType = function(type) {
             var stats_type = stats[type + "_stats"]
             for (var key in stats_type) {
-                if (Object.keys(stats_type[key]).length > 1) {
+                var stats_keys = Object.keys(stats_type[key]).sort();
+                // small hack for date_added_count key in music_stats always containing "albums" and "songs" even if empty
+                if (stats_keys.length > 1 && JSON.stringify(stats_keys) != JSON.stringify(["albums", "songs"])) {
                     return true;
                 }
             }

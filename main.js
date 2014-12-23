@@ -1,6 +1,6 @@
 var show_update_text = true;
-var update_text = "Version 1.3.1 is here! New to the extension is the tvdb plugin, the moviedb plugin, support for fast user switching, a clear cache button on the settings page and a whole host of other fixes and improvements. \
-You can enable the new plugins via the <a id='options-page-link' href='%OPTIONSURL%' target='_blank'>extension options page</a> as usual. Enjoy!"
+var update_text = "Version 1.3.2 is here! Music stats have been added to the <a id='stats-page-link' href='%STATSPAGEURL%' target='_blank'>stats page</a> (recalculate your server stats to see them),\
+along with a bunch of other bug fixes. Enjoy!"
 
 var settings;
 var global_plex_token;

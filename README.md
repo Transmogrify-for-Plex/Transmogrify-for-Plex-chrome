@@ -4,7 +4,7 @@ Transmogrify for Plex
 
 Get it at https://chrome.google.com/webstore/detail/transmogrify-for-plex/jdogfefgaagaledbkgeffgbjlaaplpgo
 
-Firefox version can be found at https://github.com/Moussekateer/Transmogrify-for-Plex-firefox
+Firefox version can be found at https://github.com/Moussa/Transmogrify-for-Plex-firefox
 
 Features
 --------------

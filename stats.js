@@ -168,21 +168,40 @@ function getAllEpisodes(address, port, plex_token, section, callback) {
 
 function getAllSongs(address, port, plex_token, section, callback) {
     var library_section_songs_url = "http://" + address + ":" + port + "/library/sections/" + section + "/all?type=10&X-Plex-Token=" + plex_token;
-    utils.getXML(library_section_songs_url, function(section_xml) {
-        var songs_xml = section_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Track");
-        var songs = [];
-        for (var i = 0; i < songs_xml.length; i++) {
-            var song_data = {};
-            song_data["added_at"] = songs_xml[i].getAttribute("addedAt");
+    var container_size = 10000;
+    var container_start = 0;
+    var songs = [];
 
-            var metadata_xml = songs_xml[i].getElementsByTagName("Media")[0];
-            song_data["bitrate"] = metadata_xml.getAttribute("bitrate");
+    var paged_request = function() {
+        var paged_library_section_songs_url = library_section_songs_url + "&sort=titleSort:asc&X-Plex-Container-Size=" + container_size + "&X-Plex-Container-Start=" + container_start;
+        var p = new promise.Promise();
 
-            songs.push(song_data);
-        }
+        utils.getXML(paged_library_section_songs_url, function(section_xml) {
+            var songs_xml = section_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Track");
 
-        callback(songs);
-    });
+            if (songs_xml.length === 0) {
+                return callback(songs);
+            }
+
+            container_start += container_size;
+
+            for (var i = 0; i < songs_xml.length; i++) {
+                var song_data = {};
+                song_data["added_at"] = songs_xml[i].getAttribute("addedAt");
+
+                var metadata_xml = songs_xml[i].getElementsByTagName("Media")[0];
+                song_data["bitrate"] = metadata_xml.getAttribute("bitrate");
+
+                songs.push(song_data);
+            }
+
+            return p.then(paged_request());
+        });
+
+        return p;
+    }
+
+    paged_request();
 }
 
 function getAllAlbums(address, port, plex_token, section, callback) {

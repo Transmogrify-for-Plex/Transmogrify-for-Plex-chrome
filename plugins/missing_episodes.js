@@ -151,12 +151,12 @@ missing_episodes = {
 
         var episode_tile_link = document.createElement("a");
         episode_tile_link.setAttribute("class", "media-poster-container");
-        episode_tile_link.setAttribute("href", episode["url"]);
+        episode_tile_link.setAttribute("href", "http://trakt.tv" + episode["url"]);
         episode_tile_link.setAttribute("target", "_blank");
 
         var episode_tile_poster = document.createElement("div");
         episode_tile_poster.setAttribute("class", "media-poster");
-        episode_tile_poster.setAttribute("style", "background-image: url(" + episode["screen"] + ");");
+        episode_tile_poster.setAttribute("style", "background-image: url(" + (episode["screen"] || utils.getResourcePath("trakt/trakt_episode_background.png")) + ");");
 
         var episode_tile_overlay = document.createElement("div");
         episode_tile_overlay.setAttribute("class", "media-poster-overlay-missing-episode");
@@ -178,7 +178,7 @@ missing_episodes = {
 
         var episode_tile_title = document.createElement("div");
         episode_tile_title.setAttribute("class", "media-title media-heading");
-        var episode_tile_title_text_node = document.createTextNode(episode["title"]);
+        var episode_tile_title_text_node = document.createTextNode(episode["title"] || "TBA");
         episode_tile_title.appendChild(episode_tile_title_text_node);
 
         var episode_tile_number = document.createElement("div");
@@ -202,12 +202,12 @@ missing_episodes = {
 
         var season_tile_link = document.createElement("a");
         season_tile_link.setAttribute("class", "media-poster-container");
-        season_tile_link.setAttribute("href", season["url"]);
+        season_tile_link.setAttribute("href", "http://trakt.tv" + season["url"]);
         season_tile_link.setAttribute("target", "_blank");
 
         var season_tile_poster = document.createElement("div");
         season_tile_poster.setAttribute("class", "media-poster");
-        season_tile_poster.setAttribute("style", "background-image: url(" + season["poster"] + ");");
+        season_tile_poster.setAttribute("style", "background-image: url(" + (season["poster"] || utils.getResourcePath("trakt/trakt_season_background.png")) + ");");
 
         var season_tile_overlay = document.createElement("div");
         season_tile_overlay.setAttribute("class", "media-poster-overlay-missing-season");

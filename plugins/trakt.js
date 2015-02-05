@@ -28,7 +28,7 @@ trakt = {
         utils.debug("trakt plugin: Got show name - " + show_name);
 
         trakt_api.getShow(show_name, function(show_data) {
-            var url = show_data["url"];
+            var url = "http://trakt.tv" + show_data["url"];
             var rating = show_data["ratings"]["percentage"];
 
             trakt.insertTraktLink(url, rating);
@@ -57,7 +57,7 @@ trakt = {
             utils.debug("trakt plugin: Got episode number - " + episode);
 
             trakt_api.getShow(show_name, function(show_data) {
-                var url = show_data["url"] + "/season/" + season + "/episode/" + episode;
+                var url = "http://trakt.tv" + show_data["url"] + "/seasons/" + season + "/episodes/" + episode;
                 var rating = show_data["ratings"]["percentage"];
 
                 trakt.insertTraktLink(url, rating);
@@ -109,7 +109,7 @@ trakt = {
     },
 
     constructTraktLink: function(trakt_url, trakt_rating) {
-        var logo_url = utils.getResourcePath("trakt/trakt_logo.png")
+        var logo_url = utils.getResourcePath("trakt/trakt_logo.png");
 
         var trakt_container_element = document.createElement("div");
         trakt_container_element.setAttribute("id", "trakt-container");
@@ -132,16 +132,11 @@ trakt = {
 
         // construct rating image
         var trakt_rating_image = document.createElement("img");
-        if (parseInt(trakt_rating) > 59) {
-            trakt_rating_image.setAttribute("src", utils.getResourcePath("trakt/trakt_love.png"));
-        }
-        else {
-            trakt_rating_image.setAttribute("src", utils.getResourcePath("trakt/trakt_hate.png"));
-        }
+        trakt_rating_image.setAttribute("src", utils.getResourcePath("trakt/trakt_love.png"));
         trakt_rating_image.setAttribute("id", "trakt-rating-image");
 
-        trakt_rating_element.appendChild(rating_text);
         trakt_rating_element.appendChild(trakt_rating_image);
+        trakt_rating_element.appendChild(rating_text);
 
         trakt_container_element.appendChild(trakt_element_link);
         trakt_container_element.appendChild(trakt_rating_element);

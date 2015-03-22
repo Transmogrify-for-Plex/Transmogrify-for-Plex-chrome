@@ -164,7 +164,7 @@ missing_episodes = {
         var episode_title_overlay_text = document.createElement("div");
         episode_title_overlay_text.setAttribute("class", "overlay-missing-episode-text");
         var date_text;
-        if (episode["first_aired"] === 0) {
+        if (episode["first_aired_utc"] === 0 || episode["first_aired_utc"] === null) {
             date_text = "TBA";
         }
         else {
@@ -314,7 +314,7 @@ missing_episodes = {
                 var first_episode = all_episodes[0];
 
                 var date_text;
-                if (first_episode["first_aired_utc"] === 0) {
+                if (first_episode["first_aired_utc"] === 0 || first_episode["first_aired_utc"] === null) {
                     date_text = "TBA";
                 }
                 else {

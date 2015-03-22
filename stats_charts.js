@@ -557,10 +557,24 @@ function drawMusicDateAddedChart(date_data) {
     var y_song_data = ["Total songs"];
     var y_album_data = ["Total albums"];
 
-    for (var date in album_data) {
-        x_labels.push(date);
-        y_song_data.push(song_data[date]);
-        y_album_data.push(album_data[date]);
+    // create array of dates with no duplicates
+    var dates = Object.keys(song_data).concat(Object.keys(album_data));
+    var unique_dates = dates.filter(function (key, index) {return dates.indexOf(key) == index}).sort();
+    x_labels = x_labels.concat(unique_dates);
+
+    // iterate through dates and use song data and album data on that date if it exists.
+    // If not, use previous date value for each series.
+    var last_song_data = 0;
+    var last_album_data = 0;
+    for (var i = 0; i < unique_dates.length; i++) {
+        var date = unique_dates[i];
+        var song_date_data = song_data[date] || last_song_data;
+        var album_date_data = album_data[date] || last_album_data;
+        y_song_data.push(song_date_data);
+        y_album_data.push(album_date_data);
+
+        last_song_data = song_date_data;
+        last_album_data = album_date_data;
     }
 
     var chart = c3.generate({

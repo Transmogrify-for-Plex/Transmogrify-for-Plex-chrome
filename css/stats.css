@@ -203,14 +203,9 @@ nav ul {
     margin: auto;
 }
 
-/* hacky fix for x axis label being cut off */
-#movie-year-chart svg, #movie-date-added-chart svg, #show-year-chart svg, #show-date-added-chart svg, #music-year-chart svg, #music-date-added-chart svg, #music-bitrate-chart svg {
-    height: 600px;
-}
-
 .c3-axis-x-label, .c3-axis-y-label {
     fill: #FFFFFF;
-    font-size: 1.7em;
+    font-size: 1.3em;
 }
 
 .c3-legend-item text, .tick text {

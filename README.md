@@ -24,6 +24,7 @@ Features
 
 Version History
 --------------
+- **v1.3.3** - use paged requests for music libraries (to avoid OOM errors on large libraries), update trakt assets and styling, fix missing episode episode/season links, titles and airdates, fix bug with date added music graph, update d3.js and c3.js libraries to 3.5.5 and 0.4.10 respectively
 - **v1.3.2** - added music charts, fixed bug with not being signed in and using local plex/web (and other similar situations), fixed charts showing up squashed, added 4K resolution support for charts
 - **v1.3.1** - fixed bug with offline servers, forgot to update extension update message
 - **v1.3.0** - added tvdb plugin, added themoviedb plugin, added clear cache button to options page, reduced server ping timeout from 3s to 2s, added plex token and server address filtering option for debugging, added support for servers with multiple local addresses, added support for fast user switching, fixed update popup showing up until page refresh, fixed bug with shared servers with identical ip addresses, properly aggregate 9.0-10.0 ratings on stats page

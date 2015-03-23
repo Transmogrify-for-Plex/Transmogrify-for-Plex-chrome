@@ -1,6 +1,5 @@
 var show_update_text = true;
-var update_text = "Version 1.3.2 is here! Music stats have been added to the <a id='stats-page-link' href='%STATSPAGEURL%' target='_blank'>stats page</a> (recalculate your server stats to see them),\
-along with a bunch of other bug fixes. Enjoy!"
+var update_text = "Version 1.3.3 is here. Lots of bug fixes and changes, a full list of which can be found in the <a id='stats-page-link' href='https://forums.plex.tv/index.php/topic/99209-transmogrify-for-plex-a-browser-extension-that-adds-features-to-plexweb' target='_blank'>forum thread</a>"
 
 var settings;
 var global_plex_token;

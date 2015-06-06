@@ -81,7 +81,7 @@ random_picker = {
     },
 
     getPosterURL: function(thumb) {
-        var server_url = "http://" + random_picker.server["address"] + ":" + random_picker.server["port"];
+        var server_url = random_picker.server["uri"];
         var poster_url = server_url + "/photo/:/transcode?width=450&height=675&url=" + encodeURIComponent("http://127.0.0.1:" + random_picker.server["port"] + thumb) + "&X-Plex-Token=" + random_picker.server["access_token"];
 
         return poster_url;

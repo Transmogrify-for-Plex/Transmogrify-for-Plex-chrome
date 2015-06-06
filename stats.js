@@ -82,8 +82,8 @@ function getServerAddresses(callback) {
     });
 }
 
-function getSections(address, port, plex_token, callback) {
-    var library_sections_url = "http://" + address + ":" + port + "/library/sections?X-Plex-Token=" + plex_token;
+function getSections(uri, plex_token, callback) {
+    var library_sections_url = uri + "/library/sections?X-Plex-Token=" + plex_token;
     utils.getXML(library_sections_url, function(sections_xml) {
         callback(sections_xml);
     });
@@ -106,8 +106,8 @@ function processLibrarySections(sections_xml) {
     return dir_metadata;
 }
 
-function getAllMovies(address, port, plex_token, section_key, callback) {
-    var library_section_url = "http://" + address + ":" + port + "/library/sections/" + section_key + "/all?X-Plex-Token=" + plex_token;
+function getAllMovies(uri, plex_token, section_key, callback) {
+    var library_section_url = uri + "/library/sections/" + section_key + "/all?X-Plex-Token=" + plex_token;
     utils.getXML(library_section_url, function(section_xml) {
         var movies_xml = section_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video");
         var movies = [];
@@ -128,8 +128,8 @@ function getAllMovies(address, port, plex_token, section_key, callback) {
     });
 }
 
-function getAllShows(address, port, plex_token, section_key, callback) {
-    var library_section_url = "http://" + address + ":" + port + "/library/sections/" + section_key + "/all?X-Plex-Token=" + plex_token;
+function getAllShows(uri, plex_token, section_key, callback) {
+    var library_section_url = uri + "/library/sections/" + section_key + "/all?X-Plex-Token=" + plex_token;
     utils.getXML(library_section_url, function(section_xml) {
         var shows_xml = section_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory");
         var shows = [];
@@ -147,8 +147,8 @@ function getAllShows(address, port, plex_token, section_key, callback) {
     });
 }
 
-function getAllEpisodes(address, port, plex_token, section, callback) {
-    var library_section_episodes_url = "http://" + address + ":" + port + "/library/sections/" + section + "/all?type=4&X-Plex-Token=" + plex_token;
+function getAllEpisodes(uri, plex_token, section, callback) {
+    var library_section_episodes_url = uri + "/library/sections/" + section + "/all?type=4&X-Plex-Token=" + plex_token;
     utils.getXML(library_section_episodes_url, function(section_xml) {
         var episodes_xml = section_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video");
         var episodes = [];
@@ -166,8 +166,8 @@ function getAllEpisodes(address, port, plex_token, section, callback) {
     });
 }
 
-function getAllSongs(address, port, plex_token, section, callback) {
-    var library_section_songs_url = "http://" + address + ":" + port + "/library/sections/" + section + "/all?type=10&X-Plex-Token=" + plex_token;
+function getAllSongs(uri, plex_token, section, callback) {
+    var library_section_songs_url = uri + "/library/sections/" + section + "/all?type=10&X-Plex-Token=" + plex_token;
     var container_size = 10000;
     var container_start = 0;
     var songs = [];
@@ -204,8 +204,8 @@ function getAllSongs(address, port, plex_token, section, callback) {
     paged_request();
 }
 
-function getAllAlbums(address, port, plex_token, section, callback) {
-    var library_section_albums_url = "http://" + address + ":" + port + "/library/sections/" + section + "/all?type=9&X-Plex-Token=" + plex_token;
+function getAllAlbums(uri, plex_token, section, callback) {
+    var library_section_albums_url = uri + "/library/sections/" + section + "/all?type=9&X-Plex-Token=" + plex_token;
     utils.getXML(library_section_albums_url, function(section_xml) {
         var albums_xml = section_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory");
         var albums = [];
@@ -221,8 +221,8 @@ function getAllAlbums(address, port, plex_token, section, callback) {
     });
 }
 
-function getSectionGenres(address, port, plex_token, section_key, callback) {
-    var library_section_genres_url = "http://" + address + ":" + port + "/library/sections/" + section_key + "/genre?X-Plex-Token=" + plex_token;
+function getSectionGenres(uri, plex_token, section_key, callback) {
+    var library_section_genres_url = uri + "/library/sections/" + section_key + "/genre?X-Plex-Token=" + plex_token;
     utils.getXML(library_section_genres_url, function(genres_xml) {
         var genre_nodes = genres_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory");
 
@@ -237,24 +237,24 @@ function getSectionGenres(address, port, plex_token, section_key, callback) {
     });
 }
 
-function getMoviesByGenre(address, port, plex_token, section_key, genre_key, callback) {
-    var filtered_movies_url = "http://" + address + ":" + port + "/library/sections/" + section_key + "/all?genre=" + genre_key + "&X-Plex-Token=" + plex_token;
+function getMoviesByGenre(uri, plex_token, section_key, genre_key, callback) {
+    var filtered_movies_url = uri + "/library/sections/" + section_key + "/all?genre=" + genre_key + "&X-Plex-Token=" + plex_token;
     utils.getXML(filtered_movies_url, function(movies_xml) {
         var movies = movies_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video");
         callback(movies);
     });
 }
 
-function getShowsByGenre(address, port, plex_token, section_key, genre_key, callback) {
-    var filtered_shows_url = "http://" + address + ":" + port + "/library/sections/" + section_key + "/all?genre=" + genre_key + "&X-Plex-Token=" + plex_token;
+function getShowsByGenre(uri, plex_token, section_key, genre_key, callback) {
+    var filtered_shows_url = uri + "/library/sections/" + section_key + "/all?genre=" + genre_key + "&X-Plex-Token=" + plex_token;
     utils.getXML(filtered_shows_url, function(shows_xml) {
         var shows = shows_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory");
         callback(shows);
     });
 }
 
-function getAlbumsByGenre(address, port, plex_token, section_key, genre_key, callback) {
-    var filtered_albums_url = "http://" + address + ":" + port + "/library/sections/" + section_key + "/all?genre=" + genre_key + "&X-Plex-Token=" + plex_token;
+function getAlbumsByGenre(uri, plex_token, section_key, genre_key, callback) {
+    var filtered_albums_url = uri + "/library/sections/" + section_key + "/all?genre=" + genre_key + "&X-Plex-Token=" + plex_token;
     utils.getXML(filtered_albums_url, function(albums_xml) {
         var albums = albums_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory");
         callback(albums);
@@ -634,8 +634,8 @@ function generateMusicStats(songs, albums, genre_count) {
         };
 }
 
-function generateStats(address, port, plex_token, callback) {
-    utils.debug("Generating stats for " + address + ":" + port);
+function generateStats(uri, plex_token, callback) {
+    utils.debug("Generating stats for " + uri);
 
     var all_movies = [];
     var all_shows = [];
@@ -655,7 +655,7 @@ function generateStats(address, port, plex_token, callback) {
     var section_show_genres_count = {};
     var section_album_genres_count = {};
 
-    getSections(address, port, plex_token, function(sections_xml) {
+    getSections(uri, plex_token, function(sections_xml) {
         // check if no response from server
         if (!sections_xml) {
             callback(null);
@@ -707,20 +707,20 @@ function generateStats(address, port, plex_token, callback) {
 
                     section_movie_genres_count[section_key] = {};
                     // get all movies for section
-                    getAllMovies(address, port, plex_token, section_key, function(movies) {
+                    getAllMovies(uri, plex_token, section_key, function(movies) {
                         all_movies = all_movies.concat(movies);
                         section_movies[section_key] = movies;
 
                         // because the plex web api calls for library sections only returns the first two genres
                         // of each movie we need to get all the genre mappings first and count the number of movies
                         // returned by the api with that genre filtered out
-                        getSectionGenres(address, port, plex_token, section_key, function(genres) {
+                        getSectionGenres(uri, plex_token, section_key, function(genres) {
                             task_counter += Object.keys(genres).length;
 
                             for (var genre_key in genres) {
                                 (function (genre_key) {
                                     var genre_title = genres[genre_key];
-                                    getMoviesByGenre(address, port, plex_token, section_key, genre_key, function(genre_movies) {
+                                    getMoviesByGenre(uri, plex_token, section_key, genre_key, function(genre_movies) {
                                         if (movie_genres_count[genre_title]) {
                                             movie_genres_count[genre_title] += genre_movies.length;
                                         }
@@ -748,20 +748,20 @@ function generateStats(address, port, plex_token, callback) {
                     section_show_genres_count[section_key] = {};
                     section_episodes[section_key] = [];
                     // get all tv shows for section
-                    getAllShows(address, port, plex_token, section_key, function(shows) {
+                    getAllShows(uri, plex_token, section_key, function(shows) {
                         all_shows = all_shows.concat(shows);
                         section_shows[section_key] = shows;
 
                         // because the plex web api calls for library sections only returns the first two genres
                         // of each show we need to get all the genre mappings first and count the number of shows
                         // returned by the api with that genre filtered out
-                        getSectionGenres(address, port, plex_token, section_key, function(genres) {
+                        getSectionGenres(uri, plex_token, section_key, function(genres) {
                             task_counter += Object.keys(genres).length;
 
                             for (var genre_key in genres) {
                                 (function (genre_key) {
                                     var genre_title = genres[genre_key];
-                                    getShowsByGenre(address, port, plex_token, section_key, genre_key, function(genre_shows) {
+                                    getShowsByGenre(uri, plex_token, section_key, genre_key, function(genre_shows) {
                                         if (show_genres_count[genre_title]) {
                                             show_genres_count[genre_title] += genre_shows.length;
                                         }
@@ -784,7 +784,7 @@ function generateStats(address, port, plex_token, callback) {
 
                     // get all tv show episodes for section
                     task_counter++;
-                    getAllEpisodes(address, port, plex_token, section_key, function(episodes) {
+                    getAllEpisodes(uri, plex_token, section_key, function(episodes) {
                         all_episodes = all_episodes.concat(episodes);
                         section_episodes[section_key] = section_episodes[section_key].concat(episodes);
                         task_completed();
@@ -796,20 +796,20 @@ function generateStats(address, port, plex_token, callback) {
 
                     section_album_genres_count[section_key] = {};
                     // get all songs for section
-                    getAllSongs(address, port, plex_token, section_key, function(songs) {
+                    getAllSongs(uri, plex_token, section_key, function(songs) {
                         all_songs = all_songs.concat(songs);
                         section_songs[section_key] = songs;
 
                         // because the plex web api calls for library sections only returns the first two genres
                         // of each album we need to get all the genre mappings first and count the number of albums
                         // returned by the api with that genre filtered out
-                        getSectionGenres(address, port, plex_token, section_key, function(genres) {
+                        getSectionGenres(uri, plex_token, section_key, function(genres) {
                             task_counter += Object.keys(genres).length;
 
                             for (var genre_key in genres) {
                                 (function (genre_key) {
                                     var genre_title = genres[genre_key];
-                                    getAlbumsByGenre(address, port, plex_token, section_key, genre_key, function(genre_albums) {
+                                    getAlbumsByGenre(uri, plex_token, section_key, genre_key, function(genre_albums) {
                                         if (album_genres_count[genre_title]) {
                                             album_genres_count[genre_title] += genre_albums.length;
                                         }
@@ -831,7 +831,7 @@ function generateStats(address, port, plex_token, callback) {
                     });
 
                     task_counter++;
-                    getAllAlbums(address, port, plex_token, section_key, function(albums) {
+                    getAllAlbums(uri, plex_token, section_key, function(albums) {
                         all_albums = all_albums.concat(albums);
                         section_albums[section_key] = albums;
 
@@ -846,8 +846,7 @@ function generateStats(address, port, plex_token, callback) {
 function getStats(server, section, force, callback) {
     var machine_identifier = server["machine_identifier"];
     var name = server["name"];
-    var address = server["address"];
-    var port = server["port"];
+    var uri = server["uri"];
     var plex_token = server["access_token"];
 
     var cache_key;
@@ -878,10 +877,10 @@ function getStats(server, section, force, callback) {
         }
         else {
             utils.debug("Cache miss for " + cache_key);
-            generateStats(address, port, plex_token, function(movie_stats, movie_section_stats, show_stats, show_section_stats, music_stats, music_section_stats) {
+            generateStats(uri, plex_token, function(movie_stats, movie_section_stats, show_stats, show_section_stats, music_stats, music_section_stats) {
                 if (movie_stats === null) {
                     // couldn't reach server to get data
-                    utils.debug("Couldn't reach server " + address + ":" + port + " to get stat data");
+                    utils.debug("Couldn't reach server " + uri + " to get stat data");
                     callback(null);
                     return;
                 }
@@ -958,7 +957,7 @@ function addSectionSelections() {
     for (var server in servers) {
         (function (server) {
             sections[server] = {};
-            getSections(servers[server]["address"], servers[server]["port"], servers[server]["access_token"], function(sections_xml) {
+            getSections(servers[server]["uri"], servers[server]["access_token"], function(sections_xml) {
                 var server_picker;
                 var server_choices = document.getElementsByClassName("server-choice");
                 for (var i = 0; i < server_choices.length; i++) {
@@ -990,7 +989,7 @@ function addSectionSelections() {
 
                 if (!sections_xml) {
                     // couldn't reach server to get sections data
-                    utils.debug("Couldn't reach server " + servers[server]["name"] + " at " + servers[server]["address"] + ":" + servers[server]["port"]);
+                    utils.debug("Couldn't reach server " + servers[server]["name"] + " at " + servers[server]["uri"]);
                     utils.debug("Skipping sections for this server");
                     return;
                 }
@@ -1171,13 +1170,12 @@ utils.storage_get_all(function(settings) {
         servers = pms_servers;
 
         // override server addresses if defined in settings
-        if (settings["plex_server_address"] !== "" && settings["plex_server_port"] !== "") {
+        if (settings["plex_server_uri"] !== "") {
             utils.debug("Plex servers manual override");
-            utils.debug("Setting server addresses as " + settings["plex_server_address"] + " and server ports as " + settings["plex_server_port"]);
+            utils.debug("Setting server addresses as " + settings["plex_server_uri"]);
 
             for (var server in servers) {
-                servers[server]["address"] = settings["plex_server_address"];
-                servers[server]["port"] = settings["plex_server_port"];
+                servers[server]["uri"] = settings["plex_server_uri"];
             }
         }
 

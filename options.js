@@ -16,8 +16,7 @@ function saveOptions() {
     var canistreamit = document.querySelector("input[name='canistreamit']:checked").value;
     var actor_profiles = document.querySelector("input[name='actor_profiles']:checked").value;
     var stats_link = document.querySelector("input[name='stats_link']:checked").value;
-    var plex_server_address = document.querySelector("input[name='plex_server_address']").value;
-    var plex_server_port = document.querySelector("input[name='plex_server_port']").value;
+    var plex_server_uri = document.querySelector("input[name='plex_server_uri']").value;
 
     var debug = document.querySelector("input[name='debug']:checked").value;
     var debug_unfiltered = document.querySelector("input[name='debug_unfiltered']:checked").value;
@@ -49,8 +48,7 @@ function saveOptions() {
     else {
         utils.storage_set("trakt_shows", "off");
     }
-    utils.storage_set("plex_server_address", plex_server_address.replace(/^https?:\/\//, ""));
-    utils.storage_set("plex_server_port", plex_server_port);
+    utils.storage_set("plex_server_uri", plex_server_uri);
 
     utils.storage_set("debug", debug);
     utils.storage_set("debug_unfiltered", debug_unfiltered);
@@ -122,10 +120,8 @@ function restoreOptions() {
                 trakt_shows_checkbox.checked = false;
             }
 
-            var plex_server_address = document.getElementById("plex_server_address");
-            var plex_server_port = document.getElementById("plex_server_port");
-            plex_server_address.value = results["plex_server_address"];
-            plex_server_port.value = results["plex_server_port"];
+            var plex_server_uri = document.getElementById("plex_server_uri");
+            plex_server_uri.value = results["plex_server_uri"];
 
             var debug_radio_button = document.getElementById("debug_" + results["debug"]);
             debug_radio_button.checked = true;

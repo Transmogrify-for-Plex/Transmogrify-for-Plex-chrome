@@ -42,7 +42,7 @@ trakt = {
         var grandparent_id = trakt.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("grandparentRatingKey");
         utils.debug("trakt plugin: Grandparent id - " + grandparent_id);
 
-        var grandparent_xml_url = "http://" + trakt.server["address"] + ":" + trakt.server["port"] + "/library/metadata/" + grandparent_id + "?X-Plex-Token=" + trakt.server["access_token"]
+        var grandparent_xml_url = trakt.server["uri"] + "/library/metadata/" + grandparent_id + "?X-Plex-Token=" + trakt.server["access_token"]
         // fetch grandparent xml
         utils.getXML(grandparent_xml_url, function(grandparent_xml) {
             var show_name;

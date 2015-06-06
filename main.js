@@ -182,8 +182,8 @@ function getServerAddresses(requests_url, plex_token, callback) {
 
         insertLoadingIcon();
 
-        utils.getXML(requests_url + "/servers?includeLite=1&X-Plex-Token=" + plex_token, function(servers_xml) {
-            var servers = servers_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Server");
+        utils.getXML(requests_url + "/resources?includeHttps=1&X-Plex-Token=" + plex_token, function(servers_xml) {
+            var devices = servers_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Device");
 
             var task_counter = 0;
             var task_completed = function() {
@@ -201,7 +201,7 @@ function getServerAddresses(requests_url, plex_token, callback) {
 
                     // remove offline servers, which return a blank address from plex.tv
                     for (var machine_identifier in server_addresses) {
-                        if (server_addresses[machine_identifier]["address"] === "") {
+                        if (server_addresses[machine_identifier]["uri"] === "") {
                             utils.debug("Removing offline server - " + machine_identifier);
                             delete server_addresses[machine_identifier];
                         }
@@ -219,43 +219,47 @@ function getServerAddresses(requests_url, plex_token, callback) {
             };
 
             var server_addresses = {};
-            for (var i = 0; i < servers.length; i++) {
-                var name = servers[i].getAttribute("name");
-                var address = servers[i].getAttribute("address");
-                var port = servers[i].getAttribute("port");
-                var machine_identifier = servers[i].getAttribute("machineIdentifier");
-                var access_token = servers[i].getAttribute("accessToken");
-                // if localAddresses attribute is not returned in response then just use address value instead
-                var local_addresses = (servers[i].getAttribute("localAddresses")) ? servers[i].getAttribute("localAddresses").split(",") : [address];
+            for (var i = 0; i < devices.length; i++) {
+                var device = devices[i];
+                var connections = device.getElementsByTagName("Connection");
+                var name = device.getAttribute("name");
+                var machine_identifier = device.getAttribute("clientIdentifier");
+                var access_token = device.getAttribute("accessToken");
 
-                task_counter += local_addresses.length;
+                for (var j = 0; j < connections.length; j++) {
+                    var connection = connections[j];
+                    var uri = connection.getAttribute("uri");
+                    var local = connection.getAttribute("local") == 1;
+                    task_counter += 1;
 
-                // temporarily use external ip address that we fall back to if all pings to local addresses fail
-                server_addresses[machine_identifier] = {"name": name,
-                                                        "machine_identifier": machine_identifier,
-                                                        "access_token": access_token,
-                                                        "address": address,
-                                                        "port": port
-                                                    };
-
-                for (var j = 0; j < local_addresses.length; j++) {
-                    var local_address = local_addresses[j];
-
-                    (function (machine_identifier, local_address) {
-                        utils.getXMLWithTimeout("http://" + local_address + ":32400?X-Plex-Token=" + access_token, 2000, function(server_xml) {
-                            // use local address if we can reach it
+                    (function (machine_identifier, name, uri, access_token, local) {
+                        utils.getXMLWithTimeout(uri + "?X-Plex-Token=" + access_token, 2000, function(server_xml) {
+                            // use address if we can reach it
                             if (server_xml && server_xml != "Unauthorized" && server_xml.getElementsByTagName("MediaContainer")[0].getAttribute("machineIdentifier") === machine_identifier) {
-                                utils.debug("Using local address for " + machine_identifier + " - " + local_address);
-                                server_addresses[machine_identifier]["address"] = local_address;
-                                server_addresses[machine_identifier]["port"] = "32400";
+                                utils.debug("Using address for " + machine_identifier + " - " + uri);
+                                
+                                if (server_addresses[machine_identifier] && local) {
+                                    // Local devices should override any remote
+                                    utils.debug("Using local address for " + machine_identifier + " - " + uri);
+                                    server_addresses[machine_identifier]["uri"] = uri;
+                                } else if (!server_addresses[machine_identifier]) {
+                                    // We found our first match!
+                                    utils.debug("Using address for " + machine_identifier + " - " + uri);
+                                    server_addresses[machine_identifier] = {
+                                        "name": name,
+                                        "machine_identifier": machine_identifier,
+                                        "access_token": access_token,
+                                        "uri": uri,
+                                    };
+                                }
                             }
                             else {
-                                utils.debug("Failed to ping local address for " + machine_identifier + " - " + local_address);
+                                utils.debug("Failed to ping address for " + machine_identifier + " - " + uri);
                             }
 
                             task_completed();
                         });
-                    }(machine_identifier, local_address));
+                    }(machine_identifier, name, uri, access_token, local));
                 }
             }
         });
@@ -366,10 +370,9 @@ function main() {
                 var section = library_sections[machine_identifier][section_num];
 
                 // override server address if defined in settings
-                if (settings["plex_server_address"] != "" && settings["plex_server_port"] != "") {
+                if (settings["plex_server_uri"] != "") {
                     utils.debug("Plex server manual override");
-                    server["address"] = settings["plex_server_address"];
-                    server["port"] = settings["plex_server_port"];
+                    server["uri"] = settings["plex_server_uri"];
                 }
 
                 if (settings["random_picker"] === "on") {
@@ -393,16 +396,15 @@ function main() {
             var server = server_addresses[machine_identifier];
 
             // override server address if defined in settings
-            if (settings["plex_server_address"] != "" && settings["plex_server_port"] != "") {
+            if (settings["plex_server_uri"] != "") {
                 utils.debug("Plex server manual override");
-                server["address"] = settings["plex_server_address"];
-                server["port"] = settings["plex_server_port"];
+                server["uri"] = settings["uri"];
             }
 
             // construct metadata xml link
             utils.debug("Fetching metadata for id - " + parent_item_id);
 
-            var metadata_xml_url = "http://" + server["address"] + ":" + server["port"] + "/library/metadata/" + parent_item_id + "?X-Plex-Token=" + server["access_token"];
+            var metadata_xml_url = server["uri"] + "/library/metadata/" + parent_item_id + "?X-Plex-Token=" + server["access_token"];
 
             // fetch metadata xml asynchronously
             utils.getXML(metadata_xml_url, function(metadata_xml) {

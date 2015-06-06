@@ -118,7 +118,7 @@ missing_episodes = {
 
     getPresentEpisodes: function(season_metadata_id, callback) {
         utils.debug("missing_episodes plugin: Fetching season episodes xml");
-        var episodes_metadata_xml_url = "http://" + missing_episodes.server["address"] + ":" + missing_episodes.server["port"] + "/library/metadata/" + season_metadata_id + "/children?X-Plex-Token=" + missing_episodes.server["access_token"];
+        var episodes_metadata_xml_url = missing_episodes.server["uri"] + "/library/metadata/" + season_metadata_id + "/children?X-Plex-Token=" + missing_episodes.server["access_token"];
         utils.getXML(episodes_metadata_xml_url, function(episodes_metadata_xml) {
             var episodes_xml = episodes_metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video");
             var episodes = [];
@@ -131,7 +131,7 @@ missing_episodes = {
 
     getPresentSeasons: function(show_metadata_id, callback) {
         utils.debug("missing_episodes plugin: Fetching seasons xml");
-        var seasons_metadata_xml_url = "http://" + missing_episodes.server["address"] + ":" + missing_episodes.server["port"] + "/library/metadata/" + show_metadata_id + "/children?X-Plex-Token=" + missing_episodes.server["access_token"];
+        var seasons_metadata_xml_url = missing_episodes.server["uri"] + "/library/metadata/" + show_metadata_id + "/children?X-Plex-Token=" + missing_episodes.server["access_token"];
         utils.getXML(seasons_metadata_xml_url, function(seasons_metadata_xml) {
             var seasons_xml = seasons_metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory");
             var seasons = [];

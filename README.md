@@ -24,7 +24,8 @@ Features
 
 Version History
 --------------
-- **v1.3.5** - Use new resources endpoint to lookup servers for SSL support
+- **v1.3.6** - disable YouTube trailers
+- **v1.3.5** - use new resources endpoint to lookup servers for SSL support
 - **v1.3.3** - use paged requests for music libraries (to avoid OOM errors on large libraries), update trakt assets and styling, fix missing episode episode/season links, titles and airdates, fix bug with date added music graph, update d3.js and c3.js libraries to 3.5.5 and 0.4.10 respectively
 - **v1.3.2** - added music charts, fixed bug with not being signed in and using local plex/web (and other similar situations), fixed charts showing up squashed, added 4K resolution support for charts
 - **v1.3.1** - fixed bug with offline servers, forgot to update extension update message

@@ -40,7 +40,7 @@ random_picker = {
 
     getMediaList: function() {
         utils.debug("random_picker plugin: Fetching media list");
-        var media_xml_url = "http://" + random_picker.server["address"] + ":" + random_picker.server["port"] + "/library/sections/" + random_picker.section["section_num"] + "/all?X-Plex-Token=" + random_picker.server["access_token"];
+        var media_xml_url = random_picker.server["uri"] + "/library/sections/" + random_picker.section["section_num"] + "/all?X-Plex-Token=" + random_picker.server["access_token"];
         utils.getXML(media_xml_url, function(media_xml) {
             if (random_picker.section["type"] == "movie") {
                 var movies_xml = media_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video");
@@ -81,8 +81,8 @@ random_picker = {
     },
 
     getPosterURL: function(thumb) {
-        var server_url = "http://" + random_picker.server["address"] + ":" + random_picker.server["port"];
-        var poster_url = server_url + "/photo/:/transcode?width=450&height=675&url=" + encodeURIComponent("http://127.0.0.1:" + random_picker.server["port"] + thumb) + "&X-Plex-Token=" + random_picker.server["access_token"];
+        var server_url = random_picker.server["uri"];
+        var poster_url = server_url + "/photo/:/transcode?width=450&height=675&url=" + encodeURIComponent("http://127.0.0.1:32400" + thumb) + "&X-Plex-Token=" + random_picker.server["access_token"];
 
         return poster_url;
     },

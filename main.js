@@ -1,4 +1,4 @@
-var show_update_text = true;
+var show_update_text = false;
 var update_text = "Version 1.3.3 is here. Lots of bug fixes and changes, a full list of which can be found in the <a id='stats-page-link' href='https://forums.plex.tv/index.php/topic/99209-transmogrify-for-plex-a-browser-extension-that-adds-features-to-plexweb' target='_blank'>forum thread</a>"
 
 var settings;
@@ -237,7 +237,7 @@ function getServerAddresses(requests_url, plex_token, callback) {
                             // use address if we can reach it
                             if (server_xml && server_xml != "Unauthorized" && server_xml.getElementsByTagName("MediaContainer")[0].getAttribute("machineIdentifier") === machine_identifier) {
                                 utils.debug("Using address for " + machine_identifier + " - " + uri);
-                                
+
                                 if (server_addresses[machine_identifier] && local) {
                                     // Local devices should override any remote
                                     utils.debug("Using local address for " + machine_identifier + " - " + uri);

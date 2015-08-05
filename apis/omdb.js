@@ -13,5 +13,5 @@ omdb_api = {
         utils.getJSONWithCache(api_url, function(omdb_json) {
             callback(omdb_json);
         });
-    },
+    }
 }

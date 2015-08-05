@@ -18,7 +18,7 @@ rotten_tomatoes = {
 
     createRottenTomatoesLink: function(imdb_id) {
         rotten_tomatoes_api.getMovie(imdb_id, function(movie_data) {
-            if ("error" in movie_data) {
+            if (!movie_data || "error" in movie_data) {
                 utils.debug("rotten_tomatoes plugin: No results for movie. Aborting");
                 return;
             }

@@ -48,15 +48,9 @@ youtube_trailer = {
         var search_params = encodeURIComponent(movie_title + " (" + movie_year + ") official trailer");
         utils.debug("youtube_trailer plugin: Search query - " + search_params);
 
-        var request_url = youtube_api_url + "?q=" + search_params + "&paid_content=false&format=5&max-results=1&alt=json";
-
-        utils.getJSON(request_url, function(search_results) {
-            var video_string = search_results["feed"]["entry"][0]["id"]["$t"];
-            utils.debug("youtube_trailer plugin: Video string - " + video_string);
-
-            var video_id = video_string.match(/^http:\/\/gdata\.youtube\.com\/feeds\/api\/videos\/(.+)/)[1];
-            utils.debug("youtube_trailer plugin: Video ID - " + video_id);
-            var youtube_url = "//www.youtube.com/embed/" + video_id + "?rel=0&iv_load_policy=3&vq=hd1080&autoplay=1";
+        youtube_api.getYoutubeId(search_params, function(youtube_id) {
+            utils.debug("youtube_trailer plugin: Video ID - " + youtube_id);
+            var youtube_url = "//www.youtube.com/embed/" + youtube_id + "?rel=0&iv_load_policy=3&vq=hd1080&autoplay=1";
             utils.debug("youtube_trailer plugin: YouTube embed link - " + youtube_url);
 
             youtube_trailer.insertTrailer(youtube_url);

@@ -15,6 +15,7 @@
         "apis/rotten_tomatoes.js",
         "apis/themoviedb.js",
         "apis/trakt.js",
+        "apis/youtube.js",
         "plugins/actor_profiles.js",
         "plugins/canistreamit.js",
         "plugins/imdb.js",

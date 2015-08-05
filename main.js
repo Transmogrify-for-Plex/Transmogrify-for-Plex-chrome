@@ -502,13 +502,13 @@ function main() {
                     }
 
                     // create youtube trailer button
-                    // if (settings["movie_trailers"] === "on") {
-                    //     utils.debug("youtube_trailer plugin is enabled");
-                    //     youtube_trailer.init(metadata_xml);
-                    // }
-                    // else {
-                    //     utils.debug("youtube_trailer plugin is disabled");
-                    // }
+                    if (settings["movie_trailers"] === "on") {
+                        utils.debug("youtube_trailer plugin is enabled");
+                        youtube_trailer.init(metadata_xml);
+                    }
+                    else {
+                        utils.debug("youtube_trailer plugin is disabled");
+                    }
 
                     // create rotten tomatoes link
                     if (settings["rotten_tomatoes_link"] === "on") {

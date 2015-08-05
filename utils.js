@@ -197,11 +197,6 @@ utils = {
     },
 
     getXML: function(url, callback) {
-        if (window.location.protocol === "https:" && url.indexOf("http://") === 0) {
-            callback(null);
-            return;
-        }
-
         utils.debug("Fetching XML from " + url);
         var xhr = new XMLHttpRequest();
         xhr.open("GET", url, true);
@@ -224,11 +219,6 @@ utils = {
     },
 
     getXMLWithTimeout: function(url, timeout, callback) {
-        if (window.location.protocol === "https:" && url.indexOf("http://") === 0) {
-            callback(null);
-            return;
-        }
-
         utils.debug("Fetching XML from " + url);
         var xhr = new XMLHttpRequest();
         xhr.open("GET", url, true);
@@ -271,11 +261,6 @@ utils = {
     },
 
     getJSON: function(url, callback) {
-        if (window.location.protocol === "https:" && url.indexOf("http://") === 0) {
-            callback(null);
-            return;
-        }
-        
         utils.debug("Fetching JSON from " + url);
         var xhr = new XMLHttpRequest();
         xhr.open("GET", url, true);

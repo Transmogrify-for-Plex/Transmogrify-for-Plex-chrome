@@ -30,6 +30,16 @@
     color: white !important;
 }
 
+#trakt-rating {
+  display: inline-block;
+  margin-left: 10px;
+  color: white;
+}
+
+#trakt-container {
+  margin-top: -10px;
+}
+
 #rotten-tomatoes-text-container {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-size: 13px;

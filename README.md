@@ -22,8 +22,15 @@ Features
 - Adds an actor profile for cast members on movie pages
 - Adds a server statistics page
 
+Contributors
+--------------
+* [ccarpo](https://github.com/ccarpo)
+* [Dahlgren](https://github.com/Dahlgren)
+* [pdille](https://github.com/pdille)
+
 Version History
 --------------
+- **v1.4.0** - YouTube v3 support, HTTPS server support, trakt.tv functionality fixed, and minor CSS changes
 - **v1.3.6** - disable YouTube trailers
 - **v1.3.5** - use new resources endpoint to lookup servers for SSL support
 - **v1.3.3** - use paged requests for music libraries (to avoid OOM errors on large libraries), update trakt assets and styling, fix missing episode episode/season links, titles and airdates, fix bug with date added music graph, update d3.js and c3.js libraries to 3.5.5 and 0.4.10 respectively
@@ -71,8 +78,3 @@ Version History
 ![random picker feature](http://i.imgur.com/lLMw5Kk.jpg)
 
 ![missing episodes feature](http://i.imgur.com/6CKE3Bl.jpg)
-
-Contributors
---------------
-* [ccarpo](https://github.com/ccarpo)
-* [Dahlgren](https://github.com/Dahlgren)

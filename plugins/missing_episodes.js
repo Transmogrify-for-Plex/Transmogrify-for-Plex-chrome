@@ -21,7 +21,7 @@ missing_episodes = {
         var agent = directory_metadata.getAttribute("guid");
         var season_num = directory_metadata.getAttribute("index");
 
-        var tvdb_id;
+        /*var tvdb_id;
         // check if using the tvdb metadata agent
         if (/com\.plexapp\.agents\.thetvdb/.test(agent)) {
             tvdb_id = agent.match(/^com\.plexapp\.agents\.thetvdb:\/\/(\d+)\//)[1];
@@ -35,19 +35,21 @@ missing_episodes = {
         else {
             utils.debug("missing_episodes plugin: Agent is not tvdb. Aborting");
             return;
-        }
+        }*/
+
+        var show_name = document.getElementsByClassName("show-title")[0].textContent.replace(/[^a-zA-Z0-9-_ ]/g, '').replace(/\s+/g,"-");
 
         // store current page hash so plugin doesn't insert tiles if page changed
         var current_hash = location.hash;
 
         utils.debug("missing_episodes plugin: Finding all present and all existing episodes");
         missing_episodes.getPresentEpisodes(season_metadata_id, function(present_episodes) {
-            trakt_api.getAllEpisodes(tvdb_id, season_num, function(all_episodes) {
+            trakt_api.getAllEpisodes(show_name, season_num, function(all_episodes) {
                 var tiles_to_insert = {};
                 for (var i = 0; i < all_episodes.length; i++) {
                     var episode = all_episodes[i];
                     if (present_episodes.indexOf(episode["episode"]) === -1) {
-                        var episode_tile = missing_episodes.createEpisodeTile(episode);
+                        var episode_tile = missing_episodes.createEpisodeTile(show_name, episode);
                         tiles_to_insert[episode["number"]] = episode_tile;
                     }
                 }
@@ -68,7 +70,7 @@ missing_episodes = {
         var show_metadata_id = directory_metadata.getAttribute("ratingKey");
         var agent = directory_metadata.getAttribute("guid");
 
-        var tvdb_id;
+        /*var tvdb_id;
         // check if using the tvdb metadata agent
         if (/com\.plexapp\.agents\.thetvdb/.test(agent)) {
             tvdb_id = agent.match(/^com\.plexapp\.agents\.thetvdb:\/\/(\d+)/)[1];
@@ -82,32 +84,42 @@ missing_episodes = {
         else {
             utils.debug("missing_episodes plugin: Agent is not tvdb. Aborting");
             return;
+        }*/
+
+        var show_name;
+        if (trakt.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("originalTitle") != null) {
+            show_name = trakt.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("originalTitle");
         }
+        else {
+            show_name = trakt.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("title");
+        }
+        show_name = show_name.replace(/[^a-zA-Z0-9-_ ]/g, '').replace(/\s+/g,"-");
 
         // store current page hash so plugin doesn't insert tiles if page changed
         var current_hash = location.hash;
 
         utils.debug("missing_episodes plugin: Finding all present and all existing seasons");
         missing_episodes.getPresentSeasons(show_metadata_id, function(present_seasons) {
-            trakt_api.getAllSeasons(tvdb_id, function(all_seasons) {
+            trakt_api.getAllSeasons(show_name, function(all_seasons) {
                 var tiles_to_insert = {};
                 for (var i = 0; i < all_seasons.length; i++) {
                     var season = all_seasons[i];
-                    if (present_seasons.indexOf(season["season"]) === -1) {
-                        if (season["season"] == 0) {
+                    if (present_seasons.indexOf(season["number"]) === -1) {
+                        if (season["number"] == 0) {
                             // ignore specials
                             continue;
                         }
-                        var season_tile = missing_episodes.createSeasonTile(season);
-                        tiles_to_insert[season["season"]] = season_tile;
+                        var season_tile = missing_episodes.createSeasonTile(show_name,season);
+                        tiles_to_insert[season["number"]] = season_tile;
                     }
                 }
 
                 // check if page changed before inserting tiles
                 if (current_hash === location.hash) {
                     missing_episodes.insertSeasonTiles(tiles_to_insert);
+                    // 20150803 - v2 API for trakt.tv does not appear to give air dates like before
                     // Fetch season air dates and insert them into tiles
-                    missing_episodes.insertSeasonAirdates(tvdb_id, tiles_to_insert);
+                    // missing_episodes.insertSeasonAirdates(tvdb_id, tiles_to_insert);
                 }
                 else {
                     utils.debug("missing_episodes plugin: Page changed before season tiles could be inserted");
@@ -145,13 +157,13 @@ missing_episodes = {
         });
     },
 
-    createEpisodeTile: function(episode) {
+    createEpisodeTile: function(show_name, episode) {
         var episode_tile = document.createElement("li");
         episode_tile.setAttribute("class", "poster-item media-tile-list-item episode missing-episode");
 
         var episode_tile_link = document.createElement("a");
         episode_tile_link.setAttribute("class", "media-poster-container");
-        episode_tile_link.setAttribute("href", "http://trakt.tv" + episode["url"]);
+        episode_tile_link.setAttribute("href", "https://trakt.tv/shows/" + show_name + "/seasons/" + episode["season"] + "/episodes/" + episode["number"]);
         episode_tile_link.setAttribute("target", "_blank");
 
         var episode_tile_poster = document.createElement("div");
@@ -163,7 +175,8 @@ missing_episodes = {
 
         var episode_title_overlay_text = document.createElement("div");
         episode_title_overlay_text.setAttribute("class", "overlay-missing-episode-text");
-        var date_text;
+        // 20150803 - v2 API for trakt.tv does not appear to give air dates like before
+        /*var date_text;
         if (episode["first_aired_utc"] === 0 || episode["first_aired_utc"] === null) {
             date_text = "TBA";
         }
@@ -174,7 +187,7 @@ missing_episodes = {
             date_text = localized_air_date.toDateString();
         }
         var episode_title_overlay_text_node = document.createTextNode("Air Date: " + date_text);
-        episode_title_overlay_text.appendChild(episode_title_overlay_text_node);
+        episode_title_overlay_text.appendChild(episode_title_overlay_text_node);*/
 
         var episode_tile_title = document.createElement("div");
         episode_tile_title.setAttribute("class", "media-title media-heading");
@@ -196,13 +209,13 @@ missing_episodes = {
         return episode_tile;
     },
 
-    createSeasonTile: function(season) {
+    createSeasonTile: function(show_name, season) {
         var season_tile = document.createElement("li");
         season_tile.setAttribute("class", "poster-item media-tile-list-item season missing-season");
 
         var season_tile_link = document.createElement("a");
         season_tile_link.setAttribute("class", "media-poster-container");
-        season_tile_link.setAttribute("href", "http://trakt.tv" + season["url"]);
+        season_tile_link.setAttribute("href", "https://trakt.tv/shows/" + show_name + "/seasons/" + season["number"]);
         season_tile_link.setAttribute("target", "_blank");
 
         var season_tile_poster = document.createElement("div");
@@ -217,12 +230,12 @@ missing_episodes = {
 
         var season_tile_title = document.createElement("div");
         season_tile_title.setAttribute("class", "media-title media-heading");
-        var season_tile_title_text_node = document.createTextNode("Season " + season["season"]);
+        var season_tile_title_text_node = document.createTextNode("Season " + season["number"]);
         season_tile_title.appendChild(season_tile_title_text_node);
 
         var season_tile_number = document.createElement("div");
         season_tile_number.setAttribute("class", "media-subtitle media-heading secondary");
-        var season_tile_number_text_node = document.createTextNode(season["episodes"] + " episodes");
+        var season_tile_number_text_node = document.createTextNode(season["episodes"].length + " episodes");
         season_tile_number.appendChild(season_tile_number_text_node);
 
         season_tile.appendChild(season_tile_link);
@@ -302,6 +315,7 @@ missing_episodes = {
     },
 
     insertSeasonAirdates: function(tvdb_id, season_tiles) {
+        // TODO: Unused with new trakt.tv API
         Object.keys(season_tiles).forEach(function (season_number) {
             var season_tile = season_tiles[season_number];
 

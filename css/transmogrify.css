@@ -12,7 +12,7 @@
 
 #letterboxd-link, #trakt-container, #tvdb-container, #rotten-tomatoes-container, #imdb-container, #themoviedb-container {
     display: block;
-    margin-top: 20px;
+    margin-bottom: 30px;
     margin-left: 5px;
 }
 
@@ -30,6 +30,16 @@
     color: white !important;
 }
 
+#trakt-rating {
+  display: inline-block;
+  margin-left: 10px;
+  color: white;
+}
+
+#trakt-container {
+  margin-top: -10px;
+}
+
 #rotten-tomatoes-text-container {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     font-size: 13px;
@@ -43,6 +53,10 @@
 
 #rotten-tomatoes-critics-rating-image, #rotten-tomatoes-audience-rating-image {
     margin-right: 5px;
+}
+
+#rotten-tomatoes-ratings-container {
+    min-height: 34px;
 }
 
 #trakt-rating-image {
@@ -66,7 +80,7 @@
     font-size: 15px;
     font-weight: bold;
     font-family: 'tahoma';
-    cursor: default;
+    cursor: pointer;
 }
 
 .btn-trailer {

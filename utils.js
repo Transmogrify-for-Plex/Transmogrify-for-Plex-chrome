@@ -197,11 +197,6 @@ utils = {
     },
 
     getXML: function(url, callback) {
-        if (window.location.protocol === "https:" && url.indexOf("http://") === 0) {
-            callback(null);
-            return;
-        }
-
         utils.debug("Fetching XML from " + url);
         var xhr = new XMLHttpRequest();
         xhr.open("GET", url, true);
@@ -224,11 +219,6 @@ utils = {
     },
 
     getXMLWithTimeout: function(url, timeout, callback) {
-        if (window.location.protocol === "https:" && url.indexOf("http://") === 0) {
-            callback(null);
-            return;
-        }
-
         utils.debug("Fetching XML from " + url);
         var xhr = new XMLHttpRequest();
         xhr.open("GET", url, true);
@@ -254,7 +244,7 @@ utils = {
         xhr.send();
     },
 
-    getJSONWithCache: function(url, callback) {
+    getJSONWithCache: function(url, callback, custom_headers) {
         utils.debug("Fetching JSON from " + url);
         utils.cache_get("cache-" + url, function(result) {
             if (result) {
@@ -265,20 +255,18 @@ utils = {
                 utils.getJSON(url, function(result) {
                     utils.cache_set("cache-" + url, result);
                     callback(result);
-                });
+                }, custom_headers);
             }
         });
     },
 
-    getJSON: function(url, callback) {
-        if (window.location.protocol === "https:" && url.indexOf("http://") === 0) {
-            callback(null);
-            return;
-        }
-        
+    getJSON: function(url, callback, custom_headers) {
         utils.debug("Fetching JSON from " + url);
         var xhr = new XMLHttpRequest();
         xhr.open("GET", url, true);
+        for (var header_name in custom_headers) {
+          xhr.setRequestHeader(header_name, custom_headers[header_name])
+        }
         xhr.onload = function(e) {
             if (xhr.readyState === 4) {
                 if (xhr.status === 200) {

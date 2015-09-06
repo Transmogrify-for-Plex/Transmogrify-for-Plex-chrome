@@ -45,7 +45,7 @@ imdb = {
     },
 
     processOMDbData: function(movie_data) {
-        if ("Error" in movie_data) {
+        if (!movie_data || "Error" in movie_data) {
             utils.debug("imdb plugin: Error response recieved. Aborting")
             return;
         }
@@ -68,20 +68,15 @@ imdb = {
     constructImdbLink: function(imdb_url, imdb_rating) {
         var logo_url = utils.getResourcePath("imdb/imdb_logo.png")
 
-        var imdb_container_element = document.createElement("div");
+        var imdb_container_element = document.createElement("a");
         imdb_container_element.setAttribute("id", "imdb-container");
-
-        // construct link
-        var imdb_element_link = document.createElement("a");
-        imdb_element_link.setAttribute("href", imdb_url);
-        imdb_element_link.setAttribute("target", "_blank");
+        imdb_container_element.setAttribute("href", imdb_url);
+        imdb_container_element.setAttribute("target", "_blank");
 
         // construct logo
         var imdb_element_img = document.createElement("img");
         imdb_element_img.setAttribute("id", "imdb-logo");
         imdb_element_img.setAttribute("src", logo_url);
-
-        imdb_element_link.appendChild(imdb_element_img);
 
         // construct rating
         var imdb_rating_element = document.createElement("div");
@@ -91,7 +86,7 @@ imdb = {
         var rating_text = document.createTextNode(imdb_rating);
         imdb_rating_element.appendChild(rating_text);
 
-        imdb_container_element.appendChild(imdb_element_link);
+        imdb_container_element.appendChild(imdb_element_img);
         imdb_container_element.appendChild(imdb_rating_element);
 
         return imdb_container_element;

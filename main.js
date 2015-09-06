@@ -1,5 +1,5 @@
 var show_update_text = false;
-var update_text = "Version 1.3.3 is here. Lots of bug fixes and changes, a full list of which can be found in the <a id='stats-page-link' href='https://forums.plex.tv/index.php/topic/99209-transmogrify-for-plex-a-browser-extension-that-adds-features-to-plexweb' target='_blank'>forum thread</a>"
+var update_text = "Version 1.3.4 is here. Lots of bug fixes and changes, a full list of which can be found in the <a id='stats-page-link' href='https://forums.plex.tv/index.php/topic/99209-transmogrify-for-plex-a-browser-extension-that-adds-features-to-plexweb' target='_blank'>forum thread</a>"
 
 var settings;
 var global_plex_token;
@@ -176,21 +176,29 @@ function getServerAddresses(requests_url, plex_token, callback) {
         utils.debug(global_server_addresses);
 
         callback(global_server_addresses);
-    }
-    else {
+    } else {
         utils.debug("Fetching server addresses");
 
-        insertLoadingIcon();
+        if (!document.getElementById("loading-extension"))
+          insertLoadingIcon();
 
-        utils.getXML(requests_url + "/resources?includeHttps=1&X-Plex-Token=" + plex_token, function(servers_xml) {
-            var devices = servers_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Device");
-
+        var xml_lookup_tag_name, request_path;
+        // Lookups are different if we are going to plex.tv as opposed to a local IP address
+        if (plex_token) {
+            xml_lookup_tag_name = "Device";
+            request_path = "/resources?includeHttps=1";
+        } else {
+            xml_lookup_tag_name = "Server";
+            request_path = "/servers?includeLite=1";
+        }
+        utils.getXML(requests_url + request_path + "&X-Plex-Token=" + plex_token, function(servers_xml) {
+            var devices = servers_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName(xml_lookup_tag_name);
             var task_counter = 0;
             var task_completed = function() {
                 utils.debug("Server ping task finished");
                 task_counter--;
 
-                // check if all async tasks are finished
+                // Check if all async tasks are finished
                 if (task_counter === 0) {
                     utils.debug("All server ping tasks finished");
 
@@ -199,7 +207,7 @@ function getServerAddresses(requests_url, plex_token, callback) {
                         utils.debug(server_addresses[machine_identifier]);
                     }
 
-                    // remove offline servers, which return a blank address from plex.tv
+                    // Remove offline servers, which return a blank address from plex.tv
                     for (var machine_identifier in server_addresses) {
                         if (server_addresses[machine_identifier]["uri"] === "") {
                             utils.debug("Removing offline server - " + machine_identifier);
@@ -207,34 +215,31 @@ function getServerAddresses(requests_url, plex_token, callback) {
                         }
                     }
 
-                    // pass server addresses to background for stats page
+                    // Pass server addresses to background for stats page
                     utils.background_storage_set("server_addresses", server_addresses);
 
-                    // set global_server_addresses so results are cached
+                    // Set global_server_addresses so results are cached
                     global_server_addresses = server_addresses;
 
                     removeLoadingIcon();
                     callback(server_addresses);
                 }
             };
-
             var server_addresses = {};
             for (var i = 0; i < devices.length; i++) {
                 var device = devices[i];
-                var connections = device.getElementsByTagName("Connection");
+                var connections = device.hasAttribute("address") ? [device] : device.getElementsByTagName("Connection");
                 var name = device.getAttribute("name");
-                var machine_identifier = device.getAttribute("clientIdentifier");
+                var machine_identifier = device.hasAttribute("machineIdentifier") ? device.getAttribute("machineIdentifier") : device.getAttribute("clientIdentifier");
                 var access_token = device.getAttribute("accessToken");
-
                 for (var j = 0; j < connections.length; j++) {
                     var connection = connections[j];
-                    var uri = connection.getAttribute("uri");
-                    var local = connection.getAttribute("local") == 1;
+                    var uri = connection.hasAttribute("uri") ? connection.getAttribute("uri") : window.location.protocol + "//" + connection.getAttribute("address") + ":" + connection.getAttribute("port");
+                    var local = !connection.hasAttribute("uri") || connection.getAttribute("local") == 1;
                     task_counter += 1;
-
                     (function (machine_identifier, name, uri, access_token, local) {
                         utils.getXMLWithTimeout(uri + "?X-Plex-Token=" + access_token, 2000, function(server_xml) {
-                            // use address if we can reach it
+                            // Use address if we can reach it
                             if (server_xml && server_xml != "Unauthorized" && server_xml.getElementsByTagName("MediaContainer")[0].getAttribute("machineIdentifier") === machine_identifier) {
                                 utils.debug("Using address for " + machine_identifier + " - " + uri);
 
@@ -249,14 +254,12 @@ function getServerAddresses(requests_url, plex_token, callback) {
                                         "name": name,
                                         "machine_identifier": machine_identifier,
                                         "access_token": access_token,
-                                        "uri": uri,
+                                        "uri": uri
                                     };
                                 }
-                            }
-                            else {
+                            } else {
                                 utils.debug("Failed to ping address for " + machine_identifier + " - " + uri);
                             }
-
                             task_completed();
                         });
                     }(machine_identifier, name, uri, access_token, local));
@@ -317,7 +320,7 @@ function main() {
     }
     else {
         var url_matches = page_url.match(/^https?\:\/\/(.+):(\d+)\/web\/.+/);
-        requests_url = "http://" + url_matches[1] + ":" + url_matches[2];
+        requests_url = window.location.protocol + "//" + url_matches[1] + ":" + url_matches[2];
     }
     utils.debug("requests_url set as " + requests_url);
 
@@ -398,7 +401,7 @@ function main() {
             // override server address if defined in settings
             if (settings["plex_server_uri"] != "") {
                 utils.debug("Plex server manual override");
-                server["uri"] = settings["uri"];
+                server["uri"] = settings["plex_server_uri"];
             }
 
             // construct metadata xml link
@@ -499,13 +502,13 @@ function main() {
                     }
 
                     // create youtube trailer button
-                    // if (settings["movie_trailers"] === "on") {
-                    //     utils.debug("youtube_trailer plugin is enabled");
-                    //     youtube_trailer.init(metadata_xml);
-                    // }
-                    // else {
-                    //     utils.debug("youtube_trailer plugin is disabled");
-                    // }
+                    if (settings["movie_trailers"] === "on") {
+                        utils.debug("youtube_trailer plugin is enabled");
+                        youtube_trailer.init(metadata_xml);
+                    }
+                    else {
+                        utils.debug("youtube_trailer plugin is disabled");
+                    }
 
                     // create rotten tomatoes link
                     if (settings["rotten_tomatoes_link"] === "on") {

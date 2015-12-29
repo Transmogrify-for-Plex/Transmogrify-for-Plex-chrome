@@ -63,7 +63,7 @@ trakt = {
             trakt_api.getEpisodeRating(show_name, season, episode, function(trakt_json) {
                 if (trakt_json) {
                   var rating = Math.round(trakt_json.rating * 10);
-                  var url = "http://trakt.tv/shows/" + show_name + "seasons/" + season + "/episodes/" + episode;
+                  var url = "http://trakt.tv/shows/" + show_name + "/seasons/" + season + "/episodes/" + episode;
 
                   trakt.insertTraktLink(url, rating);
                 }

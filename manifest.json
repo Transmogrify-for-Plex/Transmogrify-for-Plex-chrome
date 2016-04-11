@@ -23,7 +23,6 @@
         "plugins/missing_episodes.js",
         "plugins/random_picker.js",
         "plugins/rotten_tomatoes.js",
-        "plugins/split_added_deck.js",
         "plugins/stats.js",
         "plugins/themoviedb.js",
         "plugins/trakt.js",

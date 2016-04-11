@@ -331,10 +331,6 @@ utils = {
                 utils.storage_set("plex_server_uri", "");
             }
 
-            if (!("split_added_deck" in settings)) {
-                utils.storage_set("split_added_deck", "on");
-            }
-
             if (!("canistreamit" in settings)) {
                 utils.storage_set("canistreamit", "off");
             }

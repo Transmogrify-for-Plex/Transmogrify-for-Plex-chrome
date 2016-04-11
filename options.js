@@ -12,7 +12,6 @@ function saveOptions() {
     var random_picker = document.querySelector("input[name='random_picker']:checked").value;
     var random_picker_only_unwatched = document.querySelector("input[name='random_picker_only_unwatched']:checked").value;
     var missing_episodes = document.querySelector("input[name='missing_episodes']:checked").value;
-    var split_added_deck = document.querySelector("input[name='split_added_deck']:checked").value;
     var canistreamit = document.querySelector("input[name='canistreamit']:checked").value;
     var actor_profiles = document.querySelector("input[name='actor_profiles']:checked").value;
     var stats_link = document.querySelector("input[name='stats_link']:checked").value;
@@ -32,7 +31,6 @@ function saveOptions() {
     utils.storage_set("rotten_tomatoes_audience", rotten_tomatoes_audience);
     utils.storage_set("rotten_tomatoes_citizen", rotten_tomatoes_citizen);
     utils.storage_set("missing_episodes", missing_episodes);
-    utils.storage_set("split_added_deck", split_added_deck);
     utils.storage_set("canistreamit", canistreamit);
     utils.storage_set("actor_profiles", actor_profiles);
     utils.storage_set("stats_link", stats_link);
@@ -81,9 +79,6 @@ function restoreOptions() {
 
             var missing_episodes_radio_button = document.getElementById("missing_episodes_" + results["missing_episodes"]);
             missing_episodes_radio_button.checked = true;
-
-            var split_added_deck_radio_button = document.getElementById("split_added_deck_" + results["split_added_deck"]);
-            split_added_deck_radio_button.checked = true;
 
             var canistreamit_radio_button = document.getElementById("canistreamit_" + results["canistreamit"]);
             canistreamit_radio_button.checked = true;

@@ -202,21 +202,6 @@
     right: 0;
 }
 
-.split-text {
-    margin-left: 10px;
-    font-size: 11px;
-    cursor: pointer;
-    cursor: hand;
-}
-
-.split-hide {
-    color: #999;
-}
-
-.split-show {
-    color: white;
-}
-
 #actor-overlay {
     display: none;
     position: absolute;

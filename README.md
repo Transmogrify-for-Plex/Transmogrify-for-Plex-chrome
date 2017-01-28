@@ -1,3 +1,5 @@
+# Note that this extension is no longer being maintained but others are welcome to fork it
+
 Transmogrify for Plex
 ==============
 **Transmogrify for Plex adds several features to the Plex/Web 2.0 client for Plex.**

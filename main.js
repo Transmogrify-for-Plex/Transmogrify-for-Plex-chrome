@@ -235,6 +235,9 @@ function getServerAddresses(requests_url, plex_token, callback) {
                 for (var j = 0; j < connections.length; j++) {
                     var connection = connections[j];
                     var uri = connection.hasAttribute("uri") ? connection.getAttribute("uri") : window.location.protocol + "//" + connection.getAttribute("address") + ":" + connection.getAttribute("port");
+                    if (uri.indexOf("https") < 0) {
+                        continue;
+                    }
                     var local = !connection.hasAttribute("uri") || connection.getAttribute("local") == 1;
                     task_counter += 1;
                     (function (machine_identifier, name, uri, access_token, local) {

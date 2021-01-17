@@ -31,6 +31,7 @@ Contributors
 
 Version History
 --------------
+- **v2.0.0** - Updated to be working with Plex Web 4.50.1 / Plex 1.21.1.3876
 - **v1.4.0** - YouTube v3 support, HTTPS server support, trakt.tv functionality fixed, and minor CSS changes
 - **v1.3.6** - disable YouTube trailers
 - **v1.3.5** - use new resources endpoint to lookup servers for SSL support

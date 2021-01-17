@@ -1,227 +1,117 @@
 <html>
-    <head>
-        <title>Transmogrify for Plex options</title>
 
-        <link rel="stylesheet" type="text/css" href="css/options.css">
-    </head>
+<head>
+    <title>Transmogrify for Plex options</title>
 
-    <body>
+    <link rel="stylesheet" type="text/css" href="css/options.css">
+</head>
 
-        <div class="field-row">
-            <div class="label">Movie trailers:</div>
+<body>
 
-            <div class="field">
-                <input type="radio" id="trailers_on" name="movie_trailers" value="on"/>
-                <label for="trailers_on">ON</label>
+    <div class="field-row">
+        <div class="label">The Movie Database link:</div>
 
-                <input type="radio" id="trailers_off" name="movie_trailers" value="off"/>
-                <label for="trailers_off">OFF</label>
-            </div>
+        <div class="field">
+            <input type="radio" id="themoviedb_on" name="themoviedb_link" value="on" />
+            <label for="themoviedb_on">ON</label>
+
+            <input type="radio" id="themoviedb_off" name="themoviedb_link" value="off" />
+            <label for="themoviedb_off">OFF</label>
+        </div>
+    </div>
+
+    <div class="field-row">
+        <div class="label">TheTVDB link:</div>
+
+        <div class="field">
+            <input type="radio" id="tvdb_on" name="tvdb_link" value="on" />
+            <label for="tvdb_on">ON</label>
+
+            <input type="radio" id="tvdb_off" name="tvdb_link" value="off" />
+            <label for="tvdb_off">OFF</label>
+        </div>
+    </div>
+
+    <div class="field-row">
+        <div class="label">Trakt link:</div>
+
+        <div class="field">
+            <input type="checkbox" id="trakt_movies" name="trakt_movies" value="movies">
+            <label for="trakt_movies">MOVIES</label>
+
+            <input type="checkbox" id="trakt_shows" name="trakt_shows" value="shows">
+            <label for="trakt_shows">SHOWS</label>
+        </div>
+    </div>
+
+    <div class="field-row">
+        <div class="label">Show missing seasons/episodes:</div>
+
+        <div class="field">
+            <input type="radio" id="missing_episodes_on" name="missing_episodes" value="on" />
+            <label for="missing_episodes_on">ON</label>
+
+            <input type="radio" id="missing_episodes_off" name="missing_episodes" value="off" />
+            <label for="missing_episodes_off">OFF</label>
+        </div>
+    </div>
+
+    <div class="field-row">
+        <div class="label">Stats page link:</div>
+
+        <div class="field">
+            <input type="radio" id="stats_link_on" name="stats_link" value="on" />
+            <label for="stats_link_on">ON</label>
+
+            <input type="radio" id="stats_link_off" name="stats_link" value="off" />
+            <label for="stats_link_off">OFF</label>
+        </div>
+    </div>
+
+    <div class="field-row">
+        <div class="label">Plex server address override:<br /><span class="subscript">(only necessary if you want to manually specify a server address e.g. you use a vpn or tunnel)</span></div>
+
+        <div class="field">
+            <input type="url" placeholder="uri" id="plex_server_uri" name="plex_server_uri">
+        </div>
+    </div>
+
+    <div class="field-row" id="debug">
+        <div class="label">Debug:</div>
+
+        <div class="field">
+            <input type="radio" id="debug_on" name="debug" value="on" />
+            <label for="debug_on">ON</label>
+
+            <input type="radio" id="debug_off" name="debug" value="off" />
+            <label for="debug_off">OFF</label>
         </div>
 
-        <div class="field-row">
-            <div class="label">Letterboxd link:</div>
+        <div class="label extra-options-label debug-extra">Show tokens and IP addresses:</div>
+        <div class="field extra-options debug-extra">
+            <input type="radio" id="debug_unfiltered_on" name="debug_unfiltered" value="on">
+            <label for="debug_unfiltered_on">YES</label>
 
-            <div class="field">
-                <input type="radio" id="letterboxd_on" name="letterboxd_link" value="on"/>
-                <label for="letterboxd_on">ON</label>
-
-                <input type="radio" id="letterboxd_off" name="letterboxd_link" value="off"/>
-                <label for="letterboxd_off">OFF</label>
-            </div>
+            <input type="radio" id="debug_unfiltered_off" name="debug_unfiltered" value="off">
+            <label for="debug_unfiltered_off">NO</label>
         </div>
+    </div>
 
-        <div class="field-row">
-            <div class="label">The Movie Database link:</div>
-
-            <div class="field">
-                <input type="radio" id="themoviedb_on" name="themoviedb_link" value="on"/>
-                <label for="themoviedb_on">ON</label>
-
-                <input type="radio" id="themoviedb_off" name="themoviedb_link" value="off"/>
-                <label for="themoviedb_off">OFF</label>
-            </div>
-        </div>
-
-        <div class="field-row">
-            <div class="label">IMDB link:</div>
-
-            <div class="field">
-                <input type="radio" id="imdb_on" name="imdb_link" value="on"/>
-                <label for="imdb_on">ON</label>
-
-                <input type="radio" id="imdb_off" name="imdb_link" value="off"/>
-                <label for="imdb_off">OFF</label>
-            </div>
-        </div>
-
-        <div class="field-row">
-            <div class="label">TheTVDB link:</div>
-
-            <div class="field">
-                <input type="radio" id="tvdb_on" name="tvdb_link" value="on"/>
-                <label for="tvdb_on">ON</label>
-
-                <input type="radio" id="tvdb_off" name="tvdb_link" value="off"/>
-                <label for="tvdb_off">OFF</label>
-            </div>
-        </div>
-
-        <div class="field-row">
-            <div class="label">Rotten Tomatoes link:</div>
-
-            <div class="field">
-                <input type="radio" id="rotten_tomatoes_on" name="rotten_tomatoes_link" value="on"/>
-                <label for="rotten_tomatoes_on">ON</label>
-
-                <input type="radio" id="rotten_tomatoes_off" name="rotten_tomatoes_link" value="off"/>
-                <label for="rotten_tomatoes_off">OFF</label>
-            </div>
-
-            <div class="label extra-options-label rotten-tomatoes-extra">Show audience rating?:</div>
-            <div class="field extra-options rotten-tomatoes-extra">
-                <input type="radio" id="rotten_tomatoes_audience_on" name="rotten_tomatoes_audience" value="on"/>
-                <label for="rotten_tomatoes_audience_on">YES</label>
-
-                <input type="radio" id="rotten_tomatoes_audience_off" name="rotten_tomatoes_audience" value="off"/>
-                <label for="rotten_tomatoes_audience_off">NO</label>
-            </div>
-
-            <div class="label extra-options-label rotten-tomatoes-extra">Do you live in the US?:<br/><span class="subscript">(rotten tomatoes API requires that you live in the US to use their data)</span></div>
-            <div class="field extra-options rotten-tomatoes-extra">
-                <input type="radio" id="rotten_tomatoes_citizen_us" name="rotten_tomatoes_citizen" value="us">
-                <label for="rotten_tomatoes_citizen_us">YES</label>
-
-                <input type="radio" id="rotten_tomatoes_citizen_non_us" name="rotten_tomatoes_citizen" value="non_us">
-                <label for="rotten_tomatoes_citizen_non_us">NO</label>
-            </div>
-        </div>
-
-        <div class="field-row">
-            <div class="label">Trakt link:</div>
-
-            <div class="field">
-                <input type="checkbox" id="trakt_movies" name="trakt_movies" value="movies">
-                <label for="trakt_movies">MOVIES</label>
-
-                <input type="checkbox" id="trakt_shows" name="trakt_shows" value="shows">
-                <label for="trakt_shows">SHOWS</label>
-            </div>
-        </div>
-
-        <div class="field-row">
-            <div class="label">Random picker:</div>
-
-            <div class="field">
-                <input type="radio" id="random_on" name="random_picker" value="on"/>
-                <label for="random_on">ON</label>
-
-                <input type="radio" id="random_off" name="random_picker" value="off"/>
-                <label for="random_off">OFF</label>
-            </div>
-
-            <div class="label extra-options-label random-picker-extra">Only show unwatched movies?:</div>
-            <div class="field extra-options random-picker-extra">
-                <input type="radio" id="random_picker_only_unwatched_on" name="random_picker_only_unwatched" value="on">
-                <label for="random_picker_only_unwatched_on">YES</label>
-
-                <input type="radio" id="random_picker_only_unwatched_off" name="random_picker_only_unwatched" value="off">
-                <label for="random_picker_only_unwatched_off">NO</label>
-            </div>
-        </div>
-
-        <div class="field-row">
-            <div class="label">Show missing seasons/episodes:</div>
-
-            <div class="field">
-                <input type="radio" id="missing_episodes_on" name="missing_episodes" value="on"/>
-                <label for="missing_episodes_on">ON</label>
-
-                <input type="radio" id="missing_episodes_off" name="missing_episodes" value="off"/>
-                <label for="missing_episodes_off">OFF</label>
-            </div>
-        </div>
-
-        <div class="field-row">
-            <div class="label">Show actor profiles:</div>
-
-            <div class="field">
-                <input type="radio" id="actor_profiles_on" name="actor_profiles" value="on"/>
-                <label for="actor_profiles_on">ON</label>
-
-                <input type="radio" id="actor_profiles_off" name="actor_profiles" value="off"/>
-                <label for="actor_profiles_off">OFF</label>
-            </div>
-        </div>
-
-        <div class="field-row">
-            <div class="label">Can I Stream It? widget:</div>
-
-            <div class="field">
-                <input type="radio" id="canistreamit_on" name="canistreamit" value="on"/>
-                <label for="canistreamit_on">ON</label>
-
-                <input type="radio" id="canistreamit_off" name="canistreamit" value="off"/>
-                <label for="canistreamit_off">OFF</label>
-            </div>
-        </div>
-
-        <div class="field-row">
-            <div class="label">Stats page link:</div>
-
-            <div class="field">
-                <input type="radio" id="stats_link_on" name="stats_link" value="on"/>
-                <label for="stats_link_on">ON</label>
-
-                <input type="radio" id="stats_link_off" name="stats_link" value="off"/>
-                <label for="stats_link_off">OFF</label>
-            </div>
-        </div>
-
-        <div class="field-row">
-            <div class="label">Plex server address override:<br/><span class="subscript">(only necessary if you want to manually specify a server address e.g. you use a vpn or tunnel)</span></div>
-
-            <div class="field">
-                <input type="url" placeholder="uri" id="plex_server_uri" name="plex_server_uri">
-            </div>
-        </div>
-
-        <div class="field-row" id="debug">
-            <div class="label">Debug:</div>
-
-            <div class="field">
-                <input type="radio" id="debug_on" name="debug" value="on"/>
-                <label for="debug_on">ON</label>
-
-                <input type="radio" id="debug_off" name="debug" value="off"/>
-                <label for="debug_off">OFF</label>
-            </div>
-
-            <div class="label extra-options-label debug-extra">Show tokens and IP addresses:</div>
-            <div class="field extra-options debug-extra">
-                <input type="radio" id="debug_unfiltered_on" name="debug_unfiltered" value="on">
-                <label for="debug_unfiltered_on">YES</label>
-
-                <input type="radio" id="debug_unfiltered_off" name="debug_unfiltered" value="off">
-                <label for="debug_unfiltered_off">NO</label>
-            </div>
-        </div>
-
-        <div class="field-row">
+    <div class="field-row">
         <div class="label">Clear cached extension data:</div>
 
-            <div class="field">
-                <button id="clear-cache">Clear cache</button>
-            </div>
+        <div class="field">
+            <button id="clear-cache">Clear cache</button>
         </div>
+    </div>
 
-        <ul class="thanks">
-            <li>This product uses the <a href="http://trakt.tv" target="blank">trakt.tv</a> API</li>
-            <li>This product uses the <a href="http://www.themoviedb.org" target="blank">TMDb</a> API but is not endorsed or certified by TMDb</li>
-            <li>This product uses the <a href="http://www.rottentomatoes.com" target="blank">Rotten Tomatoes&reg;</a> API</li>
-        </ul>
+    <ul class="thanks">
+        <li>This product uses the <a href="http://trakt.tv" target="blank">trakt.tv</a> API</li>
+        <li>This product uses the <a href="http://www.themoviedb.org" target="blank">TMDb</a> API but is not endorsed or certified by TMDb</li>
+    </ul>
 
-        <script src="utils.js"></script>
-        <script src="options.js"></script>
-    </body>
+    <script src="utils.js"></script>
+    <script src="options.js"></script>
+</body>
+
 </html>

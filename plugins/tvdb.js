@@ -1,13 +1,13 @@
 tvdb = {
     metadata_xml: null,
 
-    init: function(metadata_xml, type) {
+    init: function (metadata_xml, type) {
         tvdb.metadata_xml = metadata_xml;
 
         tvdb.getTvdbId();
     },
 
-    getTvdbId: function() {
+    getTvdbId: function () {
         utils.debug("tvdb plugin: Grabbing tvdb id");
         var agent = tvdb.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("guid");
 
@@ -25,11 +25,17 @@ tvdb = {
         }
     },
 
-    createTvdbLink: function(tvdb_id) {
-        var logo_url = utils.getResourcePath("tvdb/tvdb_logo.png")
-
-        var tvdb_container_element = document.createElement("div");
+    createTvdbLink: function (tvdb_id) {
+        var logo_url = utils.getResourcePath("tvdb/tvdb_logo.png");
+        var sister_containers = document.querySelectorAll("[class*=PrePlayTertiaryTitleSpacer-tertiaryTitleSpacer-]")[0].parentNode.children;
+        var container_element_template = sister_containers[0];
+        var tvdb_container_element = document.createElement("span");
         tvdb_container_element.setAttribute("id", "tvdb-container");
+        tvdb_container_element.setAttribute("class", container_element_template.getAttribute("class"));
+
+        // Set the class of the last element
+        var last_sister = sister_containers[sister_containers.length - 1];
+        last_sister.setAttribute("class", container_element_template.getAttribute("class"));
 
         // construct link
         var tvdb_element_link = document.createElement("a");
@@ -39,6 +45,7 @@ tvdb = {
         // construct logo
         var tvdb_element_img = document.createElement("img");
         tvdb_element_img.setAttribute("src", logo_url);
+        tvdb_element_img.setAttribute("height", "20px");
 
         tvdb_element_link.appendChild(tvdb_element_img);
         tvdb_container_element.appendChild(tvdb_element_link);
@@ -46,9 +53,9 @@ tvdb = {
         return tvdb_container_element;
     },
 
-    insertTvdbLink: function(tvdb_link) {
+    insertTvdbLink: function (tvdb_link) {
         // insert tvdb link element to bottom of metadata container
         utils.debug("tvdb plugin: Inserting tvdb container into page");
-        document.getElementsByClassName("metadata-right")[0].appendChild(tvdb_link);
+        document.querySelectorAll("[class*=PrePlayTertiaryTitle-tertiaryTitle]")[0].appendChild(tvdb_link);
     }
 }

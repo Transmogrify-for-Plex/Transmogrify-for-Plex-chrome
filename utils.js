@@ -1,7 +1,7 @@
 var global_settings;
 
 utils = {
-    debug: function(output) {
+    debug: function (output) {
         if (global_settings["debug"] === "on") {
             if (typeof output === "string") {
                 if (global_settings["debug_unfiltered"] === "off") {
@@ -41,22 +41,22 @@ utils = {
         }
     },
 
-    getExtensionVersion: function() {
+    getExtensionVersion: function () {
         var version = chrome.runtime.getManifest()["version"];
         return version;
     },
 
-    getOptionsURL: function() {
+    getOptionsURL: function () {
         var options_url = chrome.extension.getURL("options.html");
         return options_url;
     },
 
-    getStatsURL: function() {
+    getStatsURL: function () {
         var stats_url = chrome.extension.getURL("stats.html");
         return stats_url;
     },
 
-    insertOverlay: function() {
+    insertOverlay: function () {
         // don't run if overlay exists on page
         utils.debug("Checking if overlay already exists before creating");
         var existing_overlay = document.getElementById("overlay");
@@ -74,62 +74,62 @@ utils = {
         return overlay;
     },
 
-    background_storage_set: function(key, value) {
-        chrome.runtime.sendMessage({"type": "set", "key": key, "value": value});
+    background_storage_set: function (key, value) {
+        chrome.runtime.sendMessage({ "type": "set", "key": key, "value": value });
     },
 
-    background_storage_get: function(key, callback) {
-        chrome.runtime.sendMessage({"type": "get", "key": key}, function(results) {
+    background_storage_get: function (key, callback) {
+        chrome.runtime.sendMessage({ "type": "get", "key": key }, function (results) {
             callback(results);
         });
     },
 
-    storage_set: function(key, value) {
+    storage_set: function (key, value) {
         var hash = {};
         hash[key] = value;
         chrome.storage.sync.set(hash);
     },
 
-    storage_get: function(key, callback) {
-        chrome.storage.sync.get(key, function(result) {
+    storage_get: function (key, callback) {
+        chrome.storage.sync.get(key, function (result) {
             var value = result[key];
             callback(value);
         });
     },
 
-    storage_get_all: function(callback) {
-        chrome.storage.sync.get(function(results) {
+    storage_get_all: function (callback) {
+        chrome.storage.sync.get(function (results) {
             global_settings = results;
             callback(results);
         });
     },
 
-    local_storage_set: function(key, value) {
+    local_storage_set: function (key, value) {
         var hash = {};
         hash[key] = value;
         chrome.storage.local.set(hash);
     },
 
-    local_storage_get: function(key, callback) {
-        chrome.storage.local.get(key, function(result) {
+    local_storage_get: function (key, callback) {
+        chrome.storage.local.get(key, function (result) {
             var value = result[key];
             callback(value);
         });
     },
 
-    local_storage_remove: function(key) {
+    local_storage_remove: function (key) {
         chrome.storage.local.remove(key);
     },
 
-    cache_set: function(key, data) {
-        utils.local_storage_get("cache_keys", function(cache_keys) {
+    cache_set: function (key, data) {
+        utils.local_storage_get("cache_keys", function (cache_keys) {
             // check if cache keys don't exist yet
             if (!cache_keys) {
                 cache_keys = {};
             }
 
             // store cached url keys with timestamps
-            cache_keys[key] = {"timestamp": new Date().getTime()};
+            cache_keys[key] = { "timestamp": new Date().getTime() };
             utils.local_storage_set("cache_keys", cache_keys);
 
             // store cached data with url key
@@ -137,8 +137,8 @@ utils = {
         });
     },
 
-    cache_get: function(key, callback) {
-        utils.local_storage_get(key, function(result) {
+    cache_get: function (key, callback) {
+        utils.local_storage_get(key, function (result) {
             if (result) {
                 utils.debug("Cache hit");
                 callback(result);
@@ -150,8 +150,8 @@ utils = {
         });
     },
 
-    purgeStaleCaches: function(force) {
-        utils.local_storage_get("cache_keys", function(cache_keys) {
+    purgeStaleCaches: function (force) {
+        utils.local_storage_get("cache_keys", function (cache_keys) {
             // check if there is any cached data yet
             if (!cache_keys) {
                 utils.debug("No cached data, skipping cache purge");
@@ -176,16 +176,16 @@ utils = {
         });
     },
 
-    getResourcePath: function(resource) {
+    getResourcePath: function (resource) {
         return chrome.extension.getURL("resources/" + resource);
     },
 
-    getApiKey: function(api_name) {
+    getApiKey: function (api_name) {
         var file_path = utils.getResourcePath("api_keys/" + api_name + ".txt");
         var text;
         var rawFile = new XMLHttpRequest();
         rawFile.open("GET", file_path, false);
-        rawFile.onreadystatechange = function() {
+        rawFile.onreadystatechange = function () {
             if (rawFile.readyState === 4) {
                 if (rawFile.status === 200 || rawFile.status == 0) {
                     text = rawFile.responseText;
@@ -196,11 +196,11 @@ utils = {
         return text;
     },
 
-    getXML: function(url, callback) {
+    getXML: function (url, callback) {
         utils.debug("Fetching XML from " + url);
         var xhr = new XMLHttpRequest();
         xhr.open("GET", url, true);
-        xhr.onload = function(e) {
+        xhr.onload = function (e) {
             if (xhr.readyState === 4) {
                 if (xhr.status === 200) {
                     utils.debug("Recieved XML response");
@@ -212,17 +212,17 @@ utils = {
                 }
             }
         };
-        xhr.onerror = function() {
+        xhr.onerror = function () {
             callback(xhr.statusText);
         };
         xhr.send();
     },
 
-    getXMLWithTimeout: function(url, timeout, callback) {
+    getXMLWithTimeout: function (url, timeout, callback) {
         utils.debug("Fetching XML from " + url);
         var xhr = new XMLHttpRequest();
         xhr.open("GET", url, true);
-        xhr.onload = function(e) {
+        xhr.onload = function (e) {
             if (xhr.readyState === 4) {
                 if (xhr.status === 200) {
                     utils.debug("Recieved XML response");
@@ -234,25 +234,25 @@ utils = {
                 }
             }
         };
-        xhr.onerror = function() {
+        xhr.onerror = function () {
             callback(xhr.statusText);
         };
         xhr.timeout = timeout;
-        xhr.ontimeout = function() {
+        xhr.ontimeout = function () {
             callback(xhr.statusText);
         };
         xhr.send();
     },
 
-    getJSONWithCache: function(url, callback, custom_headers) {
+    getJSONWithCache: function (url, callback, custom_headers) {
         utils.debug("Fetching JSON from " + url);
-        utils.cache_get("cache-" + url, function(result) {
+        utils.cache_get("cache-" + url, function (result) {
             if (result) {
                 callback(result);
             }
             else {
                 // cache missed or stale, grabbing new data
-                utils.getJSON(url, function(result) {
+                utils.getJSON(url, function (result) {
                     utils.cache_set("cache-" + url, result);
                     callback(result);
                 }, custom_headers);
@@ -260,14 +260,14 @@ utils = {
         });
     },
 
-    getJSON: function(url, callback, custom_headers) {
+    getJSON: function (url, callback, custom_headers) {
         utils.debug("Fetching JSON from " + url);
         var xhr = new XMLHttpRequest();
         xhr.open("GET", url, true);
         for (var header_name in custom_headers) {
-          xhr.setRequestHeader(header_name, custom_headers[header_name])
+            xhr.setRequestHeader(header_name, custom_headers[header_name])
         }
-        xhr.onload = function(e) {
+        xhr.onload = function (e) {
             if (xhr.readyState === 4) {
                 if (xhr.status === 200) {
                     utils.debug("Recieved JSON response");
@@ -275,50 +275,21 @@ utils = {
                     callback(JSON.parse(xhr.responseText));
                 }
                 else {
-                    callback({"error": xhr.statusText});
+                    callback({ "error": xhr.statusText });
                 }
             }
         };
-        xhr.onerror = function() {
-            callback({"error": xhr.statusText});
+        xhr.onerror = function () {
+            callback({ "error": xhr.statusText });
         };
         xhr.send();
     },
 
-    setDefaultOptions: function(callback) {
-        utils.storage_get_all(function(settings) {
-            if (!("movie_trailers" in settings)) {
-                utils.storage_set("movie_trailers", "on");
-            }
-
-            if (!("letterboxd_link" in settings)) {
-                utils.storage_set("letterboxd_link", "on");
-            }
-
-            if (!("random_picker" in settings)) {
-                utils.storage_set("random_picker", "on");
-            }
-
-            if (!("random_picker_only_unwatched" in settings)) {
-                utils.storage_set("random_picker_only_unwatched", "off");
-            }
-
+    setDefaultOptions: function (callback) {
+        utils.storage_get_all(function (settings) {
             if (!("missing_episodes" in settings)) {
                 utils.storage_set("missing_episodes", "on");
             }
-
-            if (!("rotten_tomatoes_link" in settings)) {
-                utils.storage_set("rotten_tomatoes_link", "off");
-            }
-
-            if (!("rotten_tomatoes_audience" in settings)) {
-                utils.storage_set("rotten_tomatoes_audience", "on");
-            }
-
-            if (!("rotten_tomatoes_citizen" in settings)) {
-                utils.storage_set("rotten_tomatoes_citizen", "non_us");
-            }
-
             if (!("trakt_movies" in settings)) {
                 utils.storage_set("trakt_movies", "on");
             }
@@ -331,24 +302,12 @@ utils = {
                 utils.storage_set("plex_server_uri", "");
             }
 
-            if (!("canistreamit" in settings)) {
-                utils.storage_set("canistreamit", "off");
-            }
-
-            if (!("imdb_link" in settings)) {
-                utils.storage_set("imdb_link", "on");
-            }
-
             if (!("themoviedb_link" in settings)) {
                 utils.storage_set("themoviedb_link", "on");
             }
 
             if (!("tvdb_link" in settings)) {
                 utils.storage_set("tvdb_link", "off");
-            }
-
-            if (!("actor_profiles" in settings)) {
-                utils.storage_set("actor_profiles", "on");
             }
 
             if (!("stats_link" in settings)) {

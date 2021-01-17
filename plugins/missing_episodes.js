@@ -2,7 +2,7 @@ missing_episodes = {
     server: null,
     metadata_xml: null,
 
-    init: function(metadata_xml, server, type) {
+    init: function (metadata_xml, server, type) {
         missing_episodes.server = server;
         missing_episodes.metadata_xml = metadata_xml;
 
@@ -15,7 +15,7 @@ missing_episodes = {
         }
     },
 
-    processEpisodes: function() {
+    processEpisodes: function () {
         var directory_metadata = missing_episodes.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0];
         var season_metadata_id = directory_metadata.getAttribute("ratingKey");
         var agent = directory_metadata.getAttribute("guid");
@@ -37,14 +37,16 @@ missing_episodes = {
             return;
         }*/
 
-        var show_name = document.getElementsByClassName("show-title")[0].textContent.replace(/[^a-zA-Z0-9-_ ]/g, '').replace(/\s+/g,"-");
+        utils.debug("missing_episodes plugin: Finding all present and all existing episodes");
+
+        var show_name = missing_episodes.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("parentTitle");
+        show_name = show_name.replace(/[^a-zA-Z0-9-_ ]/g, '').replace(/\s+/g, "-");
 
         // store current page hash so plugin doesn't insert tiles if page changed
         var current_hash = location.hash;
 
-        utils.debug("missing_episodes plugin: Finding all present and all existing episodes");
-        missing_episodes.getPresentEpisodes(season_metadata_id, function(present_episodes) {
-            trakt_api.getAllEpisodes(show_name, season_num, function(all_episodes) {
+        missing_episodes.getPresentEpisodes(season_metadata_id, function (present_episodes) {
+            trakt_api.getAllEpisodes(show_name, season_num, function (all_episodes) {
                 var tiles_to_insert = {};
                 for (var i = 0; i < all_episodes.length; i++) {
                     var episode = all_episodes[i];
@@ -65,42 +67,25 @@ missing_episodes = {
         });
     },
 
-    processSeasons: function() {
+    processSeasons: function () {
         var directory_metadata = missing_episodes.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0];
         var show_metadata_id = directory_metadata.getAttribute("ratingKey");
         var agent = directory_metadata.getAttribute("guid");
 
-        /*var tvdb_id;
-        // check if using the tvdb metadata agent
-        if (/com\.plexapp\.agents\.thetvdb/.test(agent)) {
-            tvdb_id = agent.match(/^com\.plexapp\.agents\.thetvdb:\/\/(\d+)/)[1];
-            utils.debug("missing_episodes plugin: tvdb id found - " + tvdb_id);
-        }
-        // check if using the XBMCnfoTVImporter agent
-        else if (/com\.plexapp\.agents\.xbmcnfotv/.test(agent)) {
-            tvdb_id = agent.match(/^com\.plexapp\.agents\.xbmcnfotv:\/\/(\d+)/)[1];
-            utils.debug("missing_episodes plugin: tvdb id found - " + tvdb_id);
-        }
-        else {
-            utils.debug("missing_episodes plugin: Agent is not tvdb. Aborting");
-            return;
-        }*/
-
         var show_name;
-        if (trakt.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("originalTitle") != null) {
-            show_name = trakt.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("originalTitle");
+        utils.debug("missing_episodes plugin: Finding all present and all existing seasons");
+        if (missing_episodes.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("originalTitle") != null) {
+            show_name = missing_episodes.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("originalTitle");
         }
         else {
-            show_name = trakt.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("title");
+            show_name = missing_episodes.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("title");
         }
-        show_name = show_name.replace(/[^a-zA-Z0-9-_ ]/g, '').replace(/\s+/g,"-");
+        show_name = show_name.replace(/[^a-zA-Z0-9-_ ]/g, '').replace(/\s+/g, "-");
 
         // store current page hash so plugin doesn't insert tiles if page changed
         var current_hash = location.hash;
-
-        utils.debug("missing_episodes plugin: Finding all present and all existing seasons");
-        missing_episodes.getPresentSeasons(show_metadata_id, function(present_seasons) {
-            trakt_api.getAllSeasons(show_name, function(all_seasons) {
+        missing_episodes.getPresentSeasons(show_metadata_id, function (present_seasons) {
+            trakt_api.getAllSeasons(show_name, function (all_seasons) {
                 var tiles_to_insert = {};
                 for (var i = 0; i < all_seasons.length; i++) {
                     var season = all_seasons[i];
@@ -109,7 +94,7 @@ missing_episodes = {
                             // ignore specials
                             continue;
                         }
-                        var season_tile = missing_episodes.createSeasonTile(show_name,season);
+                        var season_tile = missing_episodes.createSeasonTile(show_name, season);
                         tiles_to_insert[season["number"]] = season_tile;
                     }
                 }
@@ -128,10 +113,10 @@ missing_episodes = {
         });
     },
 
-    getPresentEpisodes: function(season_metadata_id, callback) {
+    getPresentEpisodes: function (season_metadata_id, callback) {
         utils.debug("missing_episodes plugin: Fetching season episodes xml");
         var episodes_metadata_xml_url = missing_episodes.server["uri"] + "/library/metadata/" + season_metadata_id + "/children?X-Plex-Token=" + missing_episodes.server["access_token"];
-        utils.getXML(episodes_metadata_xml_url, function(episodes_metadata_xml) {
+        utils.getXML(episodes_metadata_xml_url, function (episodes_metadata_xml) {
             var episodes_xml = episodes_metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video");
             var episodes = [];
             for (var i = 0; i < episodes_xml.length; i++) {
@@ -141,10 +126,10 @@ missing_episodes = {
         });
     },
 
-    getPresentSeasons: function(show_metadata_id, callback) {
+    getPresentSeasons: function (show_metadata_id, callback) {
         utils.debug("missing_episodes plugin: Fetching seasons xml");
         var seasons_metadata_xml_url = missing_episodes.server["uri"] + "/library/metadata/" + show_metadata_id + "/children?X-Plex-Token=" + missing_episodes.server["access_token"];
-        utils.getXML(seasons_metadata_xml_url, function(seasons_metadata_xml) {
+        utils.getXML(seasons_metadata_xml_url, function (seasons_metadata_xml) {
             var seasons_xml = seasons_metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory");
             var seasons = [];
             for (var i = 0; i < seasons_xml.length; i++) {
@@ -157,100 +142,154 @@ missing_episodes = {
         });
     },
 
-    createEpisodeTile: function(show_name, episode) {
-        var episode_tile = document.createElement("li");
-        episode_tile.setAttribute("class", "poster-item media-tile-list-item episode missing-episode");
+    createEpisodeTile: function (show_name, episode) {
+        var orig_episode_tile = document.querySelectorAll("[class*=MetadataPosterListItem-card-]")[1].parentNode
+        var orig_poster_container = document.querySelectorAll("[class*=MetadataPosterListItem-card-]")[1]
+        var orig_poster_tile = document.querySelectorAll("[class*=MetadataPosterListItem-card-]")[1].childNodes[0]
+        var orig_poster = document.querySelectorAll("[class*=MetadataPosterCard-image-]")[1]
+        var orig_poster_badge = document.querySelectorAll("[class*=MetadataPosterListItem-card-]")[1].childNodes[1]
+        var orig_poster_link = document.querySelectorAll("[class*=MetadataPosterListItem-card-]")[1].childNodes[2]
+        var orig_episode_link = document.querySelectorAll("[class*=MetadataPosterListItem-card-]")[1].parentNode.childNodes[1]
+        var orig_episode_number = document.querySelectorAll("[class*=MetadataPosterListItem-card-]")[1].parentNode.childNodes[2]
 
-        var episode_tile_link = document.createElement("a");
-        episode_tile_link.setAttribute("class", "media-poster-container");
-        episode_tile_link.setAttribute("href", "https://trakt.tv/shows/" + show_name + "/seasons/" + episode["season"] + "/episodes/" + episode["number"]);
-        episode_tile_link.setAttribute("target", "_blank");
+        var episode_tile = document.createElement("div");
+        var poster_container = document.createElement("div");
+        var poster_tile = document.createElement("div");
+        var poster = document.createElement("div");
+        var poster_badge = document.createElement("div");
+        var poster_link = document.createElement("a");
+        var episode_link = document.createElement("a");
+        var episode_number = document.createElement("span");
 
-        var episode_tile_poster = document.createElement("div");
-        episode_tile_poster.setAttribute("class", "media-poster");
-        episode_tile_poster.setAttribute("style", "background-image: url(" + (episode["screen"] || utils.getResourcePath("trakt/trakt_episode_background.png")) + ");");
+        episode_tile.setAttribute("class", "missing_episode_tile");
+        poster_container.id = "poster_container";
+        poster_tile.id = "poster_tile";
+        poster.id = "poster";
+        poster_badge.id = "poster_badge";
+        poster_link.id = "poster_link";
+        episode_link.id = "episode_link";
+        episode_number.id = "episode_number";
 
-        var episode_tile_overlay = document.createElement("div");
-        episode_tile_overlay.setAttribute("class", "media-poster-overlay-missing-episode");
+        episode_tile.appendChild(poster_container);
+        episode_tile.appendChild(episode_link);
+        episode_tile.appendChild(episode_number);
+        poster_container.appendChild(poster_tile);
+        poster_container.appendChild(poster_badge);
+        poster_container.appendChild(poster_link);
+        poster_tile.appendChild(poster);
 
-        var episode_title_overlay_text = document.createElement("div");
-        episode_title_overlay_text.setAttribute("class", "overlay-missing-episode-text");
-        // 20150803 - v2 API for trakt.tv does not appear to give air dates like before
-        /*var date_text;
-        if (episode["first_aired_utc"] === 0 || episode["first_aired_utc"] === null) {
-            date_text = "TBA";
-        }
-        else {
-            var local_utc_offset = new Date().getTimezoneOffset() * 60000;
-            var utc_air_date = episode["first_aired_utc"] * 1000;
-            var localized_air_date = new Date(utc_air_date - local_utc_offset);
-            date_text = localized_air_date.toDateString();
-        }
-        var episode_title_overlay_text_node = document.createTextNode("Air Date: " + date_text);
-        episode_title_overlay_text.appendChild(episode_title_overlay_text_node);*/
+        episode_tile.style.cssText = orig_episode_tile.style.cssText
+        poster_container.style.cssText = orig_poster_container.style.cssText
+        poster_tile.style.cssText = orig_poster_tile.style.cssText
+        poster.style.cssText = orig_poster.style.cssText
+        poster_badge.style.cssText = orig_poster_badge.style.cssText
+        poster_link.style.cssText = orig_poster_link.style.cssText
+        episode_link.style.cssText = orig_episode_link.style.cssText
+        episode_number.style.cssText = orig_episode_number.style.cssText
 
-        var episode_tile_title = document.createElement("div");
-        episode_tile_title.setAttribute("class", "media-title media-heading");
-        var episode_tile_title_text_node = document.createTextNode(episode["title"] || "TBA");
-        episode_tile_title.appendChild(episode_tile_title_text_node);
+        poster_container.setAttribute("class", orig_poster_container.getAttribute("class"));
+        poster.setAttribute("class", orig_poster.getAttribute("class"));
+        poster_badge.setAttribute("class", orig_poster_badge.getAttribute("class"));
+        poster_link.setAttribute("class", orig_poster_link.getAttribute("class"));
+        episode_link.setAttribute("class", orig_episode_link.getAttribute("class"));
+        episode_number.setAttribute("class", orig_episode_number.getAttribute("class"));
 
-        var episode_tile_number = document.createElement("div");
-        episode_tile_number.setAttribute("class", "media-subtitle media-heading secondary");
-        var episode_tile_number_text_node = document.createTextNode("Episode " + episode["number"]);
-        episode_tile_number.appendChild(episode_tile_number_text_node);
+        episode_tile.style.position = "relative";
+        episode_tile.style.float = "left";
+        episode_tile.style.marginRight = "20px";
+        episode_tile.style.marginBottom = "20px";
+        episode_tile.style.transform = "";
 
-        episode_tile.appendChild(episode_tile_link);
-        episode_tile_link.appendChild(episode_tile_poster);
-        episode_tile_link.appendChild(episode_tile_title);
-        episode_tile_link.appendChild(episode_tile_number);
-        episode_tile_poster.appendChild(episode_tile_overlay);
-        episode_tile_overlay.appendChild(episode_title_overlay_text);
+        poster_link.setAttribute("href", "https://trakt.tv/shows/" + show_name + "/seasons/" + episode["season"] + "/episodes/" + episode["number"]);
+        poster_link.setAttribute("target", "_blank");
+
+        episode_link.innerText = episode["title"] || "TBA"
+        episode_link.setAttribute("href", "https://trakt.tv/shows/" + show_name + "/seasons/" + episode["season"] + "/episodes/" + episode["number"]);
+        episode_link.setAttribute("target", "_blank");
+
+        poster.setAttribute("style", "background-image: url(" + (episode["screen"] || utils.getResourcePath("trakt/trakt_episode_background.png")) + "); width: 100%; height: 100%; background-size: cover; background-position: center center; background-repeat: no-repeat;");
+
+        episode_number.innerText = "Episode " + episode["number"]
 
         return episode_tile;
     },
 
-    createSeasonTile: function(show_name, season) {
-        var season_tile = document.createElement("li");
-        season_tile.setAttribute("class", "poster-item media-tile-list-item season missing-season");
+    createSeasonTile: function (show_name, season) {
+        var orig_season_tile = document.querySelectorAll("[class*=MetadataPosterListItem-card-]")[1].parentNode
+        var orig_poster_container = document.querySelectorAll("[class*=MetadataPosterListItem-card-]")[1]
+        var orig_poster_tile = document.querySelectorAll("[class*=MetadataPosterListItem-card-]")[1].childNodes[0]
+        var orig_poster = document.querySelectorAll("[class*=MetadataPosterCard-image-]")[1]
+        var orig_poster_badge = document.querySelectorAll("[class*=MetadataPosterListItem-card-]")[1].childNodes[1]
+        var orig_poster_link = document.querySelectorAll("[class*=MetadataPosterListItem-card-]")[1].childNodes[2]
+        var orig_season_link = document.querySelectorAll("[class*=MetadataPosterListItem-card-]")[1].parentNode.childNodes[1]
+        var orig_season_episodes = document.querySelectorAll("[class*=MetadataPosterListItem-card-]")[1].parentNode.childNodes[2]
 
-        var season_tile_link = document.createElement("a");
-        season_tile_link.setAttribute("class", "media-poster-container");
-        season_tile_link.setAttribute("href", "https://trakt.tv/shows/" + show_name + "/seasons/" + season["number"]);
-        season_tile_link.setAttribute("target", "_blank");
+        var season_tile = document.createElement("div");
+        var poster_container = document.createElement("div");
+        var poster_tile = document.createElement("div");
+        var poster = document.createElement("div");
+        var poster_badge = document.createElement("div");
+        var poster_link = document.createElement("a");
+        var season_link = document.createElement("a");
+        var season_episodes = document.createElement("span");
 
-        var season_tile_poster = document.createElement("div");
-        season_tile_poster.setAttribute("class", "media-poster");
-        season_tile_poster.setAttribute("style", "background-image: url(" + (season["poster"] || utils.getResourcePath("trakt/trakt_season_background.png")) + ");");
+        season_tile.setAttribute("class", "missing_season_tile");
+        poster_container.id = "poster_container";
+        poster_tile.id = "poster_tile";
+        poster.id = "poster";
+        poster_badge.id = "poster_badge";
+        poster_link.id = "poster_link";
+        season_link.id = "season_link";
+        season_episodes.id = "season_episodes";
 
-        var season_tile_overlay = document.createElement("div");
-        season_tile_overlay.setAttribute("class", "media-poster-overlay-missing-season");
+        season_tile.appendChild(poster_container);
+        season_tile.appendChild(season_link);
+        season_tile.appendChild(season_episodes);
+        poster_container.appendChild(poster_tile);
+        poster_container.appendChild(poster_badge);
+        poster_container.appendChild(poster_link);
+        poster_tile.appendChild(poster);
 
-        var season_title_overlay_text = document.createElement("div");
-        season_title_overlay_text.setAttribute("class", "overlay-missing-season-text");
+        season_tile.style.cssText = orig_season_tile.style.cssText
+        poster_container.style.cssText = orig_poster_container.style.cssText
+        poster_tile.style.cssText = orig_poster_tile.style.cssText
+        poster.style.cssText = orig_poster.style.cssText
+        poster_badge.style.cssText = orig_poster_badge.style.cssText
+        poster_link.style.cssText = orig_poster_link.style.cssText
+        season_link.style.cssText = orig_season_link.style.cssText
+        season_episodes.style.cssText = orig_season_episodes.style.cssText
 
-        var season_tile_title = document.createElement("div");
-        season_tile_title.setAttribute("class", "media-title media-heading");
-        var season_tile_title_text_node = document.createTextNode("Season " + season["number"]);
-        season_tile_title.appendChild(season_tile_title_text_node);
+        poster_container.setAttribute("class", orig_poster_container.getAttribute("class"));
+        poster.setAttribute("class", orig_poster.getAttribute("class"));
+        poster_badge.setAttribute("class", orig_poster_badge.getAttribute("class"));
+        poster_link.setAttribute("class", orig_poster_link.getAttribute("class"));
+        season_link.setAttribute("class", orig_season_link.getAttribute("class"));
+        season_episodes.setAttribute("class", orig_season_episodes.getAttribute("class"));
 
-        var season_tile_number = document.createElement("div");
-        season_tile_number.setAttribute("class", "media-subtitle media-heading secondary");
-        var season_tile_number_text_node = document.createTextNode(season["episodes"].length + " episodes");
-        season_tile_number.appendChild(season_tile_number_text_node);
+        season_tile.style.position = "relative";
+        season_tile.style.float = "left";
+        season_tile.style.marginRight = "20px";
+        season_tile.style.marginBottom = "20px";
+        season_tile.style.transform = "";
 
-        season_tile.appendChild(season_tile_link);
-        season_tile_link.appendChild(season_tile_poster);
-        season_tile_link.appendChild(season_tile_title);
-        season_tile_link.appendChild(season_tile_number);
-        season_tile_poster.appendChild(season_tile_overlay);
-        season_tile_overlay.appendChild(season_title_overlay_text);
+        poster_link.setAttribute("href", "https://trakt.tv/shows/" + show_name + "/seasons/" + season["number"]);
+        poster_link.setAttribute("target", "_blank");
+
+        season_link.innerText = "Season " + season["number"]
+        season_link.setAttribute("href", "https://trakt.tv/shows/" + show_name + "/seasons/" + season["number"]);
+        season_link.setAttribute("target", "_blank");
+
+        poster.setAttribute("style", "background-image: url(" + (season["poster"] || utils.getResourcePath("trakt/trakt_season_background.png")) + "); width: 100%; height: 100%; background-size: cover; background-position: center center; background-repeat: no-repeat;");
+
+        season_episodes.innerText = season["episodes"].length + " episodes"
 
         return season_tile;
     },
 
-    insertEpisodeTiles: function(episode_tiles) {
-        var episode_tile_list = document.getElementsByClassName("episode-tile-list")[0];
-        var episode_tile_list_elements = episode_tile_list.getElementsByTagName("li");
+    insertEpisodeTiles: function (episode_tiles) {
+        var episode_tile_list = document.querySelectorAll("[class*=MetadataPosterListItem-card-]")[0].parentElement.parentElement;
+        episode_tile_list.style.padding = "0 50px 20px";
+        var episode_tile_list_elements = episode_tile_list.children;
 
         // remove episode tile list node first
         var parent_node = episode_tile_list.parentNode;
@@ -258,7 +297,12 @@ missing_episodes = {
 
         // insert already present episodes into episode_tiles array
         for (var i = 0; i < episode_tile_list_elements.length; i++) {
-            var episode_num = episode_tile_list_elements[i].getElementsByClassName("media-heading secondary")[0].innerHTML.match(/\d+/);
+            var episode_num = episode_tile_list_elements[i].querySelectorAll("[class*=MetadataPosterCardTitle-isSecondary]")[0].innerText.match(/\d+/);
+            episode_tile_list_elements[i].style.position = "relative";
+            episode_tile_list_elements[i].style.float = "left";
+            episode_tile_list_elements[i].style.marginRight = "20px";
+            episode_tile_list_elements[i].style.marginBottom = "20px";
+            episode_tile_list_elements[i].style.transform = "";
             episode_tiles[episode_num] = episode_tile_list_elements[i];
         }
 
@@ -275,9 +319,11 @@ missing_episodes = {
         parent_node.appendChild(episode_tile_list);
     },
 
-    insertSeasonTiles: function(season_tiles) {
-        var season_tile_list = document.getElementsByClassName("season-tile-list")[0];
-        var season_tile_list_elements = season_tile_list.getElementsByTagName("li");
+    insertSeasonTiles: function (season_tiles) {
+        //var season_tile_list = document.getElementsByClassName("season-tile-list")[0];
+        var season_tile_list = document.querySelectorAll("[class*=MetadataPosterListItem-card-]")[0].parentElement.parentElement;
+        season_tile_list.style.padding = "0 50px 20px";
+        var season_tile_list_elements = season_tile_list.children;
 
         // remove season tile list node first
         var parent_node = season_tile_list.parentNode;
@@ -285,8 +331,12 @@ missing_episodes = {
 
         // insert already present seasons into season_tiles array
         for (var i = 0; i < season_tile_list_elements.length; i++) {
-            var season_num = season_tile_list_elements[i].getElementsByClassName("media-title media-heading")[0].innerHTML.match(/\d+/);
-
+            var season_num = season_tile_list_elements[i].querySelectorAll("[class*=MetadataPosterCardTitle-singleLineTitle]")[0].innerHTML.match(/\d+/);
+            season_tile_list_elements[i].style.position = "relative";
+            season_tile_list_elements[i].style.float = "left";
+            season_tile_list_elements[i].style.marginRight = "20px";
+            season_tile_list_elements[i].style.marginBottom = "20px";
+            season_tile_list_elements[i].style.transform = "";
             if (season_num) {
                 season_tiles[season_num] = season_tile_list_elements[i];
             }
@@ -314,7 +364,7 @@ missing_episodes = {
         parent_node.appendChild(season_tile_list);
     },
 
-    insertSeasonAirdates: function(tvdb_id, season_tiles) {
+    insertSeasonAirdates: function (tvdb_id, season_tiles) {
         // TODO: Unused with new trakt.tv API
         Object.keys(season_tiles).forEach(function (season_number) {
             var season_tile = season_tiles[season_number];
@@ -324,7 +374,7 @@ missing_episodes = {
                 return;
             }
 
-            trakt_api.getAllEpisodes(tvdb_id, season_number, function(all_episodes) {
+            trakt_api.getAllEpisodes(tvdb_id, season_number, function (all_episodes) {
                 var first_episode = all_episodes[0];
 
                 var date_text;
@@ -350,33 +400,34 @@ missing_episodes = {
         });
     },
 
-    insertSwitch: function() {
-        var action_bar = document.getElementsByClassName("action-bar-nav")[0];
-        var list_tag = document.createElement("li");
+    insertSwitch: function () {
+        button_template = document.body.querySelectorAll("[class*=ActionButton-iconActionButton-]")[0];
+        action_bar = document.body.querySelectorAll("[class*=PrePlayActionBar-container]")[0];
+        var switch_container = document.createElement("button");
 
-        var a_tag = document.createElement("a");
-        a_tag.setAttribute("class", "btn-gray");
-        a_tag.setAttribute("id", "missing-switch");
+        switch_container.style.cssText = button_template.style.cssText
+        switch_container.setAttribute("class", button_template.getAttribute("class"));
+        switch_container.setAttribute("id", "missing-switch");
+        switch_container.setAttribute("data-state", "show");
+        switch_container.setAttribute("data-original-title", "Hide missing episodes/seasons");
+        switch_container.addEventListener("click", missing_episodes.switchState, false);
 
         var glyph = document.createElement("i");
         glyph.setAttribute("class", "glyphicon eye-open");
 
-        a_tag.appendChild(glyph);
-        list_tag.appendChild(a_tag);
+        switch_container.appendChild(glyph);
         // insert switch before secondary actions dropdown
-        action_bar.insertBefore(list_tag, action_bar.getElementsByClassName("secondary-actions-dropdown")[0]);
+        action_bar.insertBefore(switch_container, document.querySelectorAll("[id*=plex-icon-toolbar-more]")[1].parentElement);
 
-        a_tag.setAttribute("data-state", "show");
-        a_tag.setAttribute("data-original-title", "Hide missing episodes/seasons");
-        a_tag.addEventListener("click", missing_episodes.switchState, false);
+
     },
 
-    switchState: function() {
+    switchState: function () {
         var missing_switch = document.getElementById("missing-switch");
         var glyph = missing_switch.getElementsByTagName("i")[0];
         var state = missing_switch.getAttribute("data-state");
 
-        var missing_episodes = document.getElementsByClassName("missing-episode");
+        var missing_episodes = document.getElementsByClassName("missing_episode_tile");
         for (var i = 0; i < missing_episodes.length; i++) {
             if (state === "show") {
                 missing_episodes[i].style.display = "none";
@@ -386,7 +437,7 @@ missing_episodes = {
             }
         }
 
-        var missing_seasons = document.getElementsByClassName("missing-season");
+        var missing_seasons = document.getElementsByClassName("missing_season_tile");
         for (var i = 0; i < missing_seasons.length; i++) {
             if (state === "show") {
                 missing_seasons[i].style.display = "none";

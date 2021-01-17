@@ -1,38 +1,18 @@
 function saveOptions() {
-    var movie_trailers = document.querySelector("input[name='movie_trailers']:checked").value;
-    var letterboxd_link = document.querySelector("input[name='letterboxd_link']:checked").value;
     var themoviedb_link = document.querySelector("input[name='themoviedb_link']:checked").value;
-    var imdb_link = document.querySelector("input[name='imdb_link']:checked").value;
     var tvdb_link = document.querySelector("input[name='tvdb_link']:checked").value;
-    var rotten_tomatoes_link = document.querySelector("input[name='rotten_tomatoes_link']:checked").value;
-    var rotten_tomatoes_audience = document.querySelector("input[name='rotten_tomatoes_audience']:checked").value;
-    var rotten_tomatoes_citizen = document.querySelector("input[name='rotten_tomatoes_citizen']:checked").value;
     var trakt_movies = document.querySelector("input[name='trakt_movies']").checked;
     var trakt_shows = document.querySelector("input[name='trakt_shows']").checked;
-    var random_picker = document.querySelector("input[name='random_picker']:checked").value;
-    var random_picker_only_unwatched = document.querySelector("input[name='random_picker_only_unwatched']:checked").value;
     var missing_episodes = document.querySelector("input[name='missing_episodes']:checked").value;
-    var canistreamit = document.querySelector("input[name='canistreamit']:checked").value;
-    var actor_profiles = document.querySelector("input[name='actor_profiles']:checked").value;
     var stats_link = document.querySelector("input[name='stats_link']:checked").value;
     var plex_server_uri = document.querySelector("input[name='plex_server_uri']").value;
 
     var debug = document.querySelector("input[name='debug']:checked").value;
     var debug_unfiltered = document.querySelector("input[name='debug_unfiltered']:checked").value;
 
-    utils.storage_set("movie_trailers", movie_trailers);
-    utils.storage_set("letterboxd_link", letterboxd_link);
     utils.storage_set("themoviedb_link", themoviedb_link);
-    utils.storage_set("imdb_link", imdb_link);
     utils.storage_set("tvdb_link", tvdb_link);
-    utils.storage_set("random_picker", random_picker);
-    utils.storage_set("random_picker_only_unwatched", random_picker_only_unwatched);
-    utils.storage_set("rotten_tomatoes_link", rotten_tomatoes_link);
-    utils.storage_set("rotten_tomatoes_audience", rotten_tomatoes_audience);
-    utils.storage_set("rotten_tomatoes_citizen", rotten_tomatoes_citizen);
     utils.storage_set("missing_episodes", missing_episodes);
-    utils.storage_set("canistreamit", canistreamit);
-    utils.storage_set("actor_profiles", actor_profiles);
     utils.storage_set("stats_link", stats_link);
     if (trakt_movies) {
         utils.storage_set("trakt_movies", "on");
@@ -53,51 +33,19 @@ function saveOptions() {
 }
 
 function restoreOptions() {
-    utils.setDefaultOptions(function(settings) {
-        utils.storage_get_all(function(results) {
-            var movie_trailers_radio_button = document.getElementById("trailers_" + results["movie_trailers"]);
-            movie_trailers_radio_button.checked = true;
-
-            var letterboxd_link_radio_button = document.getElementById("letterboxd_" + results["letterboxd_link"]);
-            letterboxd_link_radio_button.checked = true;
-
+    utils.setDefaultOptions(function (settings) {
+        utils.storage_get_all(function (results) {
             var themoviedb_link_radio_button = document.getElementById("themoviedb_" + results["themoviedb_link"]);
             themoviedb_link_radio_button.checked = true;
-
-            var imdb_link_radio_button = document.getElementById("imdb_" + results["imdb_link"]);
-            imdb_link_radio_button.checked = true;
 
             var tvdb_link_radio_button = document.getElementById("tvdb_" + results["tvdb_link"]);
             tvdb_link_radio_button.checked = true;
 
-            var random_picker_radio_button = document.getElementById("random_" + results["random_picker"]);
-            random_picker_radio_button.checked = true;
-
-            var random_picker_only_unwatched_radio_button = document.getElementById("random_picker_only_unwatched_" + results["random_picker_only_unwatched"]);
-            random_picker_only_unwatched_radio_button.checked = true;
-            refreshRandomPickerExtraOptions();
-
             var missing_episodes_radio_button = document.getElementById("missing_episodes_" + results["missing_episodes"]);
             missing_episodes_radio_button.checked = true;
 
-            var canistreamit_radio_button = document.getElementById("canistreamit_" + results["canistreamit"]);
-            canistreamit_radio_button.checked = true;
-
-            var actor_profiles_radio_button = document.getElementById("actor_profiles_" + results["actor_profiles"]);
-            actor_profiles_radio_button.checked = true;
-
             var stats_link_radio_button = document.getElementById("stats_link_" + results["stats_link"]);
             stats_link_radio_button.checked = true;
-
-            var rotten_tomatoes_link_radio_button = document.getElementById("rotten_tomatoes_" + results["rotten_tomatoes_link"]);
-            rotten_tomatoes_link_radio_button.checked = true;
-            refreshRottenTomatoesExtraOptions();
-
-            var rotten_tomatoes_audience_radio_button = document.getElementById("rotten_tomatoes_audience_" + results["rotten_tomatoes_audience"]);
-            rotten_tomatoes_audience_radio_button.checked = true;
-
-            var rotten_tomatoes_citizen_radio_button = document.getElementById("rotten_tomatoes_citizen_" + results["rotten_tomatoes_citizen"]);
-            rotten_tomatoes_citizen_radio_button.checked = true;
 
             var trakt_movies_checkbox = document.getElementById("trakt_movies");
             if (results["trakt_movies"] === "on") {
@@ -125,42 +73,9 @@ function restoreOptions() {
             debug_unfiltered_radio_button.checked = true;
             refreshDebugExtraOptions();
         });
-
-        document.getElementById("rotten_tomatoes_on").addEventListener("click", refreshRottenTomatoesExtraOptions, false);
-        document.getElementById("rotten_tomatoes_off").addEventListener("click", refreshRottenTomatoesExtraOptions, false);
-        document.getElementById("random_on").addEventListener("click", refreshRandomPickerExtraOptions, false);
-        document.getElementById("random_off").addEventListener("click", refreshRandomPickerExtraOptions, false);
         document.getElementById("debug_on").addEventListener("click", refreshDebugExtraOptions, false);
         document.getElementById("debug_off").addEventListener("click", refreshDebugExtraOptions, false);
     });
-}
-
-function refreshRottenTomatoesExtraOptions() {
-    var rotten_tomatoes_extra_options = document.querySelectorAll(".rotten-tomatoes-extra");
-    if (document.getElementById("rotten_tomatoes_on").checked) {
-        for (var i = 0; i < rotten_tomatoes_extra_options.length; i++) {
-            rotten_tomatoes_extra_options[i].style.display = "block";
-        }
-    }
-    else {
-        for (var i = 0; i < rotten_tomatoes_extra_options.length; i++) {
-            rotten_tomatoes_extra_options[i].style.display = "none";
-        }
-    }
-}
-
-function refreshRandomPickerExtraOptions() {
-    var random_picker_extra_options = document.querySelectorAll(".random-picker-extra");
-    if (document.getElementById("random_on").checked) {
-        for (var i = 0; i < random_picker_extra_options.length; i++) {
-            random_picker_extra_options[i].style.display = "block";
-        }
-    }
-    else {
-        for (var i = 0; i < random_picker_extra_options.length; i++) {
-            random_picker_extra_options[i].style.display = "none";
-        }
-    }
 }
 
 function refreshDebugExtraOptions() {
@@ -189,12 +104,12 @@ for (var i = 0; i < input_elements.length; i++) {
 }
 
 // add click listener to clear cache
-document.getElementById("clear-cache").addEventListener("click", function(e) {
+document.getElementById("clear-cache").addEventListener("click", function (e) {
     this.innerHTML = "Cleared";
     utils.purgeStaleCaches(true);
 
     var button = this;
-    setTimeout(function() {
+    setTimeout(function () {
         button.innerHTML = "Clear cache";
     }, 1500);
 });

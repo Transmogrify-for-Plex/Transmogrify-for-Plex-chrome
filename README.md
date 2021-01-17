@@ -1,8 +1,7 @@
-# Note that this extension is no longer being maintained but others are welcome to fork it
+# Forked from original
 
 Transmogrify for Plex
 ==============
-**Transmogrify for Plex adds several features to the Plex/Web 2.0 client for Plex.**
 
 Get it at https://chrome.google.com/webstore/detail/transmogrify-for-plex/jdogfefgaagaledbkgeffgbjlaaplpgo
 

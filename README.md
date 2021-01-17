@@ -1,5 +1,3 @@
-# Forked from original
-
 Transmogrify for Plex
 ==============
 
@@ -9,18 +7,10 @@ Firefox version can be found at https://github.com/Moussa/Transmogrify-for-Plex-
 
 Features
 --------------
-- Adds link to view the trailer for movies within Plex/Web
-- Adds link to view the letterboxd page for movies
 - Adds link to view the themoviedb page for movies
 - Adds link to view the tvdb page for tv shows
-- Adds link to view the IMDB page for movies, and displays ratings
 - Adds link to view the trakt page for movies and tv shows, and displays ratings
-- Adds link to view the rotten tomatoes page for movies, and displays ratings
-- Adds a random tv show/movie picker
 - Adds a missing seasons and episodes view
-- Adds a Can I Stream It? widget for movies
-- Adds a movie/tv show filter for the main dashboard
-- Adds an actor profile for cast members on movie pages
 - Adds a server statistics page
 
 Contributors
@@ -70,13 +60,5 @@ Version History
 - **v0.2.0** - added options page
 - **v0.1.1** - added random show/movie picker
 - **v0.0.1** - initial release
-
-![trailer and rotten tomatoes feature](http://i.imgur.com/61lCbn9.jpg)
-
-![actor profile feature](http://i.imgur.com/zCmRb39.jpg)
-
-![trailer feature](http://i.imgur.com/yl8sNUr.png)
-
-![random picker feature](http://i.imgur.com/lLMw5Kk.jpg)
 
 ![missing episodes feature](http://i.imgur.com/6CKE3Bl.jpg)

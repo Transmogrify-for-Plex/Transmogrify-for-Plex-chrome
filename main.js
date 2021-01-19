@@ -2,7 +2,7 @@ document.onreadystatechange = function () {
     setTimeout(function () {
         if (document.readyState === "complete") {
             var show_update_text = false;
-            var update_text = "Version 1.3.4 is here. Lots of bug fixes and changes, a full list of which can be found in the <a id='stats-page-link' href='https://forums.plex.tv/index.php/topic/99209-transmogrify-for-plex-a-browser-extension-that-adds-features-to-plexweb' target='_blank'>forum thread</a>"
+            var update_text = "Transmogrify has returned!"
             var settings;
             var global_plex_token;
             var global_server_addresses;

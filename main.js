@@ -2,7 +2,7 @@ document.onreadystatechange = function () {
     setTimeout(function () {
         if (document.readyState === "complete") {
             var show_update_text = false;
-            var update_text = "Transmogrify has returned!"
+            var update_text = "Enhanced Plex. Made from the ashes of Transmogrify"
             var settings;
             var global_plex_token;
             var global_server_addresses;

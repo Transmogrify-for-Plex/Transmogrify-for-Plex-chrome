@@ -1,4 +1,4 @@
-Transmogrify for Plex
+Enhanced Plex
 ==============
 
 Chrome Store: Coming Soon!
@@ -14,6 +14,10 @@ Features
 Version History
 --------------
 - **v2.0.0** - Updated to be working with Plex Web 4.50.1 / Plex 1.21.1.3876
-[See here for updates and contributors for versions below v2.0.0](https://github.com/Transmogrify-for-Plex/Transmogrify-for-Plex-chrome)
 
-![missing episodes feature](http://i.imgur.com/6CKE3Bl.jpg)
+[See here for updates and contributors for versions below v2.0.0, before the forkening.](https://github.com/Transmogrify-for-Plex/Transmogrify-for-Plex-chrome)
+
+![missing Episodes feature](https://i.imgur.com/jhgXqU8.png)
+
+![missing Seasons feature](https://i.imgur.com/kovxsJl.png)
+

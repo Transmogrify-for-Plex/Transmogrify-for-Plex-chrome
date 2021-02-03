@@ -8,9 +8,7 @@
     {
       "matches": [
         "https://app.plex.tv/desktop*",
-        "http://app.plex.tv/desktop*",
-        "https://*/web*",
-        "http://*/web*"
+        "http://app.plex.tv/desktop*"
       ],
       "run_at": "document_end",
       "css": [
@@ -35,11 +33,7 @@
     ]
   },
   "permissions": [
-    "storage",
-    "https://app.plex.tv/desktop*",
-    "http://app.plex.tv/desktop*",
-    "https://*/web*",
-    "http://*/web*"
+    "storage"
   ],
   "icons": {
     "16": "resources/icon16.png",

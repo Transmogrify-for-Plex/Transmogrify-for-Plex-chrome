@@ -1,7 +1,7 @@
 Enhanced Plex
 ==============
 
-Chrome Store: Coming Soon!
+[Chrome Store](https://chrome.google.com/webstore/detail/enhanced-plex/kjmpdmgijjacblfohigcnpkeaehalmai)
 
 Features
 --------------
@@ -13,7 +13,8 @@ Features
 
 Version History
 --------------
-- **v2.0.0** - Updated to be working with Plex Web 4.50.1 / Plex 1.21.1.3876
+**v2.0.0**
+- Updated to be working with Plex for Web 4.50.1
 
 [See here for updates and contributors for versions below v2.0.0, before the forkening.](https://github.com/Transmogrify-for-Plex/Transmogrify-for-Plex-chrome)
 

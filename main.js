@@ -7,9 +7,9 @@ document.onreadystatechange = function () {
             var global_plex_token;
             var global_server_addresses;
             // Hopefully these will make it easier to update in future Plex for Web updates.
-            var MainPageDetection = new RegExp("https:\/\/app\.plex\.tv\/desktop\#?$");
-            var LibraryPageDetection = new RegExp("\/desktop#!\/media\/(.*)com.plexapp.plugins.library(.*)$");
-            var TVMoviePageDetection = new RegExp("\/desktop#!\/server\/(.*)details(.*)$");
+            var MainPageDetection = new RegExp("https:\/\/app\.plex\.tv\/desktop\/?\#\!\/?$");
+            var LibraryPageDetection = new RegExp("\/desktop(.*)\/media\/(.*)com.plexapp.plugins.library(.*)$");
+            var TVMoviePageDetection = new RegExp("\/desktop(.*)\/server\/(.*)details(.*)$");
             var MainPageLoaded = "button";
             var LibraryPageLoaded = "MetadataPosterCard-cardContainer";
             var TVMoviePageLoaded = "MetadataPosterListItem-card-";

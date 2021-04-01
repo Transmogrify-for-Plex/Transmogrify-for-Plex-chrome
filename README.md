@@ -13,6 +13,8 @@ Features
 
 Version History
 --------------
+**v2.0.1**
+- Updated to be working with Plex for Web 4.54.5
 **v2.0.0**
 - Updated to be working with Plex for Web 4.50.1
 

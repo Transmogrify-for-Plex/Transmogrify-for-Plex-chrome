@@ -15,7 +15,8 @@ Version History
 --------------
 **v2.0.1**
 - Updated to be working with Plex for Web 4.54.5
-- **v2.0.0**
+
+**v2.0.0**
 - Updated to be working with Plex for Web 4.50.1
 
 [See here for updates and contributors for versions below v2.0.0, before the forkening.](https://github.com/Transmogrify-for-Plex/Transmogrify-for-Plex-chrome)

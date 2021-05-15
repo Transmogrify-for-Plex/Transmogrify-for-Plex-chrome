@@ -1,4 +1,6 @@
 function saveOptions() {
+    var imdb_movies = document.querySelector("input[name='imdb_movies']").checked;
+    var imdb_shows = document.querySelector("input[name='imdb_shows']").checked;
     var themoviedb_link = document.querySelector("input[name='themoviedb_link']:checked").value;
     var tvdb_link = document.querySelector("input[name='tvdb_link']:checked").value;
     var trakt_movies = document.querySelector("input[name='trakt_movies']").checked;
@@ -10,6 +12,18 @@ function saveOptions() {
     var debug = document.querySelector("input[name='debug']:checked").value;
     var debug_unfiltered = document.querySelector("input[name='debug_unfiltered']:checked").value;
 
+    if (imdb_movies) {
+        utils.storage_set("imdb_movies", "on");
+    }
+    else {
+        utils.storage_set("imdb_movies", "off");
+    }
+    if (imdb_shows) {
+        utils.storage_set("imdb_shows", "on");
+    }
+    else {
+        utils.storage_set("imdb_shows", "off");
+    }
     utils.storage_set("themoviedb_link", themoviedb_link);
     utils.storage_set("tvdb_link", tvdb_link);
     utils.storage_set("missing_episodes", missing_episodes);
@@ -35,6 +49,22 @@ function saveOptions() {
 function restoreOptions() {
     utils.setDefaultOptions(function (settings) {
         utils.storage_get_all(function (results) {
+            var imdb_movies_checkbox = document.getElementById("imdb_movies");
+            if (results["imdb_movies"] === "on") {
+                imdb_movies_checkbox.checked = true;
+            }
+            else {
+                imdb_movies_checkbox.checked = false;
+            }
+
+            var imdb_shows_checkbox = document.getElementById("imdb_shows");
+            if (results["imdb_shows"] === "on") {
+                imdb_shows_checkbox.checked = true;
+            }
+            else {
+                imdb_shows_checkbox.checked = false;
+            }
+
             var themoviedb_link_radio_button = document.getElementById("themoviedb_" + results["themoviedb_link"]);
             themoviedb_link_radio_button.checked = true;
 

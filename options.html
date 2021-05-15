@@ -7,111 +7,122 @@
 </head>
 
 <body>
-
     <div class="field-row">
-        <div class="label">The Movie Database link:</div>
+        <div class="field-row">
+            <div class="label">IMDB link:</div>
 
-        <div class="field">
-            <input type="radio" id="themoviedb_on" name="themoviedb_link" value="on" />
-            <label for="themoviedb_on">ON</label>
+            <div class="field">
+                <input type="checkbox" id="imdb_movies" name="imdb_movies" value="movies">
+                <label for="imdb_movies">MOVIES</label>
 
-            <input type="radio" id="themoviedb_off" name="themoviedb_link" value="off" />
-            <label for="themoviedb_off">OFF</label>
+                <input type="checkbox" id="imdb_shows" name="imdb_shows" value="shows">
+                <label for="imdb_shows">SHOWS</label>
+            </div>
         </div>
-    </div>
+        <div class="field-row">
+            <div class="label">The Movie Database link:</div>
 
-    <div class="field-row">
-        <div class="label">TheTVDB link:</div>
+            <div class="field">
+                <input type="radio" id="themoviedb_on" name="themoviedb_link" value="on" />
+                <label for="themoviedb_on">ON</label>
 
-        <div class="field">
-            <input type="radio" id="tvdb_on" name="tvdb_link" value="on" />
-            <label for="tvdb_on">ON</label>
-
-            <input type="radio" id="tvdb_off" name="tvdb_link" value="off" />
-            <label for="tvdb_off">OFF</label>
-        </div>
-    </div>
-
-    <div class="field-row">
-        <div class="label">Trakt link:</div>
-
-        <div class="field">
-            <input type="checkbox" id="trakt_movies" name="trakt_movies" value="movies">
-            <label for="trakt_movies">MOVIES</label>
-
-            <input type="checkbox" id="trakt_shows" name="trakt_shows" value="shows">
-            <label for="trakt_shows">SHOWS</label>
-        </div>
-    </div>
-
-    <div class="field-row">
-        <div class="label">Show missing seasons/episodes:</div>
-
-        <div class="field">
-            <input type="radio" id="missing_episodes_on" name="missing_episodes" value="on" />
-            <label for="missing_episodes_on">ON</label>
-
-            <input type="radio" id="missing_episodes_off" name="missing_episodes" value="off" />
-            <label for="missing_episodes_off">OFF</label>
-        </div>
-    </div>
-
-    <div class="field-row">
-        <div class="label">Stats page link:</div>
-
-        <div class="field">
-            <input type="radio" id="stats_link_on" name="stats_link" value="on" />
-            <label for="stats_link_on">ON</label>
-
-            <input type="radio" id="stats_link_off" name="stats_link" value="off" />
-            <label for="stats_link_off">OFF</label>
-        </div>
-    </div>
-
-    <div class="field-row">
-        <div class="label">Plex server address override:<br /><span class="subscript">(only necessary if you want to manually specify a server address e.g. you use a vpn or tunnel)</span></div>
-
-        <div class="field">
-            <input type="url" placeholder="uri" id="plex_server_uri" name="plex_server_uri">
-        </div>
-    </div>
-
-    <div class="field-row" id="debug">
-        <div class="label">Debug:</div>
-
-        <div class="field">
-            <input type="radio" id="debug_on" name="debug" value="on" />
-            <label for="debug_on">ON</label>
-
-            <input type="radio" id="debug_off" name="debug" value="off" />
-            <label for="debug_off">OFF</label>
+                <input type="radio" id="themoviedb_off" name="themoviedb_link" value="off" />
+                <label for="themoviedb_off">OFF</label>
+            </div>
         </div>
 
-        <div class="label extra-options-label debug-extra">Show tokens and IP addresses:</div>
-        <div class="field extra-options debug-extra">
-            <input type="radio" id="debug_unfiltered_on" name="debug_unfiltered" value="on">
-            <label for="debug_unfiltered_on">YES</label>
+        <div class="field-row">
+            <div class="label">TheTVDB link:</div>
 
-            <input type="radio" id="debug_unfiltered_off" name="debug_unfiltered" value="off">
-            <label for="debug_unfiltered_off">NO</label>
+            <div class="field">
+                <input type="radio" id="tvdb_on" name="tvdb_link" value="on" />
+                <label for="tvdb_on">ON</label>
+
+                <input type="radio" id="tvdb_off" name="tvdb_link" value="off" />
+                <label for="tvdb_off">OFF</label>
+            </div>
         </div>
-    </div>
 
-    <div class="field-row">
-        <div class="label">Clear cached extension data:</div>
+        <div class="field-row">
+            <div class="label">Trakt link:</div>
 
-        <div class="field">
-            <button id="clear-cache">Clear cache</button>
+            <div class="field">
+                <input type="checkbox" id="trakt_movies" name="trakt_movies" value="movies">
+                <label for="trakt_movies">MOVIES</label>
+
+                <input type="checkbox" id="trakt_shows" name="trakt_shows" value="shows">
+                <label for="trakt_shows">SHOWS</label>
+            </div>
         </div>
-    </div>
 
-    <ul class="thanks">
-        <li>This product uses the <a href="http://trakt.tv" target="blank">trakt.tv</a> API</li>
-        <li>This product uses the <a href="http://www.themoviedb.org" target="blank">TMDb</a> API but is not endorsed or certified by TMDb</li>
-    </ul>
+        <div class="field-row">
+            <div class="label">Show missing seasons/episodes:</div>
 
-    <script src="utils.js"></script>
-    <script src="options.js"></script>
+            <div class="field">
+                <input type="radio" id="missing_episodes_on" name="missing_episodes" value="on" />
+                <label for="missing_episodes_on">ON</label>
+
+                <input type="radio" id="missing_episodes_off" name="missing_episodes" value="off" />
+                <label for="missing_episodes_off">OFF</label>
+            </div>
+        </div>
+
+        <div class="field-row">
+            <div class="label">Stats page link:</div>
+
+            <div class="field">
+                <input type="radio" id="stats_link_on" name="stats_link" value="on" />
+                <label for="stats_link_on">ON</label>
+
+                <input type="radio" id="stats_link_off" name="stats_link" value="off" />
+                <label for="stats_link_off">OFF</label>
+            </div>
+        </div>
+
+        <div class="field-row">
+            <div class="label">Plex server address override:<br /><span class="subscript">(only necessary if you want to manually specify a server address e.g. you use a vpn or tunnel)</span></div>
+
+            <div class="field">
+                <input type="url" placeholder="uri" id="plex_server_uri" name="plex_server_uri">
+            </div>
+        </div>
+
+        <div class="field-row" id="debug">
+            <div class="label">Debug:</div>
+
+            <div class="field">
+                <input type="radio" id="debug_on" name="debug" value="on" />
+                <label for="debug_on">ON</label>
+
+                <input type="radio" id="debug_off" name="debug" value="off" />
+                <label for="debug_off">OFF</label>
+            </div>
+
+            <div class="label extra-options-label debug-extra">Show tokens and IP addresses:</div>
+            <div class="field extra-options debug-extra">
+                <input type="radio" id="debug_unfiltered_on" name="debug_unfiltered" value="on">
+                <label for="debug_unfiltered_on">YES</label>
+
+                <input type="radio" id="debug_unfiltered_off" name="debug_unfiltered" value="off">
+                <label for="debug_unfiltered_off">NO</label>
+            </div>
+        </div>
+
+        <div class="field-row">
+            <div class="label">Clear cached extension data:</div>
+
+            <div class="field">
+                <button id="clear-cache">Clear cache</button>
+            </div>
+        </div>
+
+        <ul class="thanks">
+            <li>This product uses the <a href="http://trakt.tv" target="blank">trakt.tv</a> API</li>
+            <li>This product uses the <a href="http://www.themoviedb.org" target="blank">TMDb</a> API but is not endorsed or certified by TMDb</li>
+        </ul>
+
+        <script src="utils.js"></script>
+        <script src="options.js"></script>
 </body>
 
 </html>

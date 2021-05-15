@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Enhanced Plex",
   "description": "Adds several features to the Plex/Web 4.0 client for Plex",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "options_page": "options.html",
   "content_scripts": [
     {
@@ -18,6 +18,7 @@
         "utils.js",
         "apis/themoviedb.js",
         "apis/trakt.js",
+        "plugins/imdb.js",
         "plugins/missing_episodes.js",
         "plugins/stats.js",
         "plugins/themoviedb.js",

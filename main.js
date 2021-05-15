@@ -412,6 +412,15 @@ document.onreadystatechange = function () {
                                     // we're on the root show page
                                     utils.debug("Main: We are on root show page");
 
+                                    // insert imdb link
+                                    if (settings["imdb_shows"] === "on") {
+                                        utils.debug("Main: imdb_shows is enabled");
+                                        imdb.init(metadata_xml, "show");
+                                    }
+                                    else {
+                                        utils.debug("Main: imdb_shows is disabled");
+                                    }
+
                                     // create trakt link
                                     if (settings["trakt_shows"] === "on") {
                                         utils.debug("trakt_shows is enabled");
@@ -456,6 +465,15 @@ document.onreadystatechange = function () {
                             else if (metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("type") === "movie") {
                                 // we're on a movie page
                                 utils.debug("Main: We are on a movie page");
+
+                                // insert imdb link
+                                if (settings["imdb_movies"] === "on") {
+                                    utils.debug("Main: imdb_movies is enabled");
+                                    imdb.init(metadata_xml, "movie");
+                                }
+                                else {
+                                    utils.debug("Main: imdb_movies is disabled");
+                                }
 
                                 // insert themoviedb link
                                 if (settings["themoviedb_link"] === "on") {

@@ -13,9 +13,13 @@ Features
 
 Version History
 --------------
+**v2.1.1**
+- Fixed Issue with TMDB link not displaying
+
 **v2.1.0**
 - Added IMDB link and logo to Movie pages
 - Added IMDB link and logo to TV show pages
+
 **v2.0.1**
 - Updated to be working with Plex for Web 4.54.5
 

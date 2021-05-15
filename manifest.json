@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Enhanced Plex",
   "description": "Adds several features to the Plex/Web 4.0 client for Plex",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "options_page": "options.html",
   "content_scripts": [
     {

@@ -8,38 +8,35 @@ themoviedb = {
     },
 
     getTmdbId: function () {
-        utils.debug("themoviedb plugin: Grabbing themoviedb id");
-        var agent = themoviedb.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video")[0].getAttribute("guid");
-
-        // check if using the movie database metadata agent
-        if (/com\.plexapp\.agents\.themoviedb/.test(agent)) {
-            var tmdb_id = agent.match(/^com\.plexapp\.agents\.themoviedb:\/\/(.+)\?/)[1];
-            utils.debug("themoviedb plugin: tmdb id found - " + tmdb_id);
-
-            themoviedb.createTmdbLink(tmdb_id);
-        }
-        // check if using the freebase metadata agent
-        else if (/com\.plexapp\.agents\.imdb/.test(agent)) {
-            var imdb_id = agent.match(/^com\.plexapp\.agents\.imdb:\/\/(.+)\?/)[1];
-            utils.debug("themoviedb plugin: imdb id found - " + imdb_id);
-
-            // get tmdb id from tmdb api
-            themoviedb_api.getTmdbId(imdb_id, "movie", function (tmdb_id) {
-                utils.debug("themoviedb plugin: tmdb id retrieved - " + tmdb_id);
-
-                themoviedb.createTmdbLink(tmdb_id);
-            });
+        utils.debug("themoviedb plugin: Checking metadata for TMDB id");
+        tmdbelement = imdb.metadata_xml.querySelectorAll('[id^="tmdb"]')[0]
+        if (tmdbelement) {
+            tmdbid_check = tmdbelement.parentNode.parentNode.tagName;
         }
         else {
-            utils.debug("themoviedb plugin: Not using imdb or tmdb agents, aborting");
-            return;
+            tmdbid_check = null;
+        }
+        if (tmdbid_check == "MediaContainer") {
+            tmdb_id = tmdbelement.id.replace("tmdb://", "");
+            utils.debug("themoviedb plugin: tmdb id found - " + tmdb_id);
+            themoviedb.insertTmdbLink(tmdb_id);
+        }
+        else {
+            utils.debug("themoviedb plugin: tmdb id not found. Aborting.");
         }
     },
 
-    createTmdbLink: function (tmdb_id) {
+    insertTmdbLink: function (tmdb_id) {
+        // insert themoviedb link element to bottom of metadata container
+        var tmdb_container = themoviedb.constructTmdbLink(tmdb_id);
+        utils.debug("themoviedb plugin: Inserting themoviedb container into page");
+        document.querySelectorAll("[class*=PrePlayTertiaryTitle-tertiaryTitle]")[0].appendChild(tmdb_container);
+    },
+
+    constructTmdbLink: function (tmdb_id) {
         var sister_containers = document.querySelectorAll("[class*=PrePlayTertiaryTitleSpacer-tertiaryTitleSpacer-]")[0].parentNode.children;
-        var container_element_template = sister_containers[0]
-        var logo_url = utils.getResourcePath("themoviedb/themoviedb_logo.svg")
+        var container_element_template = sister_containers[0];
+        var logo_url = utils.getResourcePath("themoviedb/themoviedb_logo.svg");
         var themoviedb_container_element = document.createElement("span");
         themoviedb_container_element.setAttribute("id", "themoviedb-container");
         themoviedb_container_element.setAttribute("class", container_element_template.getAttribute("class"));
@@ -62,12 +59,6 @@ themoviedb = {
         themoviedb_element_link.appendChild(themoviedb_element_img);
         themoviedb_container_element.appendChild(themoviedb_element_link);
 
-        themoviedb.insertTmdbLink(themoviedb_container_element);
-    },
-
-    insertTmdbLink: function (tmdb_link) {
-        // insert themoviedb link element to bottom of metadata container
-        utils.debug("themoviedb plugin: Inserting themoviedb container into page");
-        document.querySelectorAll("[class*=PrePlayTertiaryTitle-tertiaryTitle]")[0].appendChild(tmdb_link);
+        return themoviedb_container_element;
     }
 }

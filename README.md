@@ -18,6 +18,7 @@ Version History
 - Added IMDB link and logo to TV show pages
 **v2.0.1**
 - Updated to be working with Plex for Web 4.54.5
+
 **v2.0.0**
 - Updated to be working with Plex for Web 4.50.1
 

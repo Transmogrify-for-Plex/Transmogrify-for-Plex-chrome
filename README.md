@@ -13,6 +13,9 @@ Features
 
 Version History
 --------------
+**v2.1.2**
+- Fixed Issue where the plugin would fail to start for Non-Plex Admins
+
 **v2.1.1**
 - Fixed Issue with TMDB link not displaying
 

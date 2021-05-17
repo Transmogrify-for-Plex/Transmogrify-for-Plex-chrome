@@ -7,7 +7,7 @@ tvdb = {
         tvdb.getTvdbId();
     },
 
-    getTvdbId: function () {
+    getTvdbId: async () => {
         utils.debug("tvdb plugin: Grabbing tvdb id");
         var agent = tvdb.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("guid");
 
@@ -15,12 +15,32 @@ tvdb = {
         if (/com\.plexapp\.agents\.thetvdb/.test(agent)) {
             var tvdb_id = agent.match(/^com\.plexapp\.agents\.thetvdb:\/\/(\d+)\?/)[1];
             utils.debug("tvdb plugin: tvdb id found - " + tvdb_id);
-
+        }
+        else {
+            tv_year = tvdb.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("year");
+            tv_title = tvdb.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("title");
+            utils.debug("tvdb plugin: Not using thetvdb agent, attempting search via TMDB using title (" + tv_title + ") and year (" + tv_year + ")");
+            var api_url = "https://api.themoviedb.org/3/search/tv?language=en-US&page=1&include_adult=false&query=" + tv_title + "&first_air_date_year=" + tv_year + "&api_key=" + themoviedb_api.api_key;
+            utils.debug("tvdb plugin: Connecting to endpoint" + api_url);
+            response = await fetch(api_url);
+            json = await response.json();
+            var tmdb_id = await json.results[0].id;
+            if (tmdb_id) {
+                utils.debug("tvdb plugin:  tmdb id found - " + tmdb_id);
+                var api_url = "https://api.themoviedb.org/3/tv/" + tmdb_id + "/external_ids?api_key=" + themoviedb_api.api_key;
+                utils.debug("tvdb plugin: Connecting to endpoint" + api_url);
+                response = await fetch(api_url);
+                json = await response.json();
+                var tvdb_id = json.tvdb_id;
+            }
+        }
+        if (tvdb_id) {
+            utils.debug("tvdb plugin: tvdb id found - " + tvdb_id);
             var tvdb_link = tvdb.createTvdbLink(tvdb_id);
             tvdb.insertTvdbLink(tvdb_link);
         }
         else {
-            utils.debug("tvdb plugin: Not using thetvdb agent, aborting");
+            utils.debug("tvdb plugin: tvdb id not found. Aborting.");
             return;
         }
     },

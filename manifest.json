@@ -1,8 +1,8 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "Enhanced Plex",
   "description": "Adds several features to the Plex/Web 4.0 client for Plex",
-  "version": "2.1.2",
+  "version": "2.1.3",
   "options_page": "options.html",
   "content_scripts": [
     {
@@ -29,9 +29,7 @@
     }
   ],
   "background": {
-    "scripts": [
-      "background.js"
-    ]
+    "service_worker": "service_worker.js"
   },
   "permissions": [
     "storage"
@@ -42,8 +40,15 @@
     "128": "resources/icon128.png"
   },
   "web_accessible_resources": [
-    "resources/*",
-    "options.html",
-    "stats.html"
+    {
+      "resources": [
+        "resources/*",
+        "options.html",
+        "stats.html"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
   ]
 }

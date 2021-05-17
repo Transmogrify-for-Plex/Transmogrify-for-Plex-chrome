@@ -13,6 +13,12 @@ Features
 
 Version History
 --------------
+**v2.1.3**
+- Set default IMDB options to "on"
+- Migrated to manifest v3
+- Removed some old references
+- Fixed Issue with TVDB link not displaying
+
 **v2.1.2**
 - Fixed Issue where the plugin would fail to start for Non-Plex Admins
 

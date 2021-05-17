@@ -4,13 +4,14 @@ var active_server;
 var active_section;
 var last_updated_string;
 
-var resolution_mappings = {"4k" : "4K",
-                           "1080" : "1080p",
-                           "720" : "720p",
-                           "480" : "480p",
-                           "576" : "576p",
-                           "sd" : "SD"
-                           };
+var resolution_mappings = {
+    "4k": "4K",
+    "1080": "1080p",
+    "720": "720p",
+    "480": "480p",
+    "576": "576p",
+    "sd": "SD"
+};
 
 function formattedDateString(timestamp) {
     var date = new Date(timestamp);
@@ -77,14 +78,14 @@ function hideDisplay() {
 }
 
 function getServerAddresses(callback) {
-    utils.background_storage_get("server_addresses", function(response) {
+    utils.background_storage_get("server_addresses", function (response) {
         callback(response["value"]);
     });
 }
 
 function getSections(uri, plex_token, callback) {
     var library_sections_url = uri + "/library/sections?X-Plex-Token=" + plex_token;
-    utils.getXML(library_sections_url, function(sections_xml) {
+    utils.getXML(library_sections_url, function (sections_xml) {
         callback(sections_xml);
     });
 }
@@ -100,7 +101,7 @@ function processLibrarySections(sections_xml) {
 
         // only return movie or tv show libraries
         if (type === "movie" || type === "show" || type === "artist") {
-            dir_metadata[key] = {"type": type, "title": title};
+            dir_metadata[key] = { "type": type, "title": title };
         }
     }
     return dir_metadata;
@@ -108,7 +109,7 @@ function processLibrarySections(sections_xml) {
 
 function getAllMovies(uri, plex_token, section_key, callback) {
     var library_section_url = uri + "/library/sections/" + section_key + "/all?X-Plex-Token=" + plex_token;
-    utils.getXML(library_section_url, function(section_xml) {
+    utils.getXML(library_section_url, function (section_xml) {
         var movies_xml = section_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video");
         var movies = [];
         for (var i = 0; i < movies_xml.length; i++) {
@@ -130,7 +131,7 @@ function getAllMovies(uri, plex_token, section_key, callback) {
 
 function getAllShows(uri, plex_token, section_key, callback) {
     var library_section_url = uri + "/library/sections/" + section_key + "/all?X-Plex-Token=" + plex_token;
-    utils.getXML(library_section_url, function(section_xml) {
+    utils.getXML(library_section_url, function (section_xml) {
         var shows_xml = section_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory");
         var shows = [];
         for (var i = 0; i < shows_xml.length; i++) {
@@ -149,7 +150,7 @@ function getAllShows(uri, plex_token, section_key, callback) {
 
 function getAllEpisodes(uri, plex_token, section, callback) {
     var library_section_episodes_url = uri + "/library/sections/" + section + "/all?type=4&X-Plex-Token=" + plex_token;
-    utils.getXML(library_section_episodes_url, function(section_xml) {
+    utils.getXML(library_section_episodes_url, function (section_xml) {
         var episodes_xml = section_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video");
         var episodes = [];
         for (var i = 0; i < episodes_xml.length; i++) {
@@ -172,11 +173,11 @@ function getAllSongs(uri, plex_token, section, callback) {
     var container_start = 0;
     var songs = [];
 
-    var paged_request = function() {
+    var paged_request = function () {
         var paged_library_section_songs_url = library_section_songs_url + "&sort=titleSort:asc&X-Plex-Container-Size=" + container_size + "&X-Plex-Container-Start=" + container_start;
         var p = new promise.Promise();
 
-        utils.getXML(paged_library_section_songs_url, function(section_xml) {
+        utils.getXML(paged_library_section_songs_url, function (section_xml) {
             var songs_xml = section_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Track");
 
             if (songs_xml.length === 0) {
@@ -206,7 +207,7 @@ function getAllSongs(uri, plex_token, section, callback) {
 
 function getAllAlbums(uri, plex_token, section, callback) {
     var library_section_albums_url = uri + "/library/sections/" + section + "/all?type=9&X-Plex-Token=" + plex_token;
-    utils.getXML(library_section_albums_url, function(section_xml) {
+    utils.getXML(library_section_albums_url, function (section_xml) {
         var albums_xml = section_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory");
         var albums = [];
         for (var i = 0; i < albums_xml.length; i++) {
@@ -223,7 +224,7 @@ function getAllAlbums(uri, plex_token, section, callback) {
 
 function getSectionGenres(uri, plex_token, section_key, callback) {
     var library_section_genres_url = uri + "/library/sections/" + section_key + "/genre?X-Plex-Token=" + plex_token;
-    utils.getXML(library_section_genres_url, function(genres_xml) {
+    utils.getXML(library_section_genres_url, function (genres_xml) {
         var genre_nodes = genres_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory");
 
         var genres = {};
@@ -239,7 +240,7 @@ function getSectionGenres(uri, plex_token, section_key, callback) {
 
 function getMoviesByGenre(uri, plex_token, section_key, genre_key, callback) {
     var filtered_movies_url = uri + "/library/sections/" + section_key + "/all?genre=" + genre_key + "&X-Plex-Token=" + plex_token;
-    utils.getXML(filtered_movies_url, function(movies_xml) {
+    utils.getXML(filtered_movies_url, function (movies_xml) {
         var movies = movies_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Video");
         callback(movies);
     });
@@ -247,7 +248,7 @@ function getMoviesByGenre(uri, plex_token, section_key, genre_key, callback) {
 
 function getShowsByGenre(uri, plex_token, section_key, genre_key, callback) {
     var filtered_shows_url = uri + "/library/sections/" + section_key + "/all?genre=" + genre_key + "&X-Plex-Token=" + plex_token;
-    utils.getXML(filtered_shows_url, function(shows_xml) {
+    utils.getXML(filtered_shows_url, function (shows_xml) {
         var shows = shows_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory");
         callback(shows);
     });
@@ -255,7 +256,7 @@ function getShowsByGenre(uri, plex_token, section_key, genre_key, callback) {
 
 function getAlbumsByGenre(uri, plex_token, section_key, genre_key, callback) {
     var filtered_albums_url = uri + "/library/sections/" + section_key + "/all?genre=" + genre_key + "&X-Plex-Token=" + plex_token;
-    utils.getXML(filtered_albums_url, function(albums_xml) {
+    utils.getXML(filtered_albums_url, function (albums_xml) {
         var albums = albums_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory");
         callback(albums);
     });
@@ -332,7 +333,7 @@ function generateMovieStats(movies, genre_count) {
     }
 
     // collate movies added over time data
-    var sorted_dates = dates_added.sort(function(a, b) {return a - b;});
+    var sorted_dates = dates_added.sort(function (a, b) { return a - b; });
     var today = new Date(Date.now());
     var start_date = new Date(sorted_dates[0]);
     var date_added_count = {};
@@ -389,7 +390,7 @@ function generateMovieStats(movies, genre_count) {
         "year_count": year_count,
         "genre_count": genre_count,
         "date_added_count": date_added_count
-        };
+    };
 }
 
 function generateShowStats(shows, episodes, genre_count) {
@@ -466,7 +467,7 @@ function generateShowStats(shows, episodes, genre_count) {
     }
 
     // collate episodes added over time data
-    var sorted_dates = episodes_dates_added.sort(function(a, b) {return a - b;});
+    var sorted_dates = episodes_dates_added.sort(function (a, b) { return a - b; });
     var today = new Date(Date.now());
     var start_date = new Date(sorted_dates[0]);
     var episodes_date_added_count = {};
@@ -523,7 +524,7 @@ function generateShowStats(shows, episodes, genre_count) {
         "year_count": year_count,
         "genre_count": genre_count,
         "episodes_date_added_count": episodes_date_added_count
-        };
+    };
 }
 
 function generateMusicStats(songs, albums, genre_count) {
@@ -577,7 +578,7 @@ function generateMusicStats(songs, albums, genre_count) {
     }
 
     // collate songs added over time data
-    var sorted_song_dates = songs_dates_added.sort(function(a, b) {return a - b;});
+    var sorted_song_dates = songs_dates_added.sort(function (a, b) { return a - b; });
     var today = new Date(Date.now());
     var start_date = new Date(sorted_song_dates[0]);
     var songs_date_added_count = {};
@@ -602,7 +603,7 @@ function generateMusicStats(songs, albums, genre_count) {
     }
 
     // collate albums added over time data
-    var sorted_album_dates = albums_dates_added.sort(function(a, b) {return a - b;});
+    var sorted_album_dates = albums_dates_added.sort(function (a, b) { return a - b; });
     var today = new Date(Date.now());
     var start_date = new Date(sorted_album_dates[0]);
     var albums_date_added_count = {};
@@ -630,8 +631,8 @@ function generateMusicStats(songs, albums, genre_count) {
         "bitrate_count": bitrate_count,
         "year_count": year_count,
         "genre_count": genre_count,
-        "date_added_count": {"songs": songs_date_added_count, "albums": albums_date_added_count}
-        };
+        "date_added_count": { "songs": songs_date_added_count, "albums": albums_date_added_count }
+    };
 }
 
 function generateStats(uri, plex_token, callback) {
@@ -655,7 +656,7 @@ function generateStats(uri, plex_token, callback) {
     var section_show_genres_count = {};
     var section_album_genres_count = {};
 
-    getSections(uri, plex_token, function(sections_xml) {
+    getSections(uri, plex_token, function (sections_xml) {
         // check if no response from server
         if (!sections_xml) {
             callback(null);
@@ -665,7 +666,7 @@ function generateStats(uri, plex_token, callback) {
 
         // set up counter to keep track of running tasks
         var task_counter = 0;
-        var task_completed = function() {
+        var task_completed = function () {
             utils.debug("Data task finished");
             task_counter--;
 
@@ -707,20 +708,20 @@ function generateStats(uri, plex_token, callback) {
 
                     section_movie_genres_count[section_key] = {};
                     // get all movies for section
-                    getAllMovies(uri, plex_token, section_key, function(movies) {
+                    getAllMovies(uri, plex_token, section_key, function (movies) {
                         all_movies = all_movies.concat(movies);
                         section_movies[section_key] = movies;
 
                         // because the plex web api calls for library sections only returns the first two genres
                         // of each movie we need to get all the genre mappings first and count the number of movies
                         // returned by the api with that genre filtered out
-                        getSectionGenres(uri, plex_token, section_key, function(genres) {
+                        getSectionGenres(uri, plex_token, section_key, function (genres) {
                             task_counter += Object.keys(genres).length;
 
                             for (var genre_key in genres) {
                                 (function (genre_key) {
                                     var genre_title = genres[genre_key];
-                                    getMoviesByGenre(uri, plex_token, section_key, genre_key, function(genre_movies) {
+                                    getMoviesByGenre(uri, plex_token, section_key, genre_key, function (genre_movies) {
                                         if (movie_genres_count[genre_title]) {
                                             movie_genres_count[genre_title] += genre_movies.length;
                                         }
@@ -748,20 +749,20 @@ function generateStats(uri, plex_token, callback) {
                     section_show_genres_count[section_key] = {};
                     section_episodes[section_key] = [];
                     // get all tv shows for section
-                    getAllShows(uri, plex_token, section_key, function(shows) {
+                    getAllShows(uri, plex_token, section_key, function (shows) {
                         all_shows = all_shows.concat(shows);
                         section_shows[section_key] = shows;
 
                         // because the plex web api calls for library sections only returns the first two genres
                         // of each show we need to get all the genre mappings first and count the number of shows
                         // returned by the api with that genre filtered out
-                        getSectionGenres(uri, plex_token, section_key, function(genres) {
+                        getSectionGenres(uri, plex_token, section_key, function (genres) {
                             task_counter += Object.keys(genres).length;
 
                             for (var genre_key in genres) {
                                 (function (genre_key) {
                                     var genre_title = genres[genre_key];
-                                    getShowsByGenre(uri, plex_token, section_key, genre_key, function(genre_shows) {
+                                    getShowsByGenre(uri, plex_token, section_key, genre_key, function (genre_shows) {
                                         if (show_genres_count[genre_title]) {
                                             show_genres_count[genre_title] += genre_shows.length;
                                         }
@@ -784,7 +785,7 @@ function generateStats(uri, plex_token, callback) {
 
                     // get all tv show episodes for section
                     task_counter++;
-                    getAllEpisodes(uri, plex_token, section_key, function(episodes) {
+                    getAllEpisodes(uri, plex_token, section_key, function (episodes) {
                         all_episodes = all_episodes.concat(episodes);
                         section_episodes[section_key] = section_episodes[section_key].concat(episodes);
                         task_completed();
@@ -796,20 +797,20 @@ function generateStats(uri, plex_token, callback) {
 
                     section_album_genres_count[section_key] = {};
                     // get all songs for section
-                    getAllSongs(uri, plex_token, section_key, function(songs) {
+                    getAllSongs(uri, plex_token, section_key, function (songs) {
                         all_songs = all_songs.concat(songs);
                         section_songs[section_key] = songs;
 
                         // because the plex web api calls for library sections only returns the first two genres
                         // of each album we need to get all the genre mappings first and count the number of albums
                         // returned by the api with that genre filtered out
-                        getSectionGenres(uri, plex_token, section_key, function(genres) {
+                        getSectionGenres(uri, plex_token, section_key, function (genres) {
                             task_counter += Object.keys(genres).length;
 
                             for (var genre_key in genres) {
                                 (function (genre_key) {
                                     var genre_title = genres[genre_key];
-                                    getAlbumsByGenre(uri, plex_token, section_key, genre_key, function(genre_albums) {
+                                    getAlbumsByGenre(uri, plex_token, section_key, genre_key, function (genre_albums) {
                                         if (album_genres_count[genre_title]) {
                                             album_genres_count[genre_title] += genre_albums.length;
                                         }
@@ -831,7 +832,7 @@ function generateStats(uri, plex_token, callback) {
                     });
 
                     task_counter++;
-                    getAllAlbums(uri, plex_token, section_key, function(albums) {
+                    getAllAlbums(uri, plex_token, section_key, function (albums) {
                         all_albums = all_albums.concat(albums);
                         section_albums[section_key] = albums;
 
@@ -859,7 +860,7 @@ function getStats(server, section, force, callback) {
         cache_key = "cache-stats-" + machine_identifier;
     }
 
-    utils.local_storage_get(cache_key, function(data) {
+    utils.local_storage_get(cache_key, function (data) {
         // if force is true then we are recalculating stats
         if (data && !force) {
             utils.debug("Cache hit for " + cache_key);
@@ -872,12 +873,12 @@ function getStats(server, section, force, callback) {
                 var movie_stats = data["movie_stats"];
                 var show_stats = data["show_stats"];
                 var music_stats = data["music_stats"];
-                callback({"movie_stats": movie_stats, "show_stats": show_stats, "music_stats": music_stats}, timestamp);
+                callback({ "movie_stats": movie_stats, "show_stats": show_stats, "music_stats": music_stats }, timestamp);
             }
         }
         else {
             utils.debug("Cache miss for " + cache_key);
-            generateStats(uri, plex_token, function(movie_stats, movie_section_stats, show_stats, show_section_stats, music_stats, music_section_stats) {
+            generateStats(uri, plex_token, function (movie_stats, movie_section_stats, show_stats, show_section_stats, music_stats, music_section_stats) {
                 if (movie_stats === null) {
                     // couldn't reach server to get data
                     utils.debug("Couldn't reach server " + uri + " to get stat data");
@@ -885,25 +886,25 @@ function getStats(server, section, force, callback) {
                     return;
                 }
                 var timestamp = new Date().getTime();
-                var hash = {"name": name, "movie_stats": movie_stats, "show_stats": show_stats, "music_stats": music_stats, "timestamp": timestamp};
+                var hash = { "name": name, "movie_stats": movie_stats, "show_stats": show_stats, "music_stats": music_stats, "timestamp": timestamp };
                 utils.local_storage_set(cache_key, hash);
 
                 for (var section_key in movie_section_stats) {
-                    var section_hash = {"stats": movie_section_stats[section_key], "timestamp": timestamp};
+                    var section_hash = { "stats": movie_section_stats[section_key], "timestamp": timestamp };
                     utils.local_storage_set("cache-stats-" + machine_identifier + "-" + section_key, section_hash);
                 }
 
                 for (var section_key in show_section_stats) {
-                    var section_hash = {"stats": show_section_stats[section_key], "timestamp": timestamp};
+                    var section_hash = { "stats": show_section_stats[section_key], "timestamp": timestamp };
                     utils.local_storage_set("cache-stats-" + machine_identifier + "-" + section_key, section_hash);
                 }
 
                 for (var section_key in music_section_stats) {
-                    var section_hash = {"stats": music_section_stats[section_key], "timestamp": timestamp};
+                    var section_hash = { "stats": music_section_stats[section_key], "timestamp": timestamp };
                     utils.local_storage_set("cache-stats-" + machine_identifier + "-" + section_key, section_hash);
                 }
 
-                callback({"movie_stats": movie_stats, "show_stats": show_stats, "music_stats": music_stats}, timestamp);
+                callback({ "movie_stats": movie_stats, "show_stats": show_stats, "music_stats": music_stats }, timestamp);
             });
         }
     });
@@ -929,7 +930,7 @@ function updateNav() {
         var section_name = active_section["title"];
         var section_name_span = document.createElement("span");
         section_name_span.setAttribute("id", "active-section-name");
-        var section_name_text_node = document.createTextNode("(" + section_name+ ")");
+        var section_name_text_node = document.createTextNode("(" + section_name + ")");
         section_name_span.appendChild(section_name_text_node);
         server_name_element.appendChild(section_name_span);
     }
@@ -957,7 +958,7 @@ function addSectionSelections() {
     for (var server in servers) {
         (function (server) {
             sections[server] = {};
-            getSections(servers[server]["uri"], servers[server]["access_token"], function(sections_xml) {
+            getSections(servers[server]["uri"], servers[server]["access_token"], function (sections_xml) {
                 var server_picker;
                 var server_choices = document.getElementsByClassName("server-choice");
                 for (var i = 0; i < server_choices.length; i++) {
@@ -996,7 +997,7 @@ function addSectionSelections() {
 
                 var processed_sections = processLibrarySections(sections_xml);
                 // sort section keys by section type
-                var sorted_keys = Object.keys(processed_sections).sort(function(a, b) {
+                var sorted_keys = Object.keys(processed_sections).sort(function (a, b) {
                     return processed_sections[a]["type"] > processed_sections[b]["type"];
                 });
 
@@ -1007,7 +1008,7 @@ function addSectionSelections() {
 
                     var title = processed_sections[section_key]["title"];
                     var type = processed_sections[section_key]["type"];
-                    sections[server][section_key] = {"title": title, "type": type};
+                    sections[server][section_key] = { "title": title, "type": type };
 
                     var li = document.createElement("li");
                     var section_element = document.createElement("a");
@@ -1053,7 +1054,7 @@ function switchToServer(server, section_key, refresh) {
     // update the nav with new active server
     updateNav();
 
-    getStats(server, section_key, refresh, function(stats, last_updated) {
+    getStats(server, section_key, refresh, function (stats, last_updated) {
         if (stats === null) {
             // couldn't reach server to get data
             document.getElementById("loading-indicator").style.display = "none";
@@ -1061,7 +1062,7 @@ function switchToServer(server, section_key, refresh) {
             return;
         }
 
-        var statsPresentForType = function(type) {
+        var statsPresentForType = function (type) {
             var stats_type = stats[type + "_stats"]
             for (var key in stats_type) {
                 var stats_keys = Object.keys(stats_type[key]).sort();
@@ -1153,8 +1154,8 @@ function setLastUpdated(timestamp) {
 
 
 // init
-utils.storage_get_all(function(settings) {
-    getServerAddresses(function(pms_servers) {
+utils.storage_get_all(function (settings) {
+    getServerAddresses(function (pms_servers) {
         // check to make sure user has opened plex/web first so we can receive server addresses
         if (!pms_servers) {
             document.getElementById("loading-indicator").style.display = "none";
@@ -1169,16 +1170,6 @@ utils.storage_get_all(function(settings) {
 
         servers = pms_servers;
 
-        // override server addresses if defined in settings
-        if (settings["plex_server_uri"] !== "") {
-            utils.debug("Plex servers manual override");
-            utils.debug("Setting server addresses as " + settings["plex_server_uri"]);
-
-            for (var server in servers) {
-                servers[server]["uri"] = settings["plex_server_uri"];
-            }
-        }
-
         // just load first server from array on first page load
         active_server = Object.keys(servers)[0];
         utils.debug("set active server as " + active_server);
@@ -1190,17 +1181,17 @@ utils.storage_get_all(function(settings) {
 
         // add event handlers for last updated nav bar element
         var server_updated_element = document.getElementById("server-updated");
-        server_updated_element.addEventListener("mouseover", function(e) {
+        server_updated_element.addEventListener("mouseover", function (e) {
             server_updated_element.innerHTML = "recalculate server stats";
-            }, false
+        }, false
         );
-        server_updated_element.addEventListener("mouseout", function(e) {
+        server_updated_element.addEventListener("mouseout", function (e) {
             server_updated_element.innerHTML = last_updated_string;
-            }, false
+        }, false
         );
-        server_updated_element.addEventListener("click", function(e) {
+        server_updated_element.addEventListener("click", function (e) {
             recalculateServerStats();
-            }, false
+        }, false
         );
     });
 });

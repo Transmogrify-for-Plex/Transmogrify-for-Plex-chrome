@@ -7,7 +7,6 @@ function saveOptions() {
     var trakt_shows = document.querySelector("input[name='trakt_shows']").checked;
     var missing_episodes = document.querySelector("input[name='missing_episodes']:checked").value;
     var stats_link = document.querySelector("input[name='stats_link']:checked").value;
-    var plex_server_uri = document.querySelector("input[name='plex_server_uri']").value;
 
     var debug = document.querySelector("input[name='debug']:checked").value;
     var debug_unfiltered = document.querySelector("input[name='debug_unfiltered']:checked").value;
@@ -40,7 +39,6 @@ function saveOptions() {
     else {
         utils.storage_set("trakt_shows", "off");
     }
-    utils.storage_set("plex_server_uri", plex_server_uri);
 
     utils.storage_set("debug", debug);
     utils.storage_set("debug_unfiltered", debug_unfiltered);
@@ -92,9 +90,6 @@ function restoreOptions() {
             else {
                 trakt_shows_checkbox.checked = false;
             }
-
-            var plex_server_uri = document.getElementById("plex_server_uri");
-            plex_server_uri.value = results["plex_server_uri"];
 
             var debug_radio_button = document.getElementById("debug_" + results["debug"]);
             debug_radio_button.checked = true;

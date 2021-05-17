@@ -6,7 +6,6 @@ trakt_api = {
         'trakt-api-key': utils.getApiKey("trakt")
     },
 
-    // TODO
     doSearch: function (query, search_type, year, callback) {
         var search_critera = search_type == "imdb" ? "id_type=imdb&id=" : "type=movie&year=" + year + "&query=";
         var api_url = "https://api.trakt.tv/search?" + search_critera + encodeURIComponent(query);

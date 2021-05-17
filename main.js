@@ -317,9 +317,6 @@ document.onreadystatechange = function () {
                     runOnReady();
                 });
 
-                //observer.observe(document.getElementsByClassName("MetadataPosterCard-cardContainer")[0], { subtree: true, childList: true });
-                //observer.observe(document.querySelectorAll("[class*=MetadataPosterCard-cardContainer]")[0], { subtree: true, childList: true });
-
                 // use plex.tv for API requests if we have plex token, otherwise use server URL
                 // as user is on local server and not signed in
                 var requests_url;
@@ -371,12 +368,6 @@ document.onreadystatechange = function () {
                                 server = {};
                             }
                             var section = library_sections[machine_identifier][section_num];
-
-                            // override server address if defined in settings
-                            if (settings["plex_server_uri"] != "") {
-                                utils.debug("Main: Plex server manual override");
-                                server["uri"] = settings["plex_server_uri"];
-                            }
                         });
                     }
 
@@ -389,12 +380,6 @@ document.onreadystatechange = function () {
                         utils.debug("Main: Metadata id - " + parent_item_id);
 
                         var server = server_addresses[machine_identifier];
-
-                        // override server address if defined in settings
-                        if (settings["plex_server_uri"] != "") {
-                            utils.debug("Main: Plex server manual override");
-                            server["uri"] = settings["plex_server_uri"];
-                        }
 
                         // construct metadata xml link
                         utils.debug("Fetching metadata for id - " + parent_item_id);

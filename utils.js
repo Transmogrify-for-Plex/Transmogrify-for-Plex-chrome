@@ -47,12 +47,12 @@ utils = {
     },
 
     getOptionsURL: function () {
-        var options_url = chrome.extension.getURL("options.html");
+        var options_url = chrome.runtime.getURL("options.html");
         return options_url;
     },
 
     getStatsURL: function () {
-        var stats_url = chrome.extension.getURL("stats.html");
+        var stats_url = chrome.runtime.getURL("stats.html");
         return stats_url;
     },
 
@@ -177,7 +177,7 @@ utils = {
     },
 
     getResourcePath: function (resource) {
-        return chrome.extension.getURL("resources/" + resource);
+        return chrome.runtime.getURL("resources/" + resource);
     },
 
     getApiKey: function (api_name) {
@@ -297,9 +297,12 @@ utils = {
             if (!("trakt_shows" in settings)) {
                 utils.storage_set("trakt_shows", "on");
             }
+            if (!("imdb_movies" in settings)) {
+                utils.storage_set("imdb_movies", "on");
+            }
 
-            if (!("plex_server_uri" in settings)) {
-                utils.storage_set("plex_server_uri", "");
+            if (!("imdb_shows" in settings)) {
+                utils.storage_set("imdb_shows", "on");
             }
 
             if (!("themoviedb_link" in settings)) {

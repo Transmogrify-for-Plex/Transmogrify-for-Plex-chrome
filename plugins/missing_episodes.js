@@ -21,22 +21,6 @@ missing_episodes = {
         var agent = directory_metadata.getAttribute("guid");
         var season_num = directory_metadata.getAttribute("index");
 
-        /*var tvdb_id;
-        // check if using the tvdb metadata agent
-        if (/com\.plexapp\.agents\.thetvdb/.test(agent)) {
-            tvdb_id = agent.match(/^com\.plexapp\.agents\.thetvdb:\/\/(\d+)\//)[1];
-            utils.debug("missing_episodes plugin: tvdb id found - " + tvdb_id);
-        }
-        // check if using the XBMCnfoTVImporter agent
-        else if (/com\.plexapp\.agents\.xbmcnfotv/.test(agent)) {
-            tvdb_id = agent.match(/^com\.plexapp\.agents\.xbmcnfotv:\/\/(\d+)\//)[1];
-            utils.debug("missing_episodes plugin: tvdb id found - " + tvdb_id);
-        }
-        else {
-            utils.debug("missing_episodes plugin: Agent is not tvdb. Aborting");
-            return;
-        }*/
-
         utils.debug("missing_episodes plugin: Finding all present and all existing episodes");
 
         var show_name = missing_episodes.metadata_xml.getElementsByTagName("MediaContainer")[0].getElementsByTagName("Directory")[0].getAttribute("parentTitle");
@@ -102,9 +86,6 @@ missing_episodes = {
                 // check if page changed before inserting tiles
                 if (current_hash === location.hash) {
                     missing_episodes.insertSeasonTiles(tiles_to_insert);
-                    // 20150803 - v2 API for trakt.tv does not appear to give air dates like before
-                    // Fetch season air dates and insert them into tiles
-                    // missing_episodes.insertSeasonAirdates(tvdb_id, tiles_to_insert);
                 }
                 else {
                     utils.debug("missing_episodes plugin: Page changed before season tiles could be inserted");
@@ -320,7 +301,6 @@ missing_episodes = {
     },
 
     insertSeasonTiles: function (season_tiles) {
-        //var season_tile_list = document.getElementsByClassName("season-tile-list")[0];
         var season_tile_list = document.querySelectorAll("[class*=MetadataPosterListItem-card-]")[0].parentElement.parentElement;
         season_tile_list.style.padding = "0 50px 20px";
         var season_tile_list_elements = season_tile_list.children;
